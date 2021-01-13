@@ -1,0 +1,138 @@
+<div class="card">
+	<div class="card-body">
+		<h4 class="mb-35"><strong>جدول مواعيد الأطباء</strong></h4>
+
+		<form #form="ngForm" role="form" autocomplete="off" (ngSubmit)="getSchedule()">
+			<div class="row">
+				<div class="col-12 col-md-6 mx-auto">
+					<div class="form-group"
+						[class.error]="doctorModel.invalid && (doctorModel.dirty || doctorModel.touched)">
+						<label for="doctor">الطبيب</label>
+						<select-dropdown [items]="doctors" [(ngModel)]="doctor" #doctorModel="ngModel"
+							controlId="doctor" name="doctor" placeholder="يرجى إختيار الطبيب" required>
+						</select-dropdown>
+						<span class="error-label">هذا الحقل مطلوب</span>
+					</div>
+				</div>
+
+				<div class="col-12 mt-30 mx-auto">
+					<button class="btn btn-primary" type="submit" [disabled]="form.invalid">
+						عرض الجدول
+					</button>
+					<button class="btn btn-default mr-10" type="button" (click)="form.reset()">إلغاء</button>
+				</div>
+			</div>
+		</form>
+	</div>
+</div>
+
+<div class="mt-50">
+	<div *ngIf="!schedule" center>
+		<img src="assets/images/no-results.svg" width="100" class="mb-15 op-20">
+		<p>لم يتم إختيار طبيب بعد!</p>
+	</div>
+
+	<div class="row" *ngIf="schedule">
+		<div *ngIf="schedule.length" class="alert col-md-3 font-bold alert-custom alert-danger">
+			ملحوظة ! <br>لتعديل ميعاد برجاء الضغط علية  
+		</div>
+		<div class="col-12 col-md-3 mb-15" *ngFor="let _schedule of schedule">
+			<div class="card schedule-card">
+				<div class="card-body" (click)="edit(_schedule)">
+					<div>
+						<h4 class="mt-10 mb-25"><strong>{{ _schedule.day }}</strong></h4>
+						<p class="mb-5">
+							<strong class="w-100 d-inline-block">ميعاد البدأ: </strong>
+							<span class="en-font">{{ '1/1/1 ' + _schedule.start_time | amDateFormat:'hh:mm A' }}</span>
+						</p>
+						<p class="mb-5">
+							<strong class="w-100 d-inline-block">ميعاد الإنتهاء: </strong>
+							<span class="en-font">{{ '1/1/1 ' + _schedule.end_time | amDateFormat:'hh:mm A' }}</span>
+						</p>
+					</div>
+				</div>
+				<button class="btn btn-danger" (click)="deleteModal.show(); deleteId = _schedule._id">حذف</button>
+			</div>
+		</div>
+
+		<div *ngIf="daysFiltered.length > 0" class="col-12 col-md-3 mb-15" (click)="formSchedule.reset(); scheduleModal.show()">
+			<div class="card schedule-card">
+				<div class="card-body">
+					<div center>
+						<i class="icon ion-md-add ts-40"></i>
+						<p>إضافة يوم</p>
+					</div>
+				</div>
+			</div>
+		</div>
+	</div>
+</div>
+
+<div bsModal #scheduleModal="bs-modal" class="modal fade" tabindex="-1" role="dialog">
+	<div class="modal-dialog">
+		<div class="modal-content">
+			<div class="modal-body">
+				<h4 class="mb-35"><strong>{{ editId ? 'تعديل' : 'إضافة' }} جدول طبيب</strong></h4>
+
+				<form #formSchedule="ngForm" role="form" autocomplete="off" (ngSubmit)="submitScheduleForm()">
+					<div class="row">
+						<div class="col-12">
+							<div class="form-group" [class.error]="day.invalid && (day.dirty || day.touched)">
+								<label for="day">يوم الإسبوع</label>
+								<select-dropdown [items]="editId ? days : daysFiltered" [(ngModel)]="addModel.day_of_week" #day="ngModel"
+									controlId="day" name="day" placeholder="يرجى إختيار يوم الإسبوع" required>
+								</select-dropdown>
+								<span class="error-label">هذا الحقل مطلوب</span>
+							</div>
+						</div>
+
+						<div class="col-12">
+							<div class="form-group" [class.error]="start.invalid && (start.dirty || start.touched)">
+								<label for="start">ساعة البدء</label>
+								<input [ngxTimepicker]="startPicker" type="text" dir="ltr" class="form-control" [(ngModel)]="addModel.start_time"
+									#start="ngModel" id="start" name="start" placeholder="ساعة البدء" text-right required>
+								<ngx-material-timepicker #startPicker></ngx-material-timepicker>
+								<span class="error-label">هذا الحقل مطلوب</span>
+							</div>
+						</div>
+
+						<div class="col-12">
+							<div class="form-group" [class.error]="end.invalid && (end.dirty || end.touched)">
+								<label for="end">ساعة الإنتهاء</label>
+								<input [ngxTimepicker]="endPicker" type="text" dir="ltr" class="form-control" [(ngModel)]="addModel.end_time" #end="ngModel"
+									id="end" name="end" placeholder="ساعة الإنتهاء" text-right required>
+								<ngx-material-timepicker #endPicker></ngx-material-timepicker>
+								<span class="error-label">هذا الحقل مطلوب</span>
+							</div>
+						</div>
+
+						<div class="col-12 mt-30 mx-auto">
+							<button class="btn btn-primary" type="submit" [disabled]="formSchedule.invalid">
+								{{ editId ? 'حفظ التعديلات' : 'إضافة الجدول' }}
+							</button>
+							<button class="btn btn-default mr-10" type="button"
+								(click)="scheduleModal.hide(); formSchedule.reset(); editId = null">إلغاء</button>
+						</div>
+					</div>
+				</form>
+			</div>
+		</div>
+	</div>
+</div>
+
+<div bsModal #deleteModal="bs-modal" class="modal fade" tabindex="-1" role="dialog">
+	<div class="modal-dialog modal-sm">
+		<div class="modal-content">
+			<div class="modal-body">
+				<h5 class="mb-25">لا يمكنك التراجع عن الحذف, تأكيد؟</h5>
+
+				<button type="button" class="btn btn-default ml-10" (click)="deleteModal.hide(); deleteId = null">
+					إلغاء
+				</button>
+				<button type="button" class="btn btn-danger" (click)="deleteModal.hide(); delete()">
+					تأكيد الحذف
+				</button>
+			</div>
+		</div>
+	</div>
+</div>

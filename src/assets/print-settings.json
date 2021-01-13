@@ -1,0 +1,50 @@
+{
+    "bill": {
+        "left": "141px",
+        "top": "164px"
+    },
+    "patientName": {
+        "left": "141px",
+        "top": "192px"
+    },
+    "patientNumber": {
+        "left": "141px",
+        "top": "226px"
+    },
+    "date": {
+        "left": "591px",
+        "top": "164px"
+    },
+    "time": {
+        "left": "591px",
+        "top": "192px"
+    },
+    "doctor": {
+        "left": "591px",
+        "top": "226px"
+    },
+    "servicesTop": 288,
+    "servicesHeight": 20,
+    "serviceEmpty": "63px",
+    "serviceName": "162px",
+    "servicePrice": "337px",
+    "serviceDiscount": "447px",
+    "serviceDiscountPrice": "549px",
+    "serviceTotalPrice": "660px",
+    "username": {
+        "left": "149px",
+        "top": "392px"
+    },
+    "paidAmount": {
+        "left": "149px",
+        "top": "423px"
+    },
+    "invoiceTotal": {
+        "left": "660px",
+        "top": "392px"
+    },
+    "invoiceRemaining": {
+        "left": "660px",
+        "top": "423px"
+    }
+}

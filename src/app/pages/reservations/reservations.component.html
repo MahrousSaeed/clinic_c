@@ -1,0 +1,967 @@
+<div class="row">
+	<div class="col-12 mb-50">
+		<div class="card">
+			<div class="card-body">
+				<div class="container">
+					<h4 class="mb-35">
+						<strong>إضافة حجز جديد</strong>
+					</h4>
+
+					<form #form="ngForm" role="form" autocomplete="off" (ngSubmit)="submitForm()">
+						<div class="row">
+							<div class="col-12 col-md-6" [class.calert]="hadParam">
+								<div class="form-group"
+									[class.error]="patient.invalid && (patient.dirty || patient.touched)">
+									<label for="patient">العميل</label>
+									<select-dropdown [items]="patients" [(ngModel)]="addModel.patient"
+										#patient="ngModel" controlId="patient" (changed)="patientChanged($event)" name="patient"
+										placeholder="يرجى إختيار العميل" required>
+									</select-dropdown>
+								</div>
+							</div>
+							<div class="col-12 col-md-6 position-relative">
+								<div class="form-group"
+									[class.error]="doctor.invalid && (doctor.dirty || doctor.touched)">
+									<label for="doctor">الطبيب</label>
+									<select-dropdown [items]="doctors" [(ngModel)]="addModel.doctor" #doctor="ngModel"
+										controlId="doctor" name="doctor" (changed)="doctorChanged($event)"
+										placeholder="يرجى إختيار الطبيب" required>
+									</select-dropdown>
+									<span class="error-label">هذا الحقل مطلوب</span>
+								</div>
+								<button type="button" class="btn btn-primary dates_btn" *ngIf="doctor_changed"
+									(click)="dates_modal.show()">جدول الطبيب</button>
+							</div>
+
+							<div class="col-12 col-md-4">
+								<div class="form-group" [class.error]="date.invalid && (date.dirty || date.touched)">
+									<label for="date">التاريخ</label>
+									<input type="text" class="form-control" [(ngModel)]="addModel.date" #date="ngModel"
+										(bsValueChange)="dateChanged($event)" id="date" name="date"
+										placeholder="يرجى إختيار التاريخ" bsDatepicker
+										[minDate]="editId ? null : currentDate" required>
+									<!-- [disabled]="!addModel.doctor" -->
+									<!--[daysDisabled]="daysDisabled"-->
+									<span class="error-label">هذا الحقل مطلوب</span>
+
+									<div class="mt-5" *ngIf="doctorDays.length > 0">
+										<p *ngIf="timeInputs_flag" style="color: red">هذا اليوم غير متاح للطبيب</p>
+										<strong class="ts-12 ml-5">أيام عمل الطبيب: </strong>
+										<span class="badge badge-info ml-5"
+											*ngFor="let day of doctorDays">{{ day.title }} </span>
+									</div>
+								</div>
+							</div>
+							<!-- <div class="col-12 col-md-6">
+								<div class="form-group" [class.error]="time.invalid && (time.dirty || time.touched)">
+									<label for="time">الوقت</label>
+									<select-dropdown [items]="hours" [(ngModel)]="addModel.time" #time="ngModel"
+										controlId="time" name="time" [isDisabled]="!addModel.doctor" controlType="time"
+										placeholder="يرجى إختيار الوقت" required>
+									</select-dropdown>
+									<span class="error-label">هذا الحقل مطلوب</span>
+								</div>
+							</div> -->
+							<div class="col-12 col-md-4">
+								<div class="form-group" [class.error]="time.invalid && (time.dirty || time.touched)">
+									<label for="time">بداية الحجز</label>
+									<input [ngxTimepicker]="timePicker" type="text" class="form-control" name="time"
+										id="time" [disabled]='timeInputs_flag' [min]="selected_date_times?.start_time || offlineMinTime"
+										[(ngModel)]="addModel.time" placeholder="وقت بداية الحجز"
+										#time="ngModel" dir="ltr" text-right required (keydown)="timeKeyUp($event)">
+									<ngx-material-timepicker #timePicker></ngx-material-timepicker>
+									<span class="error-label">هذا الحقل مطلوب</span>
+								</div>
+							</div>
+							<div class="col-12 col-md-4">
+								<div class="form-group"
+									[class.error]="end_time.invalid && (end_time.dirty || end_time.touched)">
+									<label for="time">نهاية الحجز</label>
+									<input [ngxTimepicker]="timePickerr" type="text" (ngModelChange)="endTimeChanged($event)"class="form-control"
+										name="end_time" id="end_time" [disabled]='timeInputs_flag'
+										[(ngModel)]="addModel.end_time" [min]="addModel.time"
+										placeholder="وقت انتهاء الحجز"
+										#end_time="ngModel" dir="ltr" text-right required
+										(keydown)="endtimeKeyUp($event)">
+									<ngx-material-timepicker #timePickerr></ngx-material-timepicker>
+									<span class="error-label">هذا الحقل مطلوب</span>
+									<span *ngIf="endTimeFlag && globals.isOnline" style="color: red;" >وقت انتهاء الحجز يجب ان يكون اقل من {{selected_date_times?.end_time}}</span>
+
+								</div> 
+							</div>
+
+							<div class="col-12">
+								<div class="form-group">
+									<label for="notes">ملاحظات</label>
+									<textarea class="form-control" [(ngModel)]="addModel.notes" id="notes" name="notes"
+										placeholder="ملاحظات"></textarea>
+								</div>
+							</div>
+							<div class="col-12 col-md-12">
+								<div class="form-group" clearfix>
+									<label for="services">الخدمات
+										<span class="op-50 mr-5">(إختيارى)</span>
+									</label>
+									<select-dropdown [items]="services" [(ngModel)]="currentService" #servicee="ngModel"
+										controlId="servicee" name="servicee" width="calc(100% - 100px)"
+										placeholder="يرجى إختيار الخدمة">
+									</select-dropdown>
+									<button type="button" class="btn btn-primary h-35 mt--40 ml-5"
+										tooltip="إضافة الخدمة" [disabled]="!currentService || currentService == -1"
+										(click)="addService1()" left>
+										إضافة
+									</button>
+								</div>
+
+								<div *ngIf="addModel.services.length == 0" class="mt-50 mb-50" center>
+									<!-- <img src="assets/images/no-results.svg" width="80" class="op-20 mb-15"> -->
+									<p class="op-70">
+										<strong>لم يتم إختيار خدمات بعد!</strong>
+									</p>
+								</div>
+
+								<div *ngIf="addModel.services.length > 0" class="row">
+									<div class="col-6 mb-15" text-right>
+										<strong>{{ addModel.services.length }}</strong> إجمالى الخدمات
+									</div>
+									<div class="col-6 mb-15" text-left>
+										<strong>{{ getServicesTotal1() }}</strong> إجمالى السعر
+										<div>
+											<!-- *ngIf="disFlag" -->
+											<strong>{{ servicesMainTotal1 }}</strong> إجمالى بعد الخصم
+										</div>
+									</div>
+
+									<div *ngFor="let s of addModel.services; let i = index" class="col-12">
+										<div class="alert alert-info mb-7" text-right clearfix>
+											<span class="d-inline-block mt-14">
+												<strong>{{ s?.name }}</strong>
+											</span>
+
+											<button type="button" class="btn btn-danger float-left mr-20 mt-6"
+												(click)="addModel.services.splice(i, 1)">حذف</button>
+											<div class="float-left mr-15">
+												<p class="m-0 mb-3 op-60 ts-12">الإجمالى</p>
+												<p class="m-0 serviceTotal1">
+													{{ s.discount > 100 ? 0 : s.price - ((s.discount * s.price) / 100) }}
+												</p>
+											</div>
+											<div class="float-left">
+												<p class="m-0 mb-3 op-60 ts-12">الخصم %</p>
+												<input type="number" [(ngModel)]="s.discount" max="100" min="0"
+													(keyup)="calcTotalAfterDiscount1()" class="w-80"
+													[name]="'services' + i" (keydown)="globals.preventNegative($event)">
+											</div>
+											<div class="float-left ml-5">
+												<p class="m-0 mb-3 op-60 ts-12"> السعر</p>
+												<input type="number" [(ngModel)]="s.price" #price='ngModel' min="0"
+													class="w-80" [name]="'price' + i " required>
+											</div>
+										</div>
+									</div>
+								</div>
+							</div>
+							<div class="col-12 mt-30">
+								<button class="btn btn-primary" type="submit" [disabled]="form.invalid ">
+									<!-- || (endTimeFlag && globals.isOnline ) -->
+									{{ editId ? 'حفظ التعديل' : 'إضافة الحجز' }}
+								</button>
+								<button class="btn btn-default mr-10" type="button" (click)="resetForm()">
+									مسح النموذج
+								</button>
+								<button *ngIf="editId" class="btn btn-default mr-10 float-left" type="button"
+									(click)="cancel()">إلغاء التعديل</button>
+							</div>
+						</div>
+					</form>
+				</div>
+			</div>
+		</div>
+	</div>
+
+	<div class="col-12">
+		<div class="row">
+			<div class="col-12 d-flex" style="justify-content:space-evenly" [class.disabled]="!globals.isOnline">
+				<button class="btn btn-default h-45 flex-1" [class.btn-primary]="reservationType == 1"
+					(click)="getReservations(1, 1)">حجوزات اليوم
+				</button>
+				<button class="btn btn-default h-45 flex-1" [class.btn-primary]="reservationType == 2"
+					(click)="getReservations(2, 1)">حجوزات الشهر
+				</button>
+				<button class="btn btn-default h-45 flex-1" [class.btn-primary]="reservationType == 3"
+					(click)="reservationType = 3; firstTime = false; data = []; dataFiltered = []">حجوزات</button>
+			</div>
+
+			<div [hidden]="reservationType == 3" class="col-12">
+				<div class="card">
+					<div class="card-body">
+						<div class="row mb-35" [class.disabled]="!globals.isOnline">
+							<div class="col-12" style="color:red">
+								<p class="mb-0"><strong>* يجب الضغط على زر ENTER لعمل عملية البحث</strong></p>
+								<p><strong>* للرجوع للنتائج الكاملة بعد البحث يجب مسح الخانة و الضغط على ENTER</strong>
+								</p>
+							</div>
+							<div class="col-12 col-md-3">
+								<!-- <input type="text" class="form-control search" [(ngModel)]="filterNumber" (keyup)="filterData('number')" placeholder="رقم الملف"> -->
+								<input type="text" class="form-control search" [(ngModel)]="filterNumber"
+									(keyup)="filterReservations($event, 'filterNumber', filterNumber)"
+									placeholder="رقم الملف">
+							</div>
+							<div class="col-12 col-md-3">
+								<!-- <input type="text" class="form-control search" [(ngModel)]="filterMobile" (keyup)="filterData('mobile')" placeholder="رقم الجوال"> -->
+								<input type="text" class="form-control search" [(ngModel)]="filterMobile"
+									(keyup)="filterReservations($event, 'filterMobile', filterMobile)"
+									placeholder="رقم الجوال">
+							</div>
+							<div class="col-12 col-md-3">
+								<!-- <input type="text" class="form-control search" [(ngModel)]="filterName" (keyup)="filterData('name')" placeholder="العميل"> -->
+								<input type="text" class="form-control search" [(ngModel)]="filterName"
+									(keyup)="filterReservations($event, 'filterName', filterName)" placeholder="العميل">
+							</div>
+
+							<div class="col-12 col-md-3">
+								<select class="form-control" [(ngModel)]="sort" (change)="filterData()">
+									<option value="1">ترتيب الأحدث للأقدم</option>
+									<option value="2">ترتيب الأقدم للأحدث</option>
+								</select>
+							</div>
+						</div>
+
+						<ngx-datatable [rows]="dataFiltered" [footerHeight]="50">
+							<ngx-datatable-column name="رقم العميل" prop="patient.number" [maxWidth]="110">
+								<ng-template let-row="row" ngx-datatable-cell-template>
+									{{ row.patient ? (row.patient.number != "null" && row.patient.number != null ? row.patient.number : '-') : 'تم الحذف' }}
+								</ng-template>
+							</ngx-datatable-column>
+							<ngx-datatable-column name="العميل" prop="patient.name_ar" [maxWidth]="180">
+								<ng-template let-row="row" ngx-datatable-cell-template>
+									{{ row.patient ? row.patient.name_ar : 'تم الحذف' }}
+								</ng-template>
+							</ngx-datatable-column>
+							<ngx-datatable-column name="الدكتور" prop="doctor.name" [maxWidth]="180">
+								<ng-template let-row="row" ngx-datatable-cell-template>
+									{{ row.doctor ? row.doctor.name : 'تم الحذف' }}
+								</ng-template>
+							</ngx-datatable-column>
+							<ngx-datatable-column name="التاريخ" prop="date" [maxWidth]="130">
+								<ng-template let-row="row" ngx-datatable-cell-template>
+									<!-- <p class="mb-2">{{ row.createdAt | amLocale:'ar' | amTimeAgo }}</p> -->
+									<p class="ts-12 op-60 mb-0">
+										{{ row.startDate | amDateFormat:'DD' }}
+										{{ row.startDate | amLocale:'ar' | amDateFormat:'MMMM' }} 
+										{{ row.startDate | amDateFormat:'YYYY'}}
+									</p>
+								</ng-template>
+							</ngx-datatable-column>
+							<ngx-datatable-column name="من" prop="time" [maxWidth]="90">
+								<ng-template let-row="row" ngx-datatable-cell-template>
+									<span>
+										<!-- {{row.startTime}} -->
+										{{ '1/1/1 ' + row.startTime | amDateFormat:'hh:mm' }}
+										{{ '1/1/1 ' + row.startTime | amLocale:'ar' | amDateFormat:'A' }}
+									</span>
+								</ng-template>
+							</ngx-datatable-column>
+							<ngx-datatable-column name="الي " prop="time" [maxWidth]="90">
+								<ng-template let-row="row" ngx-datatable-cell-template>
+									<span>
+										<!-- {{row.endTime}} -->
+										{{ '1/1/1 ' + row.endTime | amDateFormat:'hh:mm' }}
+										{{ '1/1/1 ' + row.endTime | amLocale:'ar' | amDateFormat:'A' }}
+									</span>
+								</ng-template>
+							</ngx-datatable-column>
+							<ngx-datatable-column name="إدارة">
+								<ng-template let-row="row" let-rowIndex="rowIndex" ngx-datatable-cell-template>
+									<button class="btn btn-danger mr-5" tooltip="حذف"
+										*ngIf="!row.isDeleted && row.status?._id != '5c8e1fd01c5c323f54e0a804' && row.status?._id != '5cb8c2b9bfaae1089bda11e2'"
+										(click)="deleteModal.show(); deleteId = row._id">
+										{{ row.isDeleted ? 'تم الحذف' : 'حذف' }}
+									</button>
+									<button class="btn btn-primary mr-5" tooltip="تعديل"
+										*ngIf="!row.isDeleted && !row.patient?.isDeleted && !row.doctor?.isDeleted && row.status?._id != '5c8e1fd01c5c323f54e0a804' && row.status?._id != '5cb8c2b9bfaae1089bda11e2'"
+										(click)="edit(row._id)">
+										تعديل
+									</button>
+									<button class="btn btn-primary mr-5" tooltip="تكملة البيانات"
+										*ngIf="!row.isDeleted && !row.patient?.isDeleted && !row.doctor?.isDeleted && row.status?._id != '5c8e1fd01c5c323f54e0a804'"
+										(click)="complete(row)">
+										البيانات
+									</button>
+									<button *ngIf="row.status?._id != '5c8e1fd01c5c323f54e0a804'"
+										class="btn btn-success mr-5" tooltip="إنشاء الفاتورة"
+										[disabled]="row.servicesCount == 0 || (row.paymentType && row.paymentType.length == 0) || (row.paymentTypeValues && row.paymentTypeValues.length == 0)"
+										(click)="printInvoice(row._id)">
+										الفاتورة
+									</button>
+									<button
+										*ngIf="!row.isDeleted && row.status?._id == '5c8e1fd01c5c323f54e0a804' && !row.patient?.isDeleted && !row.doctor?.isDeleted"
+										class="btn btn-outline-success mr-5" disabled>
+										<i class="icon ion-md-checkmark ml-5"></i>
+										<strong>جارى الكشف الآن</strong>
+									</button>
+									<button
+										*ngIf="!row.isDeleted && row.status?._id != '5c8e1fd01c5c323f54e0a804' && row.status?._id != '5c8e1fd41c5c323f54e0a805'  && !row.patient?.isDeleted && !row.doctor?.isDeleted && row.status?._id != '5cb8c2b9bfaae1089bda11e2'"
+										class="btn btn-outline-primary mr-5" tooltip="إرسال للطبيب"
+										(click)="gotoDoctor(row)" [class.disabled]="!globals.isOnline">
+										إرسال للطبيب
+										<i class="icon ion-md-arrow-round-back"></i>
+									</button>
+
+									<p *ngIf="row.status?._id == '5cb8c2b9bfaae1089bda11e2'"
+										class="op-70 mb-0 ml-7 mr-7 mt-7 text-danger float-left">
+										<strong>تم إكتمال الكشف</strong>
+									</p>
+									<p *ngIf="row.isDeleted" class="op-70 mb-0 ml-7 mr-7 mt-7 text-danger float-left">
+										<strong>تم إكتمال الحجز</strong>
+									</p>
+
+									<p *ngIf="row.patient?.isDeleted && !row.doctor?.isDeleted"
+										class="op-70 mb-0 ml-15 mr-15 mt-7 text-danger float-left">
+										<strong>تم حذف المريض</strong>
+									</p>
+									<p *ngIf="row.doctor?.isDeleted && !row.patient?.isDeleted"
+										class="op-70 mb-0 ml-15 mr-15 mt-7 text-danger float-left">
+										<strong>تم حذف الطبيب</strong>
+									</p>
+									<p *ngIf="row.doctor?.isDeleted && row.patient?.isDeleted"
+										class="op-70 mb-0 ml-15 mr-15 mt-7 text-danger float-left">
+										<strong>تم حذف الطبيب و المريض</strong>
+									</p>
+								</ng-template>
+							</ngx-datatable-column>
+						</ngx-datatable>
+						<ngx-paginate *ngIf="globals.isOnline" [page]="page" [options]="globals.options"
+							(pageChange)='pageChange($event)'>
+						</ngx-paginate>
+					</div>
+				</div>
+			</div>
+
+			<div [hidden]="reservationType != 3" class="col-12" [class.disabled]="!globals.isOnline">
+				<div class="card">
+					<div class="card-body">
+						<div class="row mb-35">
+							<!-- <div class="col-12 col-md-6 mb-20">
+								<input-debounce delay="500" placeholder="بحث بكلمات مفتاحية" Class="search"
+									[(ngModel)]="filter" (valueChanged)="getReservations(3)">
+								</input-debounce>
+							</div> -->
+							<div class="col-12 col-md-4 mb-20">
+								<input class="form-control search" [(ngModel)]="filterNumber" placeholder="رقم الملف">
+							</div>
+							<div class="col-12 col-md-4 mb-20">
+								<input class="form-control search" [(ngModel)]="filterMobile" placeholder="رقم الجوال">
+							</div>
+							<div class="col-12 col-md-4 mb-20">
+								<input class="form-control search" [(ngModel)]="filterName" placeholder="العميل">
+							</div>
+
+							<div class="col-12 col-md-3">
+								<select-dropdown [items]="patients2" [(ngModel)]="filterPatient" showAll="true"
+									controlId="filterPatient" placeholder="يرجى إختيار العميل" required>
+								</select-dropdown>
+							</div>
+							<div class="col-12 col-md-3">
+								<select-dropdown [items]="doctors2" [(ngModel)]="filterDoctor" showAll="true"
+									controlId="filterDoctor" placeholder="يرجى إختيار الطبيب" required>
+								</select-dropdown>
+							</div>
+							<div class="col-12 col-md-3">
+								<input type="text" class="form-control" [(ngModel)]="filterRange"
+									placeholder="نطاق التاريخ" bsDaterangepicker readonly>
+								<a *ngIf="filterRange" class="float-left mt--38 ml-8 ts-24 zindex-1"
+									style="position:relative" (click)="filterRange = null">
+									<i class="icon ion-md-remove-circle"></i>
+								</a>
+							</div>
+							<div class="col-12 col-md-3">
+								<select class="form-control" [(ngModel)]="sort" (change)="filterData()">
+									<option value="1">ترتيب الأحدث للأقدم</option>
+									<option value="2">ترتيب الأقدم للأحدث</option>
+								</select>
+							</div>
+
+							<div class="col-12 col-md-3 mx-auto mt-20">
+								<button type="button" class="btn btn-primary btn-block"
+									(click)="getReservations(3, 1)">بحث</button>
+							</div>
+						</div>
+
+						<ngx-datatable [rows]="dataFiltered" [footerHeight]="50">
+							<ngx-datatable-column name="رقم العميل" prop="patient.number" [maxWidth]="110">
+								<ng-template let-row="row" ngx-datatable-cell-template>
+									{{ row.patient ? (row.patient.number != "null" && row.patient.number != null ? row.patient.number : '-') : 'تم الحذف' }}
+								</ng-template>
+							</ngx-datatable-column>
+							<ngx-datatable-column name="العميل" prop="patient.name_ar" [maxWidth]="230">
+								<ng-template let-row="row" ngx-datatable-cell-template>
+									{{ row.patient ? row.patient.name_ar : 'تم الحذف' }}
+								</ng-template>
+							</ngx-datatable-column>
+							<ngx-datatable-column name="الدكتور" prop="doctor.name" [maxWidth]="230">
+								<ng-template let-row="row" ngx-datatable-cell-template>
+									{{ row.doctor ? row.doctor.name : 'تم الحذف' }}
+								</ng-template>
+							</ngx-datatable-column>
+							<ngx-datatable-column name="التاريخ" prop="date" [maxWidth]="130">
+								<ng-template let-row="row" ngx-datatable-cell-template>
+									<!-- <p class="mb-2">{{ row.createdAt | amLocale:'ar' | amTimeAgo }}</p> -->
+									<p class="ts-12 op-60 mb-0">
+										{{ row.createdAt | amDateFormat:'DD' }}
+										{{ row.createdAt | amLocale:'ar' | amDateFormat:'MMMM' }} {{ row.date | amDateFormat:'YYYY'
+											}}
+									</p>
+								</ng-template>
+							</ngx-datatable-column>
+							<ngx-datatable-column name="من" prop="time" [maxWidth]="90">
+								<ng-template let-row="row" ngx-datatable-cell-template>
+									<span>
+										{{row.startTime }}
+										<!-- {{ '1/1/1 ' + row.startDate | amDateFormat:'hh:mm' }}
+											{{ '1/1/1 ' + row.startDate | amLocale:'ar' | amDateFormat:'A' }} -->
+									</span>
+								</ng-template>
+							</ngx-datatable-column>
+							<ngx-datatable-column name="الي " prop="time" [maxWidth]="90">
+								<ng-template let-row="row" ngx-datatable-cell-template>
+									<span>
+										{{row.endTime}}
+										<!-- {{ '1/1/1 ' + row.startDate | amDateFormat:'hh:mm' }}
+											{{ '1/1/1 ' + row.startDate | amLocale:'ar' | amDateFormat:'A' }} -->
+									</span>
+								</ng-template>
+							</ngx-datatable-column>
+							<ngx-datatable-column name="إدارة">
+								<ng-template let-row="row" ngx-datatable-cell-template>
+									<button class="btn btn-danger mr-5" tooltip="حذف" *ngIf="!row.isDeleted"
+										(click)="deleteModal.show(); deleteId = row._id">
+										{{ row.isDeleted ? 'تم الحذف' : 'حذف' }}
+									</button>
+									<button class="btn btn-primary mr-5" tooltip="تعديل" *ngIf="!row.isDeleted"
+										(click)="edit(row._id)">
+										تعديل
+									</button>
+									<button class="btn btn-primary mr-5" tooltip="تكملة البيانات" *ngIf="!row.isDeleted"
+										(click)="complete(row)">
+										البيانات
+									</button>
+									<button class="btn btn-success mr-5" tooltip="إنشاء الفاتورة"
+										[disabled]="row.servicesCount == 0 || (row.paymentType && row.paymentType.length == 0) || (row.paymentTypeValues && row.paymentTypeValues.length == 0)"
+										(click)="printInvoice(row._id)">
+										الفاتورة
+									</button>
+									<p *ngIf="row.isDeleted" class="op-70 mb-0 ml-15 mr-15 mt-7 text-danger float-left">
+										<strong>تم إكتمال الحجز</strong>
+									</p>
+								</ng-template>
+							</ngx-datatable-column>
+						</ngx-datatable>
+						<ngx-paginate *ngIf="globals.isOnline" [page]="pageFilter" [options]="globals.options"
+							(pageChange)='pageChangeFilter($event)'>
+						</ngx-paginate>
+					</div>
+				</div>
+			</div>
+		</div>
+	</div>
+</div>
+
+<div bsModal #invoiceModal="bs-modal" class="modal fade" tabindex="-1" role="dialog">
+	<div class="modal-dialog modal-lg">
+		<div class="modal-content">
+			<div class="modal-body">
+				<div class="row">
+					<div class="col-12" clearfix>
+						<!-- <div class="float-right">
+							<p class="m-0 mb-3 op-70 ts-12">المبلغ المدفوع</p>
+							<input type="number" [(ngModel)]="invoicePaidAmount" min="0"
+								[max]="getInvoiceServicesTotal()" class="form-control h-35 w-180"
+								placeholder="المبلغ المدفوع">
+						</div> -->
+						<button class="btn btn-primary float-right mr-10 mt-21" type="button"
+							(click)="startInvoicePrint()">
+							طباعة الفاتورة
+						</button>
+
+						<button class="btn btn-default mr-10 float-left mt-21" type="button"
+							(click)="cancelInvoice()">إلغاء</button>
+					</div>
+					<div class="col-12 mt-40">
+						<div id="invoice" dir="ltr"
+							style="padding:20px;color:#CBAF8B;font-size:15px;font-family:'Courier New', Courier, monospace !important;line-height:13px;font-weight:600">
+							<div>
+								<div style="float:left;width:calc(100% / 3.1);text-align:center">
+									<p>Al Safwa</p>
+									<p style="color:#7A6D5D">Al - Muhaideb Dentistry Group</p>
+									<p>Special Clinics For Women & Children</p>
+									<p>VAT: 302262572300003</p>
+								</div>
+								<div style="float:left;width:calc(100% / 3.1);text-align:center">
+									<!-- <img src="assets/images/clinic.png" width="100"> -->
+									<img src="assets/images/clinic.png" width="100">
+									<p style="color:#7A6D5D">فاتـــــــــــورة</p>
+									<p>Patient Bill</p>
+								</div>
+								<div style="float:left;width:calc(100% / 3.1);text-align:center">
+									<p>الصفوة</p>
+									<p style="color:#7A6D5D">مجموعة المهيدب لطب الأسنان</p>
+									<p>عيادات متخصصة للرجال</p>
+									<p>عيادات متخصصة للنساء و الأطفال</p>
+									<p>الرقم الضريبى: ٣٠٢٢٦٢٥٧٢٣٠٠٠٠٣</p>
+								</div>
+								<div style="clear:both;height:1px"></div>
+							</div>
+
+							<div style="margin-top:15px">
+								<div style="float:left;width:calc(50% - 20px);margin-right:20px">
+									<div>
+										<span
+											style="display:block;float:left;width:125px;margin-top:6px;color:#7A6D5D">BILL
+											NO. :</span>
+										<span
+											style="color:#7A6D5D;padding-top:7px;display:block;float:left;height:25px;width:calc(100% - 250px);background:#e6e2d9;text-align:center">
+											{{ globals.isOnline ? currentInvoice?.bill?.number : '-' }}
+										</span>
+										<span style="display:block;float:left;width:125px;margin-top:6px;color:#7A6D5D"
+											dir="rtl">رقم الفاتورة:</span>
+										<div style="clear:both;height:1px"></div>
+									</div>
+									<div style="margin-top:10px">
+										<span
+											style="display:block;float:left;width:125px;margin-top:6px;color:#7A6D5D">PATIENT
+											:
+										</span>
+										<span
+											style="color:#7A6D5D;padding-top:7px;display:block;float:left;height:25px;width:calc(100% - 250px);background:#e6e2d9;text-align:center">
+											{{ currentInvoice?.reservation?.patient?.name_ar }}
+										</span>
+										<span style="display:block;float:left;width:125px;margin-top:6px;color:#7A6D5D"
+											dir="rtl">المريض :</span>
+										<div style="clear:both;height:1px"></div>
+									</div>
+									<div style="margin-top:10px">
+										<span
+											style="display:block;float:left;width:125px;margin-top:6px;color:#7A6D5D">PATIENT
+											NO.
+											:
+										</span>
+										<span
+											style="color:#7A6D5D;padding-top:7px;display:block;float:left;height:25px;width:calc(100% - 250px);background:#e6e2d9;text-align:center">
+											<!-- {{ currentInvoice?.reservation?.branch?.name }} -->
+											{{ globals.isOnline ? currentInvoice?.reservation?.patient?.number : '-' }}
+										</span>
+										<span style="display:block;float:left;width:125px;margin-top:6px;color:#7A6D5D"
+											dir="rtl">رقم العميل :</span>
+										<div style="clear:both;height:1px"></div>
+									</div>
+								</div>
+
+								<div style="float:left;width:calc(50% - 20px);margin-left:20px">
+									<div>
+										<span
+											style="display:block;float:left;width:125px;margin-top:6px;color:#7A6D5D">DATE
+											:
+										</span>
+										<span class="en-font"
+											style="color:#7A6D5D;padding-top:7px;display:block;float:left;height:25px;width:calc(100% - 250px);background:#e6e2d9;text-align:center">
+											{{ currentInvoice?.bill?.date | amDateFormat:'LL' }}
+										</span>
+										<span style="display:block;float:left;width:125px;margin-top:6px;color:#7A6D5D"
+											dir="rtl">التاريخ :</span>
+										<div style="clear:both;height:1px"></div>
+									</div>
+									<div style="margin-top:10px">
+										<span
+											style="display:block;float:left;width:125px;margin-top:6px;color:#7A6D5D">TIME
+											:
+										</span>
+										<span class="en-font"
+											style="color:#7A6D5D;padding-top:7px;display:block;float:left;height:25px;width:calc(100% - 250px);background:#e6e2d9;text-align:center">
+											{{ currentInvoice?.bill?.date | amDateFormat:'hh:mm A' }}
+										</span>
+										<span style="display:block;float:left;width:125px;margin-top:6px;color:#7A6D5D"
+											dir="rtl">الوقت :</span>
+										<div style="clear:both;height:1px"></div>
+									</div>
+									<div style="margin-top:10px">
+										<span
+											style="display:block;float:left;width:125px;margin-top:6px;color:#7A6D5D">DOCTOR
+											:
+										</span>
+										<span
+											style="color:#7A6D5D;padding-top:7px;display:block;float:left;height:25px;width:calc(100% - 250px);background:#e6e2d9;text-align:center">
+											{{ currentInvoice?.reservation?.doctor?.name }}
+										</span>
+										<span style="display:block;float:left;width:125px;margin-top:6px;color:#7A6D5D"
+											dir="rtl">الدكتور :</span>
+										<div style="clear:both;height:1px"></div>
+									</div>
+								</div>
+								<div style="clear:both;height:1px"></div>
+							</div>
+
+							<div style="margin-top:20px">
+								<table border="1" style="width:100%;border-collapse:collapse;border-color:#7A6D5D">
+									<thead>
+										<th style="padding:10px;background:#7A6D5D;color:white;width:40%">
+											<p style="margin:0 0 10px">الخدمة</p>
+											<p style="margin:0">Service</p>
+										</th>
+										<th style="padding:10px;background:#7A6D5D;color:white;width:10%">
+											<p style="margin:0 0 10px">الإجمالى</p>
+											<p style="margin:0">Total Amount</p>
+										</th>
+										<th style="padding:10px;background:#7A6D5D;color:white;width:10%">
+											<p style="margin:0 0 10px">نسبة الخصم</p>
+											<p style="margin:0">Disc. %</p>
+										</th>
+										<th style="padding:10px;background:#7A6D5D;color:white;width:10%">
+											<p style="margin:0 0 10px">قيمة الخصم</p>
+											<p style="margin:0">Disc. Amt.</p>
+										</th>
+										<th style="padding:10px;background:#7A6D5D;color:white;width:10%">
+											<p style="margin:0 0 10px">الصافى</p>
+											<p style="margin:0">Net Amount</p>
+										</th>
+									</thead>
+									<tbody>
+										<tr *ngFor="let service of currentInvoice?.services">
+											<td style="padding:15px;text-align:center">{{ service.service?.name }}</td>
+											<td style="padding:15px;text-align:center">{{ service.price }}</td>
+											<td style="padding:15px;text-align:center">{{ service.discount }}%</td>
+											<td style="padding:15px;text-align:center">
+												{{ (service.discount * service.price) / 100 }}</td>
+											<td style="padding:15px;text-align:center">{{ service.price }}</td>
+										</tr>
+
+										<tr *ngIf="currentInvoice?.reservation?.patient?.nationality != 'سعودى'">
+											<td colspan="4" style="padding:15px">
+												<p style="margin:0 0 10px;color:#7A6D5D" dir="rtl">الضريبة المضافة 15%
+												</p>
+												<p style="margin:0;color:#7A6D5D">15% VAT</p>
+											</td>
+											<td style="padding:15px">{{ currentInvoice?.vat }}</td>
+										</tr>
+										<tr *ngIf="currentInvoice?.reservation?.patient?.nationality === 'سعودى'">
+											<td colspan="4" style="padding:15px">
+												<p style="margin:0 0 10px;color:#7A6D5D"
+													dir="rtl">الضريبة المضافة 0%</p>
+												<p style="margin:0;color:#7A6D5D">0%
+													VAT</p>
+											</td>
+											<td style="padding:15px">0</td>
+										</tr>
+
+										<tr>
+											<td colspan="3" style="padding:15px">
+												<div class="float-right">
+													<p style="margin:0 0 10px;color:#7A6D5D">الحساب</p>
+													<p style="margin:0;color:#7A6D5D">ACCOUNT</p>
+												</div>
+												<p class="float-left">{{ currentInvoice?.bill?.user?.name }}</p>
+												<div style="clear:both;height:1px"></div>
+											</td>
+											<td style="padding:15px">
+												<p style="margin:0 0 10px;color:#7A6D5D">المجموع</p>
+												<p style="margin:0;color:#7A6D5D">Total</p>
+											</td>
+											<td style="padding:15px">
+												{{ getInvoiceServicesTotal() + currentInvoice?.vat }}</td>
+										</tr>
+										<tr>
+											<td colspan="3" style="padding:15px">
+												<div class="float-right">
+													<p style="margin:0 0 10px;color:#7A6D5D">المبلغ المدفوع</p>
+													<p style="margin:0;color:#7A6D5D">Amount Paid</p>
+												</div>
+												<p class="float-left">{{ currentInvoice?.bill?.paidAmount }}</p>
+												<div style="clear:both;height:1px"></div>
+											</td>
+											<td style="padding:15px">
+												<p style="margin:0 0 10px;color:#7A6D5D;font-size: 14px">المبلغ المتبقى
+												</p>
+												<p style="margin:0;color:#7A6D5D">Balance Amt.</p>
+											</td>
+											<td style="padding:15px">
+												{{ (getInvoiceServicesTotal() + currentInvoice?.vat) - currentInvoice?.bill?.paidAmount
+												< 0 ? 0 : (getInvoiceServicesTotal() + currentInvoice?.vat) - currentInvoice?.bill?.paidAmount }} </td>
+										</tr>
+									</tbody>
+								</table>
+							</div>
+
+							<div style="margin-top:10px" dir="rtl">
+								<h3>ملحوظة: المبلغ المدفوع لا يرد بعد بداية العام</h3>
+							</div>
+
+							<div style="margin-top:50px;text-align:center" dir="rtl">
+								<p>التوقيع
+									<strong style="color:#7A6D5D">______________________________</strong>
+									Signature</p>
+							</div>
+
+							<div *ngIf="globals.isOnline"
+								style="padding:15px;margin-top:50px;background:#7A6D5D;color:white;text-align:center">
+								{{ currentInvoice?.reservation?.branch?.address + ' - التليفون: ' + currentInvoice?.reservation?.branch?.phone }}
+							</div>
+						</div>
+					</div>
+				</div>
+			</div>
+		</div>
+	</div>
+</div>
+
+<div bsModal #deleteModal="bs-modal" class="modal fade" tabindex="-1" role="dialog">
+	<div class="modal-dialog modal-sm">
+		<div class="modal-content">
+			<div class="modal-body">
+				<h5 class="mb-25">لا يمكنك التراجع عن الحذف, تأكيد؟</h5>
+
+				<button type="button" class="btn btn-default ml-10" (click)="deleteModal.hide(); deleteId = null">
+					إلغاء
+				</button>
+				<button type="button" class="btn btn-danger" (click)="delete()">
+					تأكيد الحذف
+				</button>
+			</div>
+		</div>
+	</div>
+</div>
+
+<div bsModal #updateModal="bs-modal" class="modal fade" tabindex="-1" role="dialog">
+	<div class="modal-dialog modal-lg">
+		<div class="modal-content">
+			<div class="modal-body">
+				<div class="row mb-20">
+					<div class="col-12 col-md-9">
+						<h4>
+							<strong>{{ currentReservation?.patient.name_ar }}</strong>
+						</h4>
+						<p class="op-70">{{ currentReservation?.patient.age }} سنة</p>
+						<p class="op-70 mb-0">
+							<strong>ميعاد الحجز: </strong>
+							<span
+								class="en-font nn">{{ currentReservation?.startTime}}</span>
+						</p>
+						<p *ngIf="currentReservation?.patient.contract" class="op-70 mb-0">
+							<strong>الشركة: </strong> {{ currentReservation?.patient?.contract?.name }}
+						</p>
+					</div>
+					<div class="col-12 col-md-3">
+						<div class="form-group">
+							<label for="payment">طريقة الدفع</label>
+							<div class="row">
+								<div class="col-12 mb-10">
+									<input type="checkbox" [(ngModel)]="payment.cash" id="payment1">
+									<label for="payment1" class="mr-5">كاش</label>
+
+									<input type="number" pattern="^(0|[1-9][0-9]*)$" min="0" [max]=""
+										[(ngModel)]="payment.cashAmount" class="form-control float-left w-150 h-35"
+										[disabled]="!payment.cash" placeholder="القيمة" (keyup)="checktotal()"
+										(keydown)="globals.preventNegative($event)">
+								</div>
+								<div class="col-12">
+									<input type="checkbox" [(ngModel)]="payment.network" id="payment2">
+									<label for="payment2" class="mr-5">شبكة</label>
+
+									<input type="number" pattern="^(0|[1-9][0-9]*)$" min="0"
+										[(ngModel)]="payment.networkAmount" class="form-control float-left w-150 h-35"
+										[disabled]="!payment.network" placeholder="القيمة" (keyup)="checktotal()"
+										(keydown)="globals.preventNegative($event)">
+								</div>
+								<!-- <p *ngIf="( total > totalAfterVat ) && addCompleteModel.services.length > 0" style="color: red;margin-top: 30px;">المبلغ المدفوع اكبر من الاجمالي </p>
+								<p *ngIf="show" style="color: red;margin-top: 30px;"> show المبلغ المدفوع اكبر من الاجمالي </p> -->
+								<!-- <p *ngIf="(paymentLess && payment.cash == true) || (paymentLess && payment.network == true)" style="color: red;margin-top: 30px;">
+								المبلغ المدفوع اقل من الاجمالي </p> -->
+
+							</div>
+						</div>
+					</div>
+				</div>
+
+				<form #form2="ngForm" role="form" autocomplete="off" (ngSubmit)="submitCompleteForm()">
+					<div class="row">
+						<div class="col-12 col-md-6">
+							<div class="form-group">
+								<label for="complain">المشكلة</label>
+								<textarea class="form-control" [(ngModel)]="addCompleteModel.complain" id="complain"
+									name="complain" placeholder="المشكلة"></textarea>
+							</div>
+							<div class="form-group">
+								<label for="diagnosis">التشخيص</label>
+								<textarea class="form-control" [(ngModel)]="addCompleteModel.diagnosis" id="diagnosis"
+									name="diagnosis" placeholder="التشخيص"></textarea>
+							</div>
+							<div class="form-group">
+								<label for="notes">ملاحظات</label>
+								<textarea class="form-control" [(ngModel)]="addCompleteModel.notes" id="notess"
+									name="notes" placeholder="ملاحظات"></textarea>
+							</div>
+						</div>
+						<div class="col-12 col-md-6">
+							<div class="form-group" clearfix>
+								<label for="services">الخدمات</label>
+								<select-dropdown [items]="services" [(ngModel)]="currentService" #service="ngModel"
+									controlId="service" name="service" width="calc(100% - 100px)"
+									placeholder="يرجى إختيار الخدمة">
+								</select-dropdown>
+								<button type="button" class="btn btn-primary h-35 mt--40 ml-5" tooltip="إضافة الخدمة"
+									[disabled]="!currentService || currentService == -1" (click)="addService()" left>
+									إضافة
+								</button>
+							</div>
+
+							<div *ngIf="addCompleteModel.services.length == 0" class="mt-50 mb-50" center>
+								<img src="assets/images/no-results.svg" width="80" class="op-20 mb-15">
+								<p class="op-70">
+									<strong>لم يتم إختيار خدمات بعد!</strong>
+								</p>
+							</div>
+
+							<div *ngIf="addCompleteModel.services.length > 0" class="row">
+								<div class="col-6 mb-15" text-right>
+									<strong>{{ addCompleteModel.services.length }}</strong> إجمالى الخدمات
+									<div *ngIf="isVat">
+										<strong>{{ (totalAfterVat - servicesMainTotal).toFixed(2) }}</strong>القيمة
+										المضافة(15%)
+									</div>
+
+								</div>
+								<div class="col-6 mb-15" text-left>
+									<strong>{{ getServicesTotal() }}</strong> إجمالى السعر
+									<div>
+										<!-- *ngIf="disFlag" -->
+										<strong>{{ servicesMainTotal }}</strong> إجمالى بعد الخصم
+									</div>
+									<div *ngIf="isVat">
+										<strong>{{totalAfterVat.toFixed(2)}}</strong> إجمالى بعد القيمة المضافة
+									</div>
+
+								</div>
+
+								<div *ngFor="let service of addCompleteModel.services; let i = index" class="col-12">
+									<div class="alert alert-info mb-7" text-right clearfix>
+										<span class="d-inline-block mt-14">
+											<strong>{{ service.service.name ? service.service.name : service.name }}</strong>
+										</span>
+
+										<button type="button" class="btn btn-danger float-left mr-20 mt-6"
+											(click)="whenDelete(i)">حذف</button>
+										<div class="float-left mr-15">
+											<p class="m-0 mb-3 op-60 ts-12">الإجمالى</p>
+											<p class="m-0 serviceTotal">
+												{{ service.discount > 100 ? 0 : service.price - ((service.discount * service.price) / 100) }}
+											</p>
+										</div>
+										<div class="float-left">
+											<p class="m-0 mb-3 op-60 ts-12">الخصم %</p>
+											<input type="number" [(ngModel)]="service.discount"
+												(keyup)="calcTotalAfterDiscount()" max="100" min="0"
+												pattern="^100$|^[0-9]{1,2}$|^[0-9]{1,2}\,[0-9]{1,3}" class="w-80"
+												[name]="'services' + i" required
+												(keydown)="globals.preventNegative($event);">
+										</div>
+										<div class="float-left ml-5">
+											<p class="m-0 mb-3 op-60 ts-12"> السعر</p>
+											<input type="number" [(ngModel)]="service.price" #price='ngModel'
+												(keyup)="whenDelete()" max="100" min="0"
+												pattern="^100$|^[0-9]{1,2}$|^[0-9]{1,2}\,[0-9]{1,3}" class="w-80"
+												[name]="'price' + i" required
+												(keydown)="globals.preventNegative($event)">
+										</div>
+									</div>
+								</div>
+							</div>
+						</div>
+
+						<div class="col-12 mt-30">
+							<button class="btn btn-primary" type="submit"
+								[disabled]=" addCompleteModel.services.length == 0 || (!payment.cash && !payment.network) || (payment.cash && !payment.cashAmount) || (payment.network && !payment.networkAmount)">
+								<!-- || ( total > totalAfterVat ) || show -->
+								<!-- form2.invalid || -->
+								حفظ البيانات
+							</button>
+							<button class="btn btn-success mr-10" type="button" (click)="submitCompleteForm(true)"
+								[disabled]="addCompleteModel.services.length == 0 || (!payment.cash && !payment.network) || (payment.cash && !payment.cashAmount) || (payment.network && !payment.networkAmount)">
+								حفظ البيانات و طباعة الفاتورة
+							</button>
+							<button class="btn btn-default mr-10" type="button"
+								(click)="updateModal.hide(); form2.reset()">إلغاء</button>
+						</div>
+					</div>
+				</form>
+			</div>
+		</div>
+	</div>
+</div>
+
+<div bsModal #gotoModal="bs-modal" class="modal fade" tabindex="-1" role="dialog">
+	<div class="modal-dialog modal-sm">
+		<div class="modal-content">
+			<div class="modal-body">
+				<h5 class="mb-25">يوجد عميل الآن عند نفس الطبيب, الإستمرار؟</h5>
+
+				<button type="button" class="btn btn-default ml-10" (click)="gotoModal.hide(); gotoId = null">
+					إلغاء
+				</button>
+				<button type="button" class="btn btn-danger" (click)="gotoModal.hide(); gotoDoctor(null, true)">
+					إرسال للطبيب
+				</button>
+			</div>
+		</div>
+	</div>
+</div>
+<div bsModal #dates_modal="bs-modal" class="modal fade" tabindex="-1" role="dialog">
+	<div class="modal-dialog modal-lg">
+		<div class="modal-content">
+			<div class="modal-body">
+				<h3 class="mb-25">جدول مواعيد الطبيب والاوقات المتاحة </h3>
+				<div class="row">
+					<div class="col-12 col-md-3 mb-15" *ngFor="let schedule of doctorDays">
+						<div class="card schedule-card">
+							<div class="card-body">
+								<div>
+									<h4 class="mt-10 mb-25"><strong>{{ schedule.title }}</strong></h4>
+									<p class="mb-5">
+										<strong class="w-100 d-inline-block">ميعاد البدأ: </strong>
+										<span
+											class="ar-font font-weight-bold">{{ '1/1/1 ' + schedule?.start_time |amLocale:'ar'| amDateFormat:'hh:mm A' }}</span>
+									</p>
+									<p class="mb-5">
+										<strong class="w-100 d-inline-block">ميعاد الإنتهاء: </strong>
+										<span
+											class="ar-font font-weight-bold">{{ '1/1/1 ' + schedule?.end_time |amLocale:'ar'| amDateFormat:'hh:mm A' }}</span>
+									</p>
+								</div>
+							</div>
+						</div>
+					</div>
+
+				</div>
+				<div>
+					<app-calender></app-calender>
+				</div>
+
+			</div>
+		</div>
+	</div>
+</div>
+
+
+<!-- 
+	<ngx-datatable [rows]="doctorDays" [footerHeight]="50">
+	<ngx-datatable-column name="title" prop="title" >
+		<ng-template let-row="row" ngx-datatable-cell-template>
+			{{row.title}}
+		</ng-template>
+	</ngx-datatable-column>
+	<ngx-datatable-column name="المواعيد" prop="start_time" >
+		<ng-template let-row="row" ngx-datatable-cell-template>
+			<span>من : {{row.start_time}}</span> <br>
+			<span>الي : {{row.end_time}}</span>
+		</ng-template>
+	</ngx-datatable-column>
+</ngx-datatable>
+ -->

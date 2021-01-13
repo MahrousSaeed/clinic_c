@@ -1,0 +1,199 @@
+<div style="margin: 0 -88px;">
+  <tabset>
+    <tab>
+      <ng-template tabHeading>
+        <i class="mdi mdi mdi-bell"></i>
+        عدد الجلسات
+        <span class="single-noti-count" *ngIf="notifications">
+          {{notifications._patientsReservations.length}}
+        </span>
+      </ng-template>
+      <ngx-datatable [rows]="notifications?._patientsReservations" [limit]="10" [footerHeight]="50">
+        <ngx-datatable-column prop="patient.name_ar" name="الاسم">
+          <ng-template let-row="row" ngx-datatable-cell-template>{{ row.patient.name_ar }}</ng-template>
+        </ngx-datatable-column>
+
+        <ngx-datatable-column prop="address" name="العنوان">
+          <ng-template let-row="row" ngx-datatable-cell-template>{{ row.patient.address }}
+            <span *ngIf="row.patient.address == null || row.patient.address == undefined ">لا يوجد</span>
+          </ng-template>
+        </ngx-datatable-column>
+        <ngx-datatable-column name="الجنسية" prop="patient.nationality">
+          <ng-template let-row="row" ngx-datatable-cell-template>{{ row.patient.nationality }}</ng-template>
+        </ngx-datatable-column>
+        <ngx-datatable-column prop="patient.mobile" name="تليفون">
+          <ng-template let-row="row" ngx-datatable-cell-template>{{ row.patient.mobile }}</ng-template>
+        </ngx-datatable-column>
+        <ngx-datatable-column prop="patient.reservationsCount" name="عدد الجلسات">
+          <ng-template let-row="row" ngx-datatable-cell-template>{{ row.patient.reservationsCount }}</ng-template>
+        </ngx-datatable-column>
+        <ngx-datatable-column prop="remainReservation" name="باقي الجلسات">
+          <ng-template let-row="row" ngx-datatable-cell-template>{{ row.remainReservation}}</ng-template>
+        </ngx-datatable-column>
+        
+      </ngx-datatable>
+    </tab>
+
+    <tab>
+      <ng-template tabHeading>
+        <i class="mdi mdi mdi-bell"></i>
+        الجوازات القريبة من الانتهاء
+        <span class="single-noti-count" *ngIf="notifications">
+          {{notifications._userPassport.length}}
+        </span>
+      </ng-template>
+      <ngx-datatable [rows]="notifications?._userPassport" [limit]="10" [footerHeight]="50">
+          <ngx-datatable-column prop="data.name" name="الاسم">
+            <ng-template let-row="row" ngx-datatable-cell-template>{{ row.data.name }}</ng-template>
+          </ngx-datatable-column>
+  
+          <ngx-datatable-column prop="data.address" name="العنوان">
+            <ng-template let-row="row" ngx-datatable-cell-template>{{ row.data.address }}</ng-template>
+          </ngx-datatable-column>
+          <ngx-datatable-column prop="data.passportEnd" name="تاريخ الانتهاء">
+            <ng-template let-row="row" ngx-datatable-cell-template>{{ row.data.passportEnd | date:'dd/MM/yyyy' }}</ng-template>
+          </ngx-datatable-column>
+          <ngx-datatable-column prop="data.mobile" name="تليفون">
+            <ng-template let-row="row" ngx-datatable-cell-template>{{ row.data.mobile }}</ng-template>
+          </ngx-datatable-column>
+  
+        </ngx-datatable>
+    </tab>
+    <tab>
+      <ng-template tabHeading>
+        <i class="mdi mdi mdi-bell"></i>
+          انتهاء الاقامة 
+        <span class="single-noti-count" *ngIf="notifications">
+          {{notifications._userResidence.length}}
+        </span>
+      </ng-template>
+      <ngx-datatable [rows]="notifications?._userResidence" [limit]="10" [footerHeight]="50">
+          <ngx-datatable-column prop="data.name" name="الاسم">
+            <ng-template let-row="row" ngx-datatable-cell-template>{{ row.data.name }}</ng-template>
+          </ngx-datatable-column>
+  
+          <ngx-datatable-column prop="data.address" name="العنوان">
+            <ng-template let-row="row" ngx-datatable-cell-template>{{ row.data.address }}</ng-template>
+          </ngx-datatable-column>
+          <ngx-datatable-column prop="data.residenceEnd" name="تاريخ الانتهاء">
+            <ng-template let-row="row" ngx-datatable-cell-template>{{ row.data.residenceEnd | date:'dd/MM/yyyy'}}</ng-template>
+          </ngx-datatable-column>
+          <ngx-datatable-column prop="data.mobile" name="تليفون">
+            <ng-template let-row="row" ngx-datatable-cell-template>{{ row.data.mobile }}</ng-template>
+          </ngx-datatable-column>
+  
+        </ngx-datatable>
+    </tab>
+    <tab>
+      <ng-template tabHeading>
+        <i class="mdi mdi mdi-bell"></i>
+        انتهاء عقود العمل
+        <span class="single-noti-count" *ngIf="notifications">
+          {{notifications._userWorkEnd.length}}
+        </span>
+      </ng-template>
+      <ngx-datatable [rows]="notifications?._userWorkEnd" [limit]="10" [footerHeight]="50">
+          <ngx-datatable-column prop="data.name" name="الاسم">
+            <ng-template let-row="row" ngx-datatable-cell-template>{{ row.data.name }}</ng-template>
+          </ngx-datatable-column>
+  
+          <ngx-datatable-column prop="data.address" name="العنوان">
+            <ng-template let-row="row" ngx-datatable-cell-template>{{ row.data.address }}</ng-template>
+          </ngx-datatable-column>
+          <ngx-datatable-column prop="data.workEnd" name="تاريخ الانتهاء">
+            <ng-template let-row="row" ngx-datatable-cell-template>{{ row.data.workEnd | date:'dd/MM/yyyy' }}</ng-template>
+          </ngx-datatable-column>
+          <ngx-datatable-column prop="data.mobile" name="تليفون">
+            <ng-template let-row="row" ngx-datatable-cell-template>{{ row.data.mobile }}</ng-template>
+          </ngx-datatable-column>
+  
+        </ngx-datatable>
+    </tab>
+    <tab>
+      <ng-template tabHeading>
+        <i class="mdi mdi mdi-bell"></i>
+        موظفين لم يحصلو علي أجازة
+        <span class="single-noti-count" *ngIf="notifications">
+          {{notifications._cleanUsersVacations?.length}}
+        </span>
+      </ng-template>
+      <ngx-datatable [rows]="notifications?._cleanUsersVacations" [limit]="10" [footerHeight]="50">
+          <ngx-datatable-column prop="name" name="الاسم">
+            <ng-template let-row="row" ngx-datatable-cell-template>{{ row.name}}</ng-template>
+          </ngx-datatable-column>
+  
+          <ngx-datatable-column prop="address" name="العنوان">
+            <ng-template let-row="row" ngx-datatable-cell-template>{{ row.address }}</ng-template>
+          </ngx-datatable-column>
+          <ngx-datatable-column prop="email" name="ألايميل">
+            <ng-template let-row="row" ngx-datatable-cell-template>{{ row.email }}</ng-template>
+          </ngx-datatable-column>
+          <ngx-datatable-column prop="mobile" name="تليفون">
+            <ng-template let-row="row" ngx-datatable-cell-template>{{ row.mobile }}</ng-template>
+          </ngx-datatable-column>
+  
+        </ngx-datatable>
+    </tab>
+    <tab>
+      <ng-template tabHeading>
+        <i class="mdi mdi mdi-bell"></i>
+          الاجازات   
+        <span class="single-noti-count" *ngIf="notifications">
+          {{notifications?.userVacations.length}} 
+        </span>
+      </ng-template>
+      <ngx-datatable [rows]="notifications?.userVacations" [limit]="10" [footerHeight]="50">
+          <ngx-datatable-column prop="data.name" name="الاسم">
+            <ng-template let-row="row" ngx-datatable-cell-template>{{row.user.name}}</ng-template>
+          </ngx-datatable-column>
+
+          <ngx-datatable-column prop="data.name" name="تاريخ بداية الاجازة">
+            <ng-template let-row="row" ngx-datatable-cell-template>{{row.start_date | date:'dd/MM/yyyy'}}</ng-template>
+          </ngx-datatable-column>
+          <ngx-datatable-column prop="data.name" name="تاريخ انتهاء الاجازة">
+            <ng-template let-row="row" ngx-datatable-cell-template>{{row.end_date | date:'dd/MM/yyyy'}}</ng-template>
+          </ngx-datatable-column>
+          <ngx-datatable-column prop="data.status" name="الحالة">
+              <ng-template let-row="row" ngx-datatable-cell-template>{{row.status}}</ng-template>
+            </ngx-datatable-column>
+          <ngx-datatable-column prop="data.status_note" name="السبب">
+              <ng-template let-row="row" ngx-datatable-cell-template>{{row.status_note}}</ng-template>
+            </ngx-datatable-column>
+        </ngx-datatable>
+    </tab>
+    <tab>
+      <ng-template tabHeading>
+        <i class="mdi mdi mdi-bell"></i>
+        فواتر غير كاملة
+        <span class="single-noti-count" *ngIf="bills">
+          {{bills?.length}}
+        </span>
+      </ng-template>
+      <ngx-datatable [rows]="bills" [limit]="10" [footerHeight]="50">
+        <ngx-datatable-column name="رقم العميل " prop="patientNum">
+            <ng-template let-row="row" ngx-datatable-cell-template>{{ row.reservation.patient.number }}
+            </ng-template>
+        </ngx-datatable-column>
+        <ngx-datatable-column name="إسم العميل " prop="patient">
+            <ng-template let-row="row" ngx-datatable-cell-template>{{ row.reservation.patient.name_ar }}
+            </ng-template>
+        </ngx-datatable-column>
+        <ngx-datatable-column name="الطبيب" prop="doctor">
+            <ng-template let-row="row" ngx-datatable-cell-template>
+                {{ row.reservation.doctor.name }}
+            </ng-template>
+        </ngx-datatable-column>
+        <ngx-datatable-column name="المبلغ المطلوب" prop="total">
+            <ng-template let-row="row" ngx-datatable-cell-template>{{row.total}}</ng-template>
+        </ngx-datatable-column>
+        <ngx-datatable-column name="المبلغ المدفوع" prop="paidAmount">
+            <ng-template let-row="row" ngx-datatable-cell-template>{{row.paidAmount}}</ng-template>
+        </ngx-datatable-column>
+        <ngx-datatable-column name="المبلغ المتبقي" prop="restAmount">
+            <ng-template let-row="row" ngx-datatable-cell-template>{{row.total - row.paidAmount}}</ng-template>
+        </ngx-datatable-column>
+
+    </ngx-datatable>
+    </tab>
+  </tabset>
+</div>

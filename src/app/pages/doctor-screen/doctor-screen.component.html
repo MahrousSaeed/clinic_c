@@ -1,0 +1,278 @@
+<div class="container-fluid">
+	<div class="row" style="margin-left:-100px;margin-right:-100px">
+		<div class="col-9">
+			<div class="card mb-30">
+				<div class="card-body" *ngIf="currentPatient.reservation">
+					<div class="row">
+						<div class="col-12 col-md-6">
+							<h4>
+								<strong>العميل الحالي / {{currentPatient?.reservation?.patient?.name_ar}}</strong>
+							</h4>
+							<p class="op-70 mb-0">{{currentPatient?.reservation?.patient?.nationality}}</p>
+							<p class="op-70">{{currantYear - (currentPatient?.reservation?.patient?.age |date: 'yyyy')}}
+							</p>
+						</div>
+						<div class="col-12 col-md-6" text-left>
+							<p class="mb-10">
+								<strong>ميعاد الحجز</strong>
+							</p>
+							<h3 class="op-70 en-font">{{currentPatient?.reservation?.time}}</h3>
+						</div>
+
+					</div>
+
+					<hr>
+					<form #form2="ngForm" role="form" autocomplete="off" (ngSubmit)="submitForm()">
+						<div class="row">
+							<div class="col-12 col-md-6">
+								<div class="form-group">
+									<label for="complain">المشكلة</label>
+									<textarea class="form-control" [(ngModel)]="addModel.complain" id="complain"
+										name="complain" placeholder="المشكلة"></textarea>
+								</div>
+								<div class="form-group">
+									<label for="diagnosis">التشخيص</label>
+									<textarea class="form-control" [(ngModel)]="addModel.diagnosis" id="diagnosis"
+										name="diagnosis" placeholder="التشخيص"></textarea>
+								</div>
+								<div class="form-group">
+									<label for="notes">ملاحظات</label>
+									<textarea class="form-control" [(ngModel)]="addModel.notes" id="notes" name="notes"
+										placeholder="ملاحظات"></textarea>
+								</div>
+							</div>
+							<div class="col-12 col-md-6">
+								<div class="form-group" clearfix>
+									<label for="services">الخدمات</label>
+									<select-dropdown [items]="services" [(ngModel)]="currentService" #service="ngModel"
+										controlId="service" name="service" width="calc(100% - 100px)"
+										placeholder="يرجى إختيار الخدمة">
+									</select-dropdown>
+									<button type="button" class="btn btn-primary h-35 mt--40 ml-5"
+										tooltip="إضافة الخدمة" [disabled]="!currentService || currentService == -1"
+										(click)="addService()" left>
+										إضافة
+									</button>
+								</div>
+
+								<div *ngIf="addModel.services.length == 0" class="mt-50 mb-50" center>
+									<img src="assets/images/no-results.svg" width="80" class="op-20 mb-15">
+									<p class="op-70">
+										<strong>لم يتم إختيار خدمات بعد!</strong>
+									</p>
+								</div>
+
+								<div *ngIf="addModel.services.length > 0" class="row">
+									<div class="col-6 mb-15" text-right>
+										<strong>{{ addModel.services.length }}</strong> إجمالى الخدمات
+										<div *ngIf="isVat">
+											<strong>{{( (totalAfterVat ? totalAfterVat : 0) - (servicesMainTotal ? servicesMainTotal : 0)).toFixed(2) }}</strong>القيمة
+											المضافة(5%)
+										</div>
+
+									</div>
+									<div class="col-6 mb-15" text-left>
+										<strong>{{ getServicesTotal() }}</strong> إجمالى السعر
+										<div>
+											<strong>{{ (servicesMainTotal ? servicesMainTotal : 0).toFixed(2) }}</strong>
+											إجمالى بعد الخصم
+										</div>
+										<div *ngIf="isVat">
+											<strong>{{(totalAfterVat ? totalAfterVat : 0).toFixed(2)}}</strong> إجمالى
+											بعد القيمة المضافة
+										</div>
+
+									</div>
+
+									<div *ngFor="let service of addModel.services; let i = index" class="col-12">
+										<div class="alert alert-info mb-7" text-right clearfix>
+											<span class="d-inline-block mt-14">
+												<strong>{{ service.service.name ? service.service.name : service.name }}</strong>
+											</span>
+
+											<button type="button" class="btn btn-danger float-left mr-20 mt-6"
+												(click)="whenDelete(i)">حذف</button>
+											<div class="float-left mr-15">
+												<p class="m-0 mb-3 op-60 ts-12">الإجمالى</p>
+												<p class="m-0 serviceTotal">
+													{{ service.discount > 100 ? 0 : service.price - ((service.discount * service.price) / 100) }}
+												</p>
+											</div>
+											<div class="float-left">
+												<p class="m-0 mb-3 op-60 ts-12">الخصم %</p>
+												<input type="number" [(ngModel)]="service.discount"
+													(keyup)="calcTotalAfterDiscount()" max="100" min="0" class="w-80"
+													[name]="'services' + i" required
+													(keydown)="globals.preventNegative($event);">
+											</div>
+
+										</div>
+									</div>
+								</div>
+							</div>
+
+							<div class="col-12 mt-30">
+								<button class="btn btn-primary" type="submit" [disabled]="form2.invalid">
+									إرسال للإستقبال
+								</button>
+								<button class="btn btn-default mr-10" type="button" (click)="form2.reset()">
+									مسح النموذج
+								</button>
+							</div>
+						</div>
+					</form>
+
+				</div>
+				<div class="card-body" *ngIf="!currentPatient.reservation">
+					<div class="mt-50 mb-50" center>
+						<img src="assets/images/no-results.svg" width="128" class="op-20 mb-15">
+						<h4 class="op-70">
+							<strong>لا يوجد عميل حالى!</strong>
+						</h4>
+					</div>
+				</div>
+			</div>
+			<div *ngIf="currentPatient.reservation">
+				<h2 class="mb-30" text-right>أرشيف المريض</h2>
+
+				<div class="card mb-30" *ngFor="let history of currentPatientHistory">
+					<div class="card-body">
+						<table>
+							<tr>
+								<td>الدكتور</td>
+								<td>{{history.doctor.name}}</td>
+							</tr>
+							<tr>
+								<td>الشكوي</td>
+								<td>{{history.complain}}</td>
+							</tr>
+							<tr>
+								<td>التشخيص</td>
+								<td> {{history.diagnosis}}</td>
+							</tr>
+							<tr>
+								<td>الملاحظات</td>
+								<td>{{history.notes}}</td>
+							</tr>
+							<tr>
+								<td>الوقت</td>
+								<td>{{history.date | date:'dd/MM/yyyy hh:mm '}}</td>
+							</tr>
+						</table>
+					</div>
+				</div>
+			</div>
+		</div>
+
+		<div class="col-3">
+			<div class="col-12  mb-10">
+				<div class="card">
+					<div class="card-body p-10">
+						<h4 class="count_reservations"> إجمالى حجوزات اليوم {{allReservations.length}}</h4>
+					</div>
+				</div>
+			</div>
+			<div class="col-12 mb-10" *ngIf="current_reservation.length > 0">
+				<div class="card">
+					<div class="card-body pb-0">
+						<h4 class="text-center">
+							<strong> الكشف الحالي </strong>
+						</h4>
+						<ul class="patients">
+							<li>
+								<span style="background: #12da12;"> </span>
+								<div>
+									{{current_reservation[0].patient.name_ar}}
+
+									<p>{{current_reservation[0].time }}</p>
+								</div>
+							</li>
+
+						</ul>
+					</div>
+				</div>
+			</div>
+			<div class="col-12 mb-10">
+				<div class="card">
+					<div class="card-body">
+						<h4 class="text-center">
+							<strong> الحجوزات التالية</strong>
+						</h4>
+						<ul class="patients">
+							<li *ngFor="let patient of new_reservations">
+								<span> </span>
+								<div>
+									{{patient.patient.name_ar}}
+
+									<p>{{patient.time }}</p>
+								</div>
+							</li>
+
+							<h4  *ngIf="new_reservations.length > 0" >العدد {{new_reservations.length}}</h4>
+						</ul>
+						<div *ngIf="new_reservations.length == 0" class="mt-50 mb-50" center>
+							<img src="assets/images/no-results.svg" width="128" class="op-20 mb-15">
+							<h4 class="op-70">
+								<strong>لا يوجد حجوزات تالية اليوم!</strong>
+							</h4>
+						</div>
+					</div>
+				</div>
+			</div>
+			<div class="col-12 mb-10" *ngIf="finshed_revealed.length > 0">
+
+				<div class="card">
+					<div class="card-body">
+						<h4 class="text-center">
+							<strong> الحجوزات المنتهية</strong>
+						</h4>
+						<ul class="patients">
+							<li *ngFor="let patient of finshed_revealed">
+								<span style="opacity:.5"> </span>
+								<div>
+									{{patient.patient.name_ar}}
+
+									<p>{{patient.time }}</p>
+								</div>
+							</li>
+
+							<h4>العدد {{finshed_revealed.length}}</h4>
+						</ul>
+					</div>
+				</div>
+			</div>
+		</div>
+	</div>
+
+</div>
+
+<div bsModal #historyModel="bs-modal" class="modal fade" tabindex="-1" role="dialog">
+	<div class="modal-dialog modal-md">
+		<div class="modal-content">
+			<div class="modal-body">
+				<ngx-datatable [rows]="currentPatientHistory" [limit]="10" [footerHeight]="50">
+					<ngx-datatable-column name="الدكتور" prop="doctor.name">
+						<ng-template let-row="row" ngx-datatable-cell-template>
+							{{row.doctor.name }}
+						</ng-template>
+					</ngx-datatable-column>
+					<ngx-datatable-column name="التشخيص" prop="diagnosis">
+						<ng-template let-row="row" ngx-datatable-cell-template>
+							{{row.diagnosis }}
+						</ng-template>
+					</ngx-datatable-column>
+					<ngx-datatable-column name="الملاحظات" prop="notes">
+						<ng-template let-row="row" ngx-datatable-cell-template>
+							{{row.notes }}
+						</ng-template>
+					</ngx-datatable-column>
+					<ngx-datatable-column name="الوقت" prop="time">
+						<ng-template let-row="row" ngx-datatable-cell-template>
+							{{row.time }}
+						</ng-template>
+					</ngx-datatable-column>
+				</ngx-datatable>
+			</div>
+		</div>
+	</div>
+</div>

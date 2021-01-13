@@ -1,0 +1,250 @@
+<div class="card mb-50">
+	<div class="card-body">
+		<div class="container">
+			<h4 class="mb-35"><strong>إضافة طبيب جديد</strong></h4>
+
+			<form #form="ngForm" role="form" autocomplete="off" (ngSubmit)="submitForm()">
+				<div class="row">
+					<div class="col-12 col-md-6">
+						<div class="form-group" [class.error]="name.invalid && (name.dirty || name.touched)">
+							<label for="name">الإسم</label>
+							<input type="text" class="form-control" [(ngModel)]="addModel.name" #name="ngModel"
+								id="name" name="name" placeholder="الإسم" required>
+							<span class="error-label">هذا الحقل مطلوب, و لا يمكن أن يبدأ برقم</span>
+						</div>
+					</div>
+					<div class="col-12 col-md-6">
+						<div class="form-group" [class.error]="email.invalid && (email.dirty || email.touched)">
+							<label for="email">البريد الإلكترونى</label>
+							<input type="email" class="form-control" [(ngModel)]="addModel.email" #email="ngModel" [pattern]="globals.emailPattern"
+								id="email" name="email" placeholder="البريد الإلكترونى" required>
+							<span class="error-label">هذا الحقل مطلوب</span>
+						</div>
+					</div>
+
+					<!-- <div class="col-12 col-md-6">
+						<div class="form-group" [class.error]="phone.invalid && (phone.dirty || phone.touched)">
+							<label for="phone">رقم التليفون</label>
+							<input type="text" class="form-control" [(ngModel)]="addModel.mobile" #phone="ngModel"
+								id="phone" name="phone" placeholder="رقم التليفون" pattern="^((?:[+?0?0?966]+)?(?:\s?\d{2})(?:\s?\d{7}))" required>
+							<span class="error-label">هذا الحقل مطلوب, و يجب أن يكون أرقام فقط</span>
+						</div>
+					</div>
+					<div class="col-12 col-md-6">
+						<div class="form-group" [class.error]="bd.invalid && (bd.dirty || bd.touched)">
+							<label for="bd">تاريخ الميلاد</label>
+							<input type="text" class="form-control" [(ngModel)]="addModel.birthdate" #bd="ngModel"
+								id="bd" name="bd" placeholder="تاريخ الميلاد" 								
+								[minDate]="minDate" bsDatepicker required>
+							<span class="error-label">هذا الحقل مطلوب</span>
+						</div>
+					</div>
+
+					<div class="col-12 col-md-6">
+						<div class="form-group">
+							<label for="gender">النوع</label>
+							<select-dropdown [items]="[{value:'male',title:'ذكر'},{value:'female',title:'أنثى'}]"
+								[(ngModel)]="addModel.gender" controlId="gender" name="gender"
+								placeholder="يرجى إختيار النوع" required>
+							</select-dropdown>
+						</div>
+					</div>
+					<div class="col-12 col-md-6"></div> -->
+					<!-- 6 -->
+					<div class="col-12 col-md-6">
+						<div class="form-group" [class.error]="passportStart.invalid && (passportStart.dirty || passportStart.touched)">
+							<label for="passportStart">تاريخ بداية جواز السفر </label>
+							<input type="text" class="form-control" [(ngModel)]="addModel.passportStart" #passportStart="ngModel"
+								id="passportStart" name="passportStart" placeholder="تاريخ بداية جواز السفر  " 								
+								[minDate]="minDate" [maxDate]="addModel.passportEnd" bsDatepicker required>
+							<span class="error-label">هذا الحقل مطلوب</span>
+						</div>
+					</div>
+					<div class="col-12 col-md-6">
+						<div class="form-group" [class.error]="passportEnd.invalid && (passportEnd.dirty || passportEnd.touched)">
+							<label for="passportEnd">تاريخ نهاية جواز السفر </label>
+							<input type="text" class="form-control" [(ngModel)]="addModel.passportEnd" #passportEnd="ngModel"
+								id="passportEnd" name="passportEnd" placeholder="تاريخ نهاية جواز السفر " 								
+								[minDate]="addModel.passportStart" bsDatepicker required>
+							<span class="error-label">هذا الحقل مطلوب</span>
+						</div>
+					</div>
+					<div class="col-12 col-md-6">
+						<div class="form-group" [class.error]="workStart.invalid && (workStart.dirty || workStart.touched)">
+							<label for="workStart">تاريخ بداية العمل</label>
+							<input type="text" class="form-control" [(ngModel)]="addModel.workStart" #workStart="ngModel"
+								id="workStart" name="workStart" placeholder=" تاريخ بداية العمل" 								
+								[minDate]="minDate" [maxDate]="addModel.workEnd" bsDatepicker required>
+							<span class="error-label">هذا الحقل مطلوب</span>
+						</div>
+					</div>
+					<div class="col-12 col-md-6">
+						<div class="form-group" [class.error]="workEnd.invalid && (workEnd.dirty || workEnd.touched)">
+							<label for="workEnd">تاريخ انتهاء العمل </label>
+							<input type="text" class="form-control" [(ngModel)]="addModel.workEnd" #workEnd="ngModel"
+								id="workEnd" name="workEnd" placeholder="تاريخ انتهاء العمل" 								
+								[minDate]="addModel.workStart" bsDatepicker required>
+							<span class="error-label">هذا الحقل مطلوب</span>
+						</div>
+					</div>
+					<div class="col-4">
+						<div class="form-group"
+							[class.error]="residenceNumber.invalid && (residenceNumber.dirty || residenceNumber.touched)">
+							<label for="residenceNumber"> رقم الاقامة </label>
+							<input type="number" min="1" class="form-control" [(ngModel)]="addModel.residenceNumber"
+								#residenceNumber="ngModel" id="residenceNumber" name="residenceNumber" placeholder=" رقم الاقامة"
+								pattern="[0-9]+" required>
+							<span class="error-label">هذا الحقل مطلوب</span>
+						</div>
+					</div>
+					<div class="col-12 col-md-4">
+						<div class="form-group" [class.error]="residenceStart.invalid && (residenceStart.dirty || residenceStart.touched)">
+							<label for="residenceStart">تاريخ بداية الاقامة</label>
+							<input type="text" class="form-control" [(ngModel)]="addModel.residenceStart" #residenceStart="ngModel"
+								id="residenceStart" name="residenceStart" placeholder="تاريخ الاقامة" 								
+								[minDate]="minDate" [maxDate]="addModel.residenceEnd" bsDatepicker required>
+							<span class="error-label">هذا الحقل مطلوب</span>
+						</div>
+					</div>
+					<div class="col-12 col-md-4">
+						<div class="form-group" [class.error]="residenceEnd.invalid && (residenceEnd.dirty || residenceEnd.touched)">
+							<label for="residenceEnd">تاريخ انتهاء الاقامة</label>
+							<input type="text" class="form-control" [(ngModel)]="addModel.residenceEnd" #residenceEnd="ngModel"
+								id="residenceEnd" name="residenceEnd" placeholder="تاريخ انتهاء الاقامة" 								
+								[minDate]="addModel.residenceStart" bsDatepicker required>
+							<span class="error-label">هذا الحقل مطلوب</span>
+						</div>
+					</div>
+
+					<div class="col-4">
+						<div class="form-group"
+							[class.error]="incomeLimit.invalid && (incomeLimit.dirty || incomeLimit.touched)">
+							<label for="incomeLimit">  مقدار الدخل  </label>
+							<input type="number" min="1" class="form-control" [(ngModel)]="addModel.incomeLimit"
+								#incomeLimit="ngModel" id="incomeLimit" name="incomeLimit" placeholder="مقدار الدخل  "
+								pattern="[0-9]+" required>
+							<span class="error-label">هذا الحقل مطلوب</span>
+						</div>
+					</div>
+					<div class="col-4">
+						<div class="form-group"
+							[class.error]="mobile.invalid && (mobile.dirty || mobile.touched)">
+							<label for="mobile">  رقم الهاتف   </label>
+							<input type="number"  class="form-control" [(ngModel)]="addModel.mobile"
+								#mobile="ngModel" id="mobile" name="mobile" placeholder=" رقم الهاتف  "
+								pattern="[0-9]+" required>
+							<span class="error-label">هذا الحقل مطلوب</span>
+						</div>
+					</div>
+					<!-- 8 -->
+					<div class="col-12 col-md-4">
+						<div class="form-group"
+							[class.error]="!editId ? (password.invalid && (password.dirty || password.touched)) : false">
+							<label for="password">كلمة المرور</label>
+							<input type="password" class="form-control" [(ngModel)]="addModel.password"
+								#password="ngModel" id="password" name="password" placeholder="كلمة المرور"
+								[required]="!editId" minlength="6" >
+							<span class="error-label">  الحقل مطلوب و اقل عدد 6 أرقام او أحرف  </span>
+						</div>
+					</div>
+					<div class="col-12 col-md-4">
+						<div class="form-group"
+							[class.error]="!editId ? (password2.value != password.value && (password2.dirty || password2.touched)) : false">
+							<label for="password2">تأكيد كلمة المرور</label>
+							<input type="password" class="form-control" [(ngModel)]="addModel.password2"
+								#password2="ngModel" id="password2" name="password2" placeholder="تأكيد كلمة المرور"
+								[required]="!editId" minlength="6">
+							<span class="error-label">كلمة المرور غير متطابقة</span>
+						</div>
+					</div>
+					<div *ngIf="editId" class="col-12">
+						<div class="alert alert-info d-inline-block">
+							<strong class="ml-5">معلومة!</strong> أترك خانة كلمة المرور لعدم
+							تغييرها
+						</div>
+					</div>
+
+					<!-- <div class="col-12">
+						<div class="form-group" [class.error]="address.invalid && (address.dirty || address.touched)">
+							<label for="address">العنوان</label>
+							<input type="text" class="form-control" [(ngModel)]="addModel.address" #address="ngModel"
+								id="address" name="address" placeholder="العنوان" required>
+							<span class="error-label">هذا الحقل مطلوب</span>
+						</div>
+					</div> -->
+
+					<div class="col-12 mt-30">
+						<button class="btn btn-primary" type="submit" [disabled]="form.invalid || (password2.value != password.value)">
+							{{ editId ? 'حفظ التعديل' : 'إضافة الطبيب' }}
+						</button>
+						<button class="btn btn-default mr-10" type="button" (click)="form.reset()">مسح النموذج</button>
+						<button *ngIf="editId" class="btn btn-default mr-10 float-left" type="button"
+							(click)="cancel()">إلغاء التعديل</button>
+					</div>
+				</div>
+			</form>
+		</div>
+	</div>
+</div>
+
+<div class="card">
+	<div class="card-body">
+		<div class="row mb-35">
+			<div class="col-12 col-md-6 mx-auto">
+				<input type="text" class="form-control search" [(ngModel)]="filter" (keyup)="filterData()"
+					placeholder="بحث بكلمات مفتاحية">
+			</div>
+			<div class="col-12 col-md-3">
+				<select class="form-control" [(ngModel)]="sort" (change)="filterData()">
+					<option value="1">ترتيب الأحدث للأقدم</option>
+					<option value="2">ترتيب الأقدم للأحدث</option>
+				</select>
+			</div>
+		</div>
+
+		<ngx-datatable [rows]="dataFiltered" [limit]="10" [footerHeight]="50">
+			<ngx-datatable-column name="الإسم" prop="name">
+				<ng-template let-row="row" ngx-datatable-cell-template>{{ row.name }}</ng-template>
+			</ngx-datatable-column>
+			<ngx-datatable-column name="البريد الإلكترونى" prop="email">
+				<ng-template let-row="row" ngx-datatable-cell-template>
+					<a [href]="'mailto:' + row.email" class="en-font">{{ row.email }}</a>
+				</ng-template>
+			</ngx-datatable-column>
+			<ngx-datatable-column name="رقم التليفون" prop="mobile">
+				<ng-template let-row="row" ngx-datatable-cell-template>
+					{{ row.mobile ? '' : 'لم يتم التحديد' }}
+					<a *ngIf="row.mobile" [href]="'tel:' + row.mobile"
+						class="en-font">{{ row.mobile }}</a>
+				</ng-template>
+			</ngx-datatable-column>
+			<ngx-datatable-column name="إدارة">
+				<ng-template let-row="row" ngx-datatable-cell-template>
+					<button class="btn btn-danger mr-5" tooltip="حذف" (click)="deleteModal.show(); deleteId = row._id">
+						حذف
+					</button>
+					<button class="btn btn-primary mr-5" tooltip="تعديل" (click)="edit(row._id)">
+						تعديل
+					</button>
+				</ng-template>
+			</ngx-datatable-column>
+		</ngx-datatable>
+	</div>
+</div>
+
+<div bsModal #deleteModal="bs-modal" class="modal fade" tabindex="-1" role="dialog">
+	<div class="modal-dialog modal-sm">
+		<div class="modal-content">
+			<div class="modal-body">
+				<h5 class="mb-25">لا يمكنك التراجع عن الحذف, تأكيد؟</h5>
+
+				<button type="button" class="btn btn-default ml-10" (click)="deleteModal.hide(); deleteId = null">
+					إلغاء
+				</button>
+				<button type="button" class="btn btn-danger" (click)="deleteModal.hide(); delete()">
+					تأكيد الحذف
+				</button>
+			</div>
+		</div>
+	</div>
+</div>

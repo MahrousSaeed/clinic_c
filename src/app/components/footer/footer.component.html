@@ -1,0 +1,10 @@
+<footer class="footer">
+	<div class="d-sm-flex justify-content-center justify-content-sm-between">
+		<span class="text-center text-sm-left d-block d-sm-inline-block">
+			© جميع الحقوق محفوظة, <a href="https://4deve.com/" target="_blank"><strong>المبرمجين الأربعة</strong></a>
+		</span>
+		<span *ngIf="!globals.currentUser?.isSystemAdmin" class="mr-10 ml-10">{{ globals.currentBranch?.name }} </span>
+		<span>v{{ appVer }}</span>
+		<!-- <span class="badge badge-danger float-left">نسخة تجريبية</span> -->
+	</div>
+</footer>

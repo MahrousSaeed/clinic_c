@@ -1,0 +1,31 @@
+.dates_btn {
+    position: absolute;
+    top: -12px;
+    left: 13px;
+}
+.schedule-card {
+    position: relative;
+    background: #f2f8f9;
+    .card-body {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        height: 150px;
+        cursor: pointer;
+    }
+
+    > .btn-danger {
+        display: none;
+        position: absolute;
+        top: 15px;
+        left: 15px;
+    }
+
+    &:hover {
+        opacity: .7;
+
+        > .btn-danger {
+            display: block;
+        }
+    }
+}

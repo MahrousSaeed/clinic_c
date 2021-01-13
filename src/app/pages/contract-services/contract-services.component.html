@@ -1,0 +1,128 @@
+<div class="card mb-50">
+	<div class="card-body">
+		<div class="container">
+			<h4 class="mb-35"><strong>إضافة خدمة شركة جديد</strong></h4>
+
+			<form #form="ngForm" role="form" autocomplete="off" (ngSubmit)="submitForm()">
+				<div class="row">
+					<div class="col-12 col-md-6">
+						<div class="form-group"
+							[class.error]="contract.invalid && (contract.dirty || contract.touched)">
+							<label for="contract">الشركة</label>
+							<select-dropdown [items]="contracts" [(ngModel)]="addModel.contract" #contract="ngModel"
+								controlId="contract" name="contract" placeholder="يرجى إختيار الشركة" required>
+							</select-dropdown>
+							<span class="error-label">هذا الحقل مطلوب</span>
+						</div>
+					</div>
+					<div class="col-12 col-md-6">
+						<div class="form-group" [class.error]="service.invalid && (service.dirty || service.touched)">
+							<label for="service">الخدمة</label>
+							<select-dropdown [items]="services" [(ngModel)]="addModel.service" #service="ngModel"
+								controlId="service" name="service" placeholder="يرجى إختيار الخدمة" required>
+							</select-dropdown>
+							<span class="error-label">هذا الحقل مطلوب</span>
+						</div>
+					</div>
+
+					<div class="col-12">
+						<div class="form-group" [class.error]="price.invalid && (price.dirty || price.touched)">
+							<label for="price">السعر</label>
+							<input type="number" class="form-control" [(ngModel)]="addModel.price" #price="ngModel"
+								id="price" name="price" placeholder="السعر" required>
+							<span class="error-label">هذا الحقل مطلوب</span>
+						</div>
+					</div>
+
+					<div class="col-12 col-md-6">
+						<div class="form-group" [class.error]="startDate.invalid && (startDate.dirty || startDate.touched)">
+							<label for="startDate">تاريخ البدء</label>
+							<input type="text" class="form-control" [(ngModel)]="addModel.startDate" id="startDate"
+								#startDate="ngModel" name="startDate" placeholder="يرجى إختيار تاريخ البدء" bsDatepicker required>
+							<span class="error-label">هذا الحقل مطلوب</span>
+						</div>
+					</div>
+					<div class="col-12 col-md-6" [class.error]="endDate.value > startDate.value && (endDate.dirty || endDate.touched)">
+						<div class="form-group">
+							<label for="endDate">تاريخ النهاية</label>
+							<input type="text" class="form-control" [(ngModel)]="addModel.endDate" id="endDate"
+								#endDate="ngModel" name="endDate" placeholder="يرجى إختيار تاريخ النهاية" [minDate]="startDate.value" bsDatepicker required>
+							<span class="error-label">هذا الحقل مطلوب, و يجب أن يكون بعد تاريخ البدء</span>
+						</div>
+					</div>
+
+					<div class="col-12 mt-30">
+						<button class="btn btn-primary" type="submit" [disabled]="form.invalid">
+							{{ editId ? 'حفظ التعديل' : 'إضافة خدمة الشركة' }}
+						</button>
+						<button class="btn btn-default mr-10" type="button" (click)="form.reset()">مسح النموذج</button>
+						<button *ngIf="editId" class="btn btn-default mr-10 float-left" type="button"
+							(click)="cancel()">إلغاء التعديل</button>
+					</div>
+				</div>
+			</form>
+		</div>
+	</div>
+</div>
+
+<div class="card">
+	<div class="card-body">
+		<div class="row mb-35">
+			<div class="col-12 col-md-6 mx-auto">
+				<input type="text" class="form-control search" [(ngModel)]="filter" (keyup)="filterData()"
+					placeholder="بحث بكلمات مفتاحية">
+			</div>
+			<div class="col-12 col-md-3">
+				<select class="form-control" [(ngModel)]="sort" (change)="filterData()">
+					<option value="1">ترتيب الأحدث للأقدم</option>
+					<option value="2">ترتيب الأقدم للأحدث</option>
+				</select>
+			</div>
+		</div>
+
+		<ngx-datatable [rows]="dataFiltered" [limit]="10" [footerHeight]="50">
+			<ngx-datatable-column name="الشركة">
+				<ng-template let-row="row" ngx-datatable-cell-template>{{ row.contract?.name }}</ng-template>
+			</ngx-datatable-column>
+			<ngx-datatable-column name="الخدمة">
+				<ng-template let-row="row" ngx-datatable-cell-template>{{ row.service?.name }}</ng-template>
+			</ngx-datatable-column>
+			<ngx-datatable-column name="السعر">
+				<ng-template let-row="row" ngx-datatable-cell-template>{{ row.price }}</ng-template>
+			</ngx-datatable-column>
+			<ngx-datatable-column name="تاريخ البدء">
+				<ng-template let-row="row" ngx-datatable-cell-template><span class="en-font">{{ row.startDate | amDateFormat:'LL' }}</span></ng-template>
+			</ngx-datatable-column>
+			<ngx-datatable-column name="تاريخ النهاية">
+				<ng-template let-row="row" ngx-datatable-cell-template><span class="en-font">{{ row.endDate | amDateFormat:'LL' }}</span></ng-template>
+			</ngx-datatable-column>
+			<ngx-datatable-column name="إدارة">
+				<ng-template let-row="row" ngx-datatable-cell-template>
+					<button class="btn btn-danger mr-5" tooltip="حذف" (click)="deleteModal.show(); deleteId = row._id">
+						حذف
+					</button>
+					<button class="btn btn-primary mr-5" tooltip="تعديل" (click)="edit(row._id)">
+						تعديل
+					</button>
+				</ng-template>
+			</ngx-datatable-column>
+		</ngx-datatable>
+	</div>
+</div>
+
+<div bsModal #deleteModal="bs-modal" class="modal fade" tabindex="-1" role="dialog">
+	<div class="modal-dialog modal-sm">
+		<div class="modal-content">
+			<div class="modal-body">
+				<h5 class="mb-25">لا يمكنك التراجع عن الحذف, تأكيد؟</h5>
+
+				<button type="button" class="btn btn-default ml-10" (click)="deleteModal.hide(); deleteId = null">
+					إلغاء
+				</button>
+				<button type="button" class="btn btn-danger" (click)="deleteModal.hide(); delete()">
+					تأكيد الحذف
+				</button>
+			</div>
+		</div>
+	</div>
+</div>

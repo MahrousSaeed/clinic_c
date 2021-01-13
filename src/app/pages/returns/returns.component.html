@@ -1,0 +1,150 @@
+<div class="row">
+    <div class="col-12 mb-50">
+        <div class="card">
+            <div class="card-body">
+                <div class="container">
+                    <h4 class="mb-35">
+                        <strong> المرتجعات</strong>
+                    </h4>
+                    <div class="row">
+                        <div class="col-4">
+                            <div class="alert alert-primary">
+                                للاسترجاع مبلغ برجاء كتابة رقم الفاتورة أولا !
+                            </div>
+                        </div>
+                        <div class="col-6">
+                            <input class="form-control d-inline-block" type="number" [(ngModel)]="number"
+                                placeholder="رقم الفاتورة">
+                        </div>
+                        <div class="col-2">
+                            <button class="btn btn-primary" [disabled]="!number" style="height: 46px;"
+                                (click)="showBill()">عرض الفاتورة</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="card col-12">
+        <div class="row">
+            <div class="col-md-3"></div>
+            <div class="col-12 col-md-6 mt-30">
+                <div class="form-group" >
+                    <label for="dates">نطاق التاريخ</label>
+                    <input type="text" class="form-control" [(ngModel)]="filterRange"
+                        (bsValueChange)="onDateChange($event)" #dates="ngModel" id="dates" name="dates"
+                        placeholder="نطاق التاريخ" bsDaterangepicker required>
+                </div>
+            </div>
+        </div>
+        <div class="card-body">
+            <ngx-datatable [rows]="dataFiltered" [limit]="10" [footerHeight]="50">
+                <ngx-datatable-column name="رقم الفاتورة" prop="name">
+                    <ng-template let-row="row" ngx-datatable-cell-template>{{ row.bill?.number }}</ng-template>
+                </ngx-datatable-column>
+                <ngx-datatable-column name="رقم المريض" prop="name">
+                    <ng-template let-row="row" ngx-datatable-cell-template>{{ row.bill?.reservation?.patient?.number }}
+                    </ng-template>
+                </ngx-datatable-column>
+                <ngx-datatable-column name="اسم المريض" prop="name">
+                    <ng-template let-row="row" ngx-datatable-cell-template>{{ row.bill?.reservation?.patient?.name_ar }}
+                    </ng-template>
+                </ngx-datatable-column>
+                <ngx-datatable-column name="الطبيب" prop="name">
+                    <ng-template let-row="row" ngx-datatable-cell-template>{{ row.bill?.reservation?.doctor?.name }}
+                    </ng-template>
+                </ngx-datatable-column>
+                <ngx-datatable-column name="قيمة المرتجع" prop="name">
+                    <ng-template let-row="row" ngx-datatable-cell-template>{{ row.amount }}</ng-template>
+                </ngx-datatable-column>
+                <ngx-datatable-column name=" الاجمالي" prop="name">
+                    <ng-template let-row="row" ngx-datatable-cell-template>{{ row.bill?.paidAmount }}</ng-template>
+                </ngx-datatable-column>
+                <ngx-datatable-column name="  الاجمالي بعد الخصم" prop="name">
+                    <ng-template let-row="row" ngx-datatable-cell-template>{{ row.bill?.paidAmount - row.amount}}
+                    </ng-template>
+                </ngx-datatable-column>
+      
+            </ngx-datatable>
+        </div>
+    </div>
+</div>
+<div bsModal #showBillModal="bs-modal" class="modal fade" tabindex="-1" role="dialog">
+    <div class="modal-dialog modal-md">
+        <div class="modal-content">
+            <div class="modal-body">
+                <h5 class="mb-25">تفاصيل الفاتورة ويمكنك استرجاع اي قيمة </h5>
+                <ul class="bill_data">
+                    <li>
+                        <span class="bill_title">رقم الفاتورة</span>
+                        <span class="bill_value">{{mainBill?.data?.number}}</span>
+                    </li>
+                    <li>
+                        <span class="bill_title">المريض</span>
+                        <span class="bill_value">{{mainBill?.data?.reservation?.patient?.name_ar}}</span>
+                    </li>
+                    <li>
+                        <span class="bill_title">الطبيب</span>
+                        <span class="bill_value">{{mainBill?.data?.reservation?.doctor?.name}}</span>
+                    </li>
+                    <li>
+                        <span class="bill_title">اجمالي الفاتورة</span>
+                        <span class="bill_value">{{mainBill?.data?.paidAmount}} </span>
+                    </li>
+                    <div class="mb-30">
+                        <span class="service_title">الخدمات </span>
+                        <div>
+                            <ngx-datatable [rows]="mainBill?.services" [limit]="10" [footerHeight]="50">
+                                <ngx-datatable-column name="اسم الخدمة" prop="name">
+                                    <ng-template let-row="row" ngx-datatable-cell-template>{{ row.service?.name }}
+                                    </ng-template>
+                                </ngx-datatable-column>
+                                <ngx-datatable-column name=" السعر" prop="name">
+                                    <ng-template let-row="row" ngx-datatable-cell-template>{{ row.price }}
+                                    </ng-template>
+                                </ngx-datatable-column>
+                                <ngx-datatable-column name="إدارة">
+                                    <ng-template let-row="row" ngx-datatable-cell-template>
+                                        <button class="btn btn-primary " tooltip="استرجاع"
+                                            (click)="refundService(row.service?._id,row.price)">
+                                            استرجاع
+                                        </button>
+                                    </ng-template>
+                                </ngx-datatable-column>
+                            </ngx-datatable>
+                        </div>
+                    </div>
+                </ul>
+                <div class="card return_card">
+                    <div class="card-body">
+                        <div class="container">
+                            <h4 class="mb-35">
+                                <strong> مرتجع</strong>
+                            </h4>
+                            <div class="row">
+                                <div class="col-4">
+                                    <div class="alert alert-primary">
+                                        برجاء كتابة قيمة المبلغ !
+                                    </div>
+                                </div>
+                                <div class="col-6">
+                                    <input class="form-control d-inline-block" type="number" [(ngModel)]="amount"
+                                        placeholder="المبلغ ">
+                                </div>
+                                <div class="col-2">
+                                    <button class="btn btn-primary" (click)="refundService(null,null)"
+                                        [disabled]="mainBill?.data?.paidAmount<amount"
+                                        style="height: 46px;">دفع</button>
+                                </div>
+                                <div class="alert alert-danger" *ngIf="mainBill?.data?.paidAmount<amount">المبلغ
+                                    المسترجع اكبر من المبلغ المدفوع!
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+            </div>
+        </div>
+    </div>
+</div>

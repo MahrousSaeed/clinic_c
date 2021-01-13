@@ -1,0 +1,642 @@
+<div *ngIf="!globals.currentUser" class="alert alert-info text-right font-weight-bold ml-auto mb-0">
+        معلومة ! يجب اختيار الفرع اولا ومن ثم يمكنك اضافة موظفين ثم التقييم
+    </div>
+<div class="container fg mt-5 mb-5">
+    <div class="table-wrapper" style="text-align: right" *ngIf="globals.currentUser === null">
+        <div class="row">
+            <div class="col-12">
+                <div class="form-group">
+                    <label for="services"> الفروع </label>
+                    <select-dropdown class="select-branches" [items]="branches" [(ngModel)]="branche"
+                        (changed)="onSelectBranch()" #branch='ngModel' controlId="branch" name="branch"
+                        placeholder="يرجى إختيار فرع" required>
+                    </select-dropdown>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+<div class="container mt-5 mb-5">
+    <!-- <div>
+        <span>Manage <b>Employees</b></span>
+        <button class="btn btn-default"><strong>Logout</strong> <i class="fas fa-sign-out-alt ml-1"></i></button>
+    </div> -->
+
+    <div class="table-wrapper" style="position: relative">
+        <div class="table_layer" *ngIf="!rateSystem">
+            التقييم مغلق !
+        </div>
+        <div class="table-title">
+            <div class="row">
+                <div class="col-sm-3">
+                    <form action="">
+                        <div class="bg-light rounded-pill shadow-sm">
+                            <div class="input-group">
+                                <input type="search" [(ngModel)]="term" (keyup)="filterData()" #search
+                                    [ngModelOptions]="{standalone: true}" placeholder="بحث"
+                                    class="form-control rounded-pill border-0 bg-light">
+                                <div class="input-group-append">
+                                    <button type="submit" class="btn btn-link m-0 text-primary">
+                                        <i class="fa fa-search"></i></button>
+                                </div>
+                            </div>
+                        </div>
+                    </form>
+                </div>
+                <div class="col-sm-9">
+                    <a *ngIf="!globals.currentUser" (click)="addEmployeeModal.show()" class="btn btn-success"
+                        data-toggle="modal">
+                        <i class="fas fa-plus-circle"></i><span>اضافة موظف</span>
+                    </a>
+
+                    <a *ngIf="globals.currentUser" (click)="addEmployeeModalForAdmin.show()" class="btn btn-success"
+                        data-toggle="modal">
+                        <i class="fas fa-plus-circle"></i><span>اضافة موظف</span>
+                    </a>
+                    <a *ngIf="globals.currentUser" (click)="addDoctorModal.show()" class="btn btn-success"
+                        data-toggle="modal">
+                        <i class="fas fa-plus-circle"></i><span>اضافة دكتور</span>
+                    </a>
+                    <button *ngIf="!globals.currentUser" (click)="deleteAllModal.show()"
+                        [disabled]="deleteAll.users.length === 0" class="btn btn-danger" data-toggle="modal">
+                        <i class="far fa-trash-alt"></i><span>حذف</span></button>
+                </div>
+            </div>
+        </div>
+        <div class="table-responsive" *ngIf="users?.length">
+            <table class="table table-striped table-hover m-0" data-toggle="table">
+                <thead>
+                    <tr>
+                        <th scope="col" *ngIf="globals.currentUser">
+                            <span class="custom-checkbox" *ngIf="globals.currentUser">
+                                <input type="checkbox" id="selectAll">
+                                <label for="selectAll"></label>
+                            </span>
+                        </th>
+                        <th scope="col">ألاسم</th>
+                        <th scope="col">الوظيفة</th>
+                        <th scope="col">التقييم</th>
+                        <th scope="col">الفرع</th>
+                        <th scope="col">إدارة</th>
+                    </tr>
+                </thead>
+
+                <tbody>
+                    <tr *ngFor="let user of users;let i =index">
+                        <td>
+                            <span class="custom-checkbox" *ngIf="globals.currentUser" >
+                                <input type="checkbox" id="check{{i}}" (click)="onChangeCheckbox(i,user.user._id)">
+                                <label for="check{{i}}"></label>
+                            </span>
+                        </td>
+                        <td>{{user.user.name}}</td>
+                        <td>{{user.user.role?.name}}</td>
+                        <td *ngIf="user.user.role?.name === 'doctor'">
+                            <div *ngIf="user.ratings !== null">
+                                <div style="height: 20px">
+                                    <span style="color: #FFC107;">
+                                        الجودة <i *ngFor="let item of createArray(user.ratings.quality)"
+                                            class="fas fa-star"></i>
+                                    </span>
+                                </div>
+                                <div style="height: 20px">
+                                    <span style="color: #FFC107;">
+                                        الاقناع <i *ngFor="let item of createArray(user.ratings.impress)"
+                                            class="fas fa-star"></i>
+                                    </span>
+                                </div>
+                                <div style="height: 40px">
+                                    <span style="color: #FFC107;">
+                                        المظهر <i *ngFor="let item of createArray(user.ratings.exterior)"
+                                            class="fas fa-star"></i>
+                                    </span>
+                                </div>
+                            </div>
+                            <div *ngIf="user.ratings === null">
+                                <span class="not_rating">لم يتم التقييم</span>
+                            </div>
+                        </td>
+                        <td *ngIf="user.user.role?.name !== 'doctor'">
+                            <div *ngIf="user.ratings !== null">
+                                <div style="height: 20px">
+                                    <span style="color: #FFC107;">
+                                        السلوك <i *ngFor="let item of createArray(user.ratings.behaviour)"
+                                            class="fas fa-star"></i>
+                                    </span>
+                                </div>
+                                <div style="height: 20px">
+                                    <span style="color: #FFC107;">
+                                        الاداء <i *ngFor="let item of createArray(user.ratings.performance)"
+                                            class="fas fa-star"></i>
+                                    </span>
+                                </div>
+                                <div style="height: 40px">
+                                    <span style="color: #FFC107;">
+                                        المظهر <i *ngFor="let item of createArray(user.ratings.exterior)"
+                                            class="fas fa-star"></i>
+                                    </span>
+                                </div>
+                            </div>
+                            <div *ngIf="user.ratings === null">
+                                <span class="not_rating">لم يتم التقييم</span>
+                            </div>
+                        </td>
+                        <td>{{user.user.branch?.name}}</td>
+                        <td>
+                            <ul class="m-0 p-0">
+                                <li *ngIf="!globals.currentUser">
+                                    <a (click)="checkStatus(user.user._id,'edit');editId = user.user._id" class="edit"
+                                        data-toggle="modal">
+                                        <i class="far fa-edit" data-toggle="tooltip" title="Edit"></i>
+                                    </a>
+                                </li>
+                                <li *ngIf="!globals.currentUser">
+                                    <a (click)="deleted_record_id = user.user._id;checkStatus(user.user._id,'delete')"
+                                        class="delete" data-toggle="modal">
+                                        <i class="far fa-trash-alt" data-toggle="tooltip" title="Delete"></i>
+                                    </a>
+                                </li>
+                                <li>
+                                    <a (click)=" checkDoctor(user.user._id); " class="rate" data-toggle="modal">
+                                        <i class="fas fa-star" data-toggle="tooltip" title="Rate"></i>
+                                    </a>
+                                </li>
+                            </ul>
+                        </td>
+
+                    </tr>
+
+                </tbody>
+            </table>
+        </div>
+        <div *ngIf="!users?.length" class="col-12 mt-20 mb-50">
+            <div class="card">
+                <div class="card-body">
+                    <div class="op-50" center>
+                        <img src="assets/images/no-results.svg" width="80">
+                        <p class="mt-15 mb-0"><strong>لا يوجد تقييمات لهذا الفرع حتي الان!</strong></p>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <!--End Table-->
+        <div *ngIf="users?.length" class="clearfix pt-4 pb-4">
+            <button class="btn btn-info" (click)="sendToManager()" style=" padding: 0 17px;">ارسال الي ألادمن الرئيسي
+                <i class="far fa-paper-plane"></i>
+            </button>
+        </div>
+        <div class="d-flex">
+            <div *ngIf="managerFlag" class="alert alert-danger d-inline-block ml-auto mb-0">برجاء التأكد من تقييم كل
+                الموظفين اولا </div>
+        </div>
+
+        <!-- <div class="clearfix" *ngIf="users?.length">
+            <div class="hint-text">Showing <b>5</b> out of <b>25</b> entries</div>
+            <ul class="pagination">
+                <li class="page-item disabled"><a href="#">Previous</a></li>
+                <li class="page-item"><a href="#" class="page-link">1</a></li>
+                <li class="page-item"><a href="#" class="page-link">2</a></li>
+                <li class="page-item active"><a href="#" class="page-link">3</a></li>
+                <li class="page-item"><a href="#" class="page-link">4</a></li>
+                <li class="page-item"><a href="#" class="page-link">5</a></li>
+                <li class="page-item"><a href="#" class="page-link">Next</a></li>
+            </ul>
+        </div> -->
+    </div>
+</div>
+
+<!-- <div class="container mt-5 mb-5" >
+
+    
+        <div class="table-wrapper" style="position: relative">
+            <div class="table_layer" *ngIf="!adminRateSystem">
+                التقييم مغلق !
+            </div>
+            <div class="table-title">
+                <div class="row">
+                    <div class="col-sm-3">
+                        <form action="">
+                            <div class="bg-light rounded-pill shadow-sm">
+                                <div class="input-group">
+                                    <input type="search" [(ngModel)]="term" (keyup)="filterData()" #search
+                                        [ngModelOptions]="{standalone: true}" placeholder="بحث"
+                                        class="form-control rounded-pill border-0 bg-light">
+                                    <div class="input-group-append">
+                                        <button type="submit" class="btn btn-link m-0 text-primary">
+                                            <i class="fa fa-search"></i></button>
+                                    </div>
+                                </div>
+                            </div>
+                        </form>
+                    </div>
+                    <div class="col-sm-9">
+                        <a (click)="addEmployeeModal.show()" class="btn btn-success" data-toggle="modal">
+                            <i class="fas fa-plus-circle"></i><span>اضافة موظف</span></a>
+                        <button (click)="deleteAllModal.show()" [disabled]="deleteAll.users.length === 0"
+                            class="btn btn-danger" data-toggle="modal">
+                            <i class="far fa-trash-alt"></i><span>حذف</span></button>
+                    </div>
+                </div>
+            </div>
+            <div class="table-responsive" *ngIf="adminBranchUsers?.length">
+                <table class="table table-striped table-hover m-0" data-toggle="table">
+                    <thead>
+                        <tr>
+                            <th scope="col">
+                                <span class="custom-checkbox" *ngIf="globals.currentUser">
+                                    <input type="checkbox" id="selectAll">
+                                    <label for="selectAll"></label>
+                                </span>
+                            </th>
+                            <th scope="col">ألاسم</th>
+                            <th scope="col">الوظيفة</th>
+                            <th scope="col">التقييم</th>
+                            <th scope="col">الفرع</th>
+                            <th scope="col">إدارة</th>
+                        </tr>
+                    </thead>
+                    <tbody >
+                        <tr *ngFor="let user of adminBranchUsers ;let i =index">
+                            <td>
+                                <span class="custom-checkbox" *ngIf="globals.currentUser">
+                                    <input type="checkbox" id="check{{i}}" (click)="onChangeCheckbox(i,user.user._id)">
+                                    <label for="check{{i}}"></label>
+                                </span>
+                            </td>
+                            <td>{{user.user.name}}</td>
+                            <td>{{user.user.role?.name}}</td>
+                            <td *ngIf="user.user.role?.name === 'doctor'">
+                                <div *ngIf="user.ratings !== null">
+                                    <div style="height: 20px">
+                                        <span style="color: #FFC107;">
+                                            الجودة <i *ngFor="let item of createArray(user.ratings.quality)"
+                                                class="fas fa-star"></i>
+                                        </span>
+                                    </div>
+                                    <div style="height: 20px">
+                                        <span style="color: #FFC107;">
+                                            الاقناع <i *ngFor="let item of createArray(user.ratings.impress)"
+                                                class="fas fa-star"></i>
+                                        </span>
+                                    </div>
+                                    <div style="height: 40px">
+                                        <span style="color: #FFC107;">
+                                            المظهر <i *ngFor="let item of createArray(user.ratings.exterior)"
+                                                class="fas fa-star"></i>
+                                        </span>
+                                    </div>
+                                </div>
+                                <div *ngIf="user.ratings === null">
+                                    <span class="not_rating">لم يتم التقييم</span>
+                                </div>
+                            </td>
+                            <td *ngIf="user.user.role?.name !== 'doctor'">
+                                <div *ngIf="user.ratings !== null">
+                                    <div style="height: 20px">
+                                        <span style="color: #FFC107;">
+                                            السلوك <i *ngFor="let item of createArray(user.ratings.behaviour)"
+                                                class="fas fa-star"></i>
+                                        </span>
+                                    </div>
+                                    <div style="height: 20px">
+                                        <span style="color: #FFC107;">
+                                            الاداء <i *ngFor="let item of createArray(user.ratings.performance)"
+                                                class="fas fa-star"></i>
+                                        </span>
+                                    </div>
+                                    <div style="height: 40px">
+                                        <span style="color: #FFC107;">
+                                            المظهر <i *ngFor="let item of createArray(user.ratings.exterior)"
+                                                class="fas fa-star"></i>
+                                        </span>
+                                    </div>
+                                </div>
+                                <div *ngIf="user.ratings === null">
+                                    <span class="not_rating">لم يتم التقييم</span>
+                                </div>
+                            </td>
+                            <td>{{user.user.branch?.name}}</td>
+                            <td>
+                                <ul class="m-0 p-0">
+                                    <li>
+                                        <a (click)="checkStatus(user.user._id,'edit');editId = user.user._id" class="edit"
+                                            data-toggle="modal">
+                                            <i class="far fa-edit" data-toggle="tooltip" title="Edit"></i>
+                                        </a>
+                                    </li>
+                                    <li>
+                                        <a (click)="deleted_record_id = user.user._id;checkStatus(user.user._id,'delete')"
+                                            class="delete" data-toggle="modal">
+                                            <i class="far fa-trash-alt" data-toggle="tooltip" title="Delete"></i>
+                                        </a>
+                                    </li>
+                                    <li>
+                                        <a (click)=" checkDoctor(user.user._id); " class="rate" data-toggle="modal">
+                                            <i class="fas fa-star" data-toggle="tooltip" title="Rate"></i>
+                                        </a>
+                                    </li>
+                                </ul>
+                            </td>
+    
+                        </tr>
+    
+                    </tbody>
+                    
+                </table>
+            </div>
+            <div *ngIf="!adminBranchUsers?.length" class="col-12 mt-20 mb-50">
+                <div class="card">
+                    <div class="card-body">
+                        <div class="op-50" center>
+                            <img src="assets/images/no-results.svg" width="80">
+                            <p class="mt-15 mb-0"><strong>لا يوجد تقييمات لهذا الفرع حتي الان!</strong></p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div *ngIf="adminBranchUsers?.length" class="clearfix pt-4 pb-4">
+                <button class="btn btn-info" (click)="sendToManager()" style=" padding: 0 17px;">ارسال الي ألادمن الرئيسي 
+                    <i class="far fa-paper-plane"></i>
+                </button>
+            </div>
+            <div class="d-flex">
+                <div *ngIf="managerFlag" class="alert alert-danger d-inline-block ml-auto mb-0">برجاء التأكد من تقييم كل
+                    الموظفين اولا </div>
+            </div>
+        </div>
+    </div> -->
+
+<div bsModal #addEmployeeModal="bs-modal" (onHidden)="onHidden()" class="modal fade" tabindex="-1" role="dialog">
+    <div class="modal-dialog">
+        <div class="modal-content update_modal">
+            <div class="modal-header">
+                <h4 class="modal-title pull-left">اضافة موظف </h4>
+            </div>
+            <div class="modal-body">
+                <form #form="ngForm" role="form" autocomplete="off" (ngSubmit)="submitForm()">
+                    <div class="form-group">
+                        <div class="p-1 bg-light rounded rounded-pill shadow-sm mb-4">
+                            <div class="input-group">
+
+                                <input type="text" class="form-control border-0 bg-light" [(ngModel)]="addModel.name"
+                                    #name="ngModel" id="name" name="name" placeholder="الإسم" required>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="form-group p-1 bg-light rounded rounded-pill shadow-sm mb-4">
+
+
+                        <select-dropdown class="form-control border-0 bg-light custom-select" [items]="roles"
+                            [(ngModel)]="addModel.role" #role='ngModel' controlId="role" name="role"
+                            placeholder="يرجى إختيار وظيفة" required>
+                        </select-dropdown>
+                    </div>
+                    <div class="modal-footerss">
+                        <input type="submit"
+                            [disabled]="addModel.name == null || addModel.role == null || addModel.name == '' || addModel.role == '' "
+                            class="btn btn-success" value="اضافة" (click)="addEmployeeModal.hide()">
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+
+
+</div>
+<div bsModal #rateEmployeeModal="bs-modal" class="modal fade" tabindex="-1" role="dialog">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h4 class="modal-title pull-left">تقييم </h4>
+                <!-- <button type="button" class="close pull-right" aria-label="Close" (click)="modalRef.hide()">
+                            <span aria-hidden="true">&times;</span>
+                        </button> -->
+            </div>
+
+            <div class="modal-body" *ngIf="rateDoctor">
+                <div *ngIf="record?.ratings === 'null' || record?.ratings?.status !== 'completed'"
+                    class="row w-100 m-0">
+                    <div class="col p-0 text-right">
+                        <p><strong>{{record?.user?.name}}</strong></p>
+                    </div>
+                    <div class="row m-0 w-100">
+                        <div class="col-md-6 p-0">
+                            <div class="form-group m-0">
+                                <ngb-rating [(rate)]="doctorRate.quality">
+                                    <ng-template let-fill="fill" let-index="index">
+                                        <span class="star" [class.filled]="fill === 100"
+                                            [class.bad]="index < 3">&#9733;</span>
+                                    </ng-template>
+                                </ngb-rating>
+
+                            </div>
+                        </div>
+                        <div class="col p-0 text-right"><span>جودة عمل الطبيب</span></div>
+                    </div>
+                    <div class="row m-0 w-100">
+                        <div class="col-md-6 p-0">
+                            <div class="form-group m-0">
+                                <ngb-rating [(rate)]="doctorRate.impress">
+                                    <ng-template let-fill="fill" let-index="index">
+                                        <span class="star" [class.filled]="fill === 100"
+                                            [class.bad]="index < 3">&#9733;</span>
+                                    </ng-template>
+                                </ngb-rating>
+
+                            </div>
+                        </div>
+                        <div class="col p-0 text-right"><span>الاقناع</span></div>
+                    </div>
+                    <div class="row m-0 w-100">
+                        <div class="col-md-6 p-0">
+                            <div class="form-group m-0">
+                                <ngb-rating [(rate)]="doctorRate.exterior">
+                                    <ng-template let-fill="fill" let-index="index">
+                                        <span class="star" [class.filled]="fill === 100"
+                                            [class.bad]="index < 3">&#9733;</span>
+                                    </ng-template>
+                                </ngb-rating>
+
+                            </div>
+                        </div>
+                        <div class="col p-0 text-right"><span>المظهر الخارجي</span></div>
+                    </div>
+                </div>
+
+                <!-- <div *ngIf="record.ratings != 'null' && record.ratings?.status === 'completed'"> عفوا لا يمكنك التقييم
+                    بعد ان قمت بارسال تقييمات هذا الشهر الي السوبر أدمن</div> -->
+            </div>
+            <div class="modal-body" *ngIf="!rateDoctor">
+                <div *ngIf="record?.ratings === 'null' || record?.ratings?.status !== 'completed'"
+                    class="row w-100 m-0">
+                    <div class="col p-0 text-right">
+                        <p><strong>{{record?.user?.name}}</strong></p>
+                    </div>
+                    <div class="row m-0 w-100">
+                        <div class="col-md-6 p-0">
+                            <div class="form-group m-0">
+                                <ngb-rating [(rate)]="exterior">
+                                    <ng-template let-fill="fill" let-index="index">
+                                        <span class="star" [class.filled]="fill === 100"
+                                            [class.bad]="index < 3">&#9733;</span>
+                                    </ng-template>
+                                </ngb-rating>
+
+                            </div>
+                        </div>
+                        <div class="col p-0 text-right"><span>المظهر </span></div>
+                    </div>
+                    <div class="row m-0 w-100">
+                        <div class="col-md-6 p-0">
+                            <div class="form-group m-0">
+                                <ngb-rating [(rate)]="behaviour">
+                                    <ng-template let-fill="fill" let-index="index">
+                                        <span class="star" [class.filled]="fill === 100"
+                                            [class.bad]="index < 3">&#9733;</span>
+                                    </ng-template>
+                                </ngb-rating>
+
+                            </div>
+                        </div>
+                        <div class="col p-0 text-right"><span>السلوك </span></div>
+                    </div>
+                    <div class="row m-0 w-100">
+                        <div class="col-md-6 p-0">
+                            <div class="form-group m-0">
+                                <ngb-rating [(rate)]="performance">
+                                    <ng-template let-fill="fill" let-index="index">
+                                        <span class="star" [class.filled]="fill === 100"
+                                            [class.bad]="index < 3">&#9733;</span>
+                                    </ng-template>
+                                </ngb-rating>
+
+                            </div>
+                        </div>
+                        <div class="col p-0 text-right"><span>الاداء </span></div>
+                    </div>
+                </div>
+                <!-- <div *ngIf="record.ratings != 'null' && record.ratings?.status === 'completed'"> عفوا لا يمكنك التقييم
+                    بعد ان قمت بارسال تقييمات هذا الشهر الي السوبر أدمن</div> -->
+
+            </div>
+            <div *ngIf="record?.ratings === 'null' || record?.ratings?.status !== 'completed'" class="modal-footer">
+                <input type="submit" class="btn btn-info" value="تقييم" (click)="createRate();rateEmployeeModal.hide()">
+            </div>
+        </div>
+    </div>
+
+
+</div>
+<div bsModal #deleteEmployeeModal="bs-modal" class="modal fade" tabindex="-1" role="dialog">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h4 class="modal-title pull-left">حذف موظف</h4>
+            </div>
+            <div class="modal-body">
+                <p>هل أنت متأكد من انك تريد الحذف ؟</p>
+                <p class="text-warning"><small>لا يمكنك التراجع بعد ذلك.</small></p>
+            </div>
+            <div class="modal-footer">
+                <input type="submit" class="btn btn-danger" value="حذف" (click)="delete();deleteEmployeeModal.hide()">
+            </div>
+        </div>
+    </div>
+
+
+</div>
+<div bsModal #editEmployeeModal="bs-modal" (onHidden)="onHidden()" class="modal fade" tabindex="-1" role="dialog">
+
+    <div class="modal-dialog">
+        <div class="modal-content update_modal">
+            <div class="modal-header">
+                <h4 class="modal-title pull-left">تعديل</h4>
+            </div>
+            <div class="modal-body">
+                <form #form="ngForm" role="form" autocomplete="off" (ngSubmit)="updateUser()">
+                    <div class="form-group">
+                        <div class="p-1 bg-light rounded rounded-pill shadow-sm mb-4">
+                            <div class="input-group">
+
+                                <input type="text" class="form-control border-0 bg-light" [(ngModel)]="addModel.name"
+                                    #name="ngModel" id="name" name="name" placeholder="الإسم" required>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="form-group p-1 bg-light rounded rounded-pill shadow-sm mb-4">
+
+
+                        <select-dropdown class="form-control border-0 bg-light custom-select" [items]="roles"
+                            [(ngModel)]="addModel.role" #role='ngModel' controlId="role" name="role"
+                            placeholder="يرجى إختيار وظيفة" required>
+                        </select-dropdown>
+                    </div>
+                    <div class="modal-footerss">
+                        <input type="submit" class="btn btn-success"
+                            [disabled]="addModel.name == null && addModel.role == null " value="حفظ التعديل"
+                            (click)="editEmployeeModal.hide()">
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <!-- <div class="modal-footer">
+        <input type="submit" class="btn btn-info" value="Save">
+    </div> -->
+</div>
+
+<div bsModal #deleteAllModal="bs-modal" class="modal fade" tabindex="-1" role="dialog">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h4 class="modal-title pull-left">حذف موظف</h4>
+            </div>
+            <div class="modal-body">
+                <p>هل أنت متأكد من انك تريد حذف المحدد ؟</p>
+                <p class="text-warning"><small>لا يمكنك التراجع بعد ذلك.</small></p>
+            </div>
+            <div class="modal-footer">
+                <input type="submit" class="btn btn-danger" value="حذف"
+                    (click)="deleteAllSelected();deleteAllModal.hide()">
+            </div>
+        </div>
+    </div>
+
+
+</div>
+
+
+<div bsModal #addEmployeeModalForAdmin="bs-modal" (onHidden)="onHidden()" class="modal fade" tabindex="-1"
+    role="dialog">
+    <div class="addUser_modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <button type="button" class="close float-left" aria-label="Close"
+                    (click)="addEmployeeModalForAdmin.hide();">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+                <h4 class="modal-title pull-left">اضافة موظف </h4>
+            </div>
+            <div class="modal-body" *ngIf="globals.currentUser">
+                <app-users></app-users>
+            </div>
+        </div>
+    </div>
+
+
+</div>
+<div bsModal #addDoctorModal="bs-modal" (onHidden)="onHidden()" class="modal fade" tabindex="-1" role="dialog">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content update_modal">
+            <div class="modal-header">
+                <h4 class="modal-title pull-left">اضافة موظف </h4>
+            </div>
+            <div class="modal-body" *ngIf="globals.currentUser">
+                <app-doctors></app-doctors>
+            </div>
+        </div>
+    </div>
+
+
+</div>

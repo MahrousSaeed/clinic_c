@@ -1,0 +1,204 @@
+<div class="card mb-50">
+    <div class="card-body">
+        <div class="container">
+            <div class="row">
+                <div class="col-5">
+                    <a class="flash-button" *ngIf="isOpen">التقييم مفتوح</a>
+
+                    <h3 *ngIf="!isOpen">التقييم مغلق</h3>
+                </div>
+                <div class="col-2">
+                    <button *ngIf="isOpen" class="btn btn-primary mb-30 " (click)="closeRating()"> غلق التقييم</button>
+                    <button *ngIf="!isOpen" class="btn btn-primary  mb-30" (click)="openRating()"> فتح التقييم</button>
+                    <!-- <div class="form-group">
+                        <label for="isopen"> فتح التقييم </label>
+                        <input type="checkbox" [(ngModel)]="isOpen" #isopen="ngModel" id="isopen" data-toggle="toggle"
+                             name="isopen">
+                    </div> -->
+                </div>
+                <div class="col-5"></div>
+                <div class="col-3">
+
+                </div>
+                <div class="col-6 setting-multiselect">
+                    <div class="row">
+                        <div class="form-group col-8" *ngIf="selectBranchFlag">
+                            <mat-form-field [formGroup]="searchUserForm">
+                                <mat-label>اختر الفروع اولا</mat-label>
+                                <mat-select formControlName="userType" ngDefaultControl
+                                    (selectionChange)="onChangeBranches($event)" [formControl]="toppings" multiple>
+
+                                    <mat-option #allSelected (click)="toggleAllSelection()" [value]="0">الجميع
+                                    </mat-option>
+                                    <mat-option *ngFor="let topping of dataFiltered" [value]="topping._id"
+                                        (click)="tosslePerOne(allSelected.viewValue)">
+                                        {{topping.name}}
+                                    </mat-option>
+
+                                </mat-select>
+                            </mat-form-field>
+                        </div>
+                        <div class="col-4" *ngIf="selectBranchFlag">
+                            <button class="btn btn-primary mt-15" (click)="rateBranches()"> ارسال الفروع للتقييم
+                            </button>
+                        </div>
+                    </div>
+
+                    <ngx-datatable *ngIf="ratedBranches.length" [rows]="ratedBranches" [limit]="10" [footerHeight]="50">
+                        <ngx-datatable-column name="الإسم" prop="name">
+                            <ng-template let-row="row" ngx-datatable-cell-template>{{ row.name }}</ng-template>
+                        </ngx-datatable-column>
+                        <ngx-datatable-column name="المدينة" prop="name">
+                            <ng-template let-row="row" ngx-datatable-cell-template>{{ row.city? row.city:'من الخارج' }}
+                            </ng-template>
+                        </ngx-datatable-column>
+
+                        <!-- <ngx-datatable-column name="إدارة">
+                            <ng-template let-row="row" ngx-datatable-cell-template>
+                                <button class="btn btn-danger mr-5" tooltip="حذف"
+                                    (click)="deleteModal.show(); deleteId = row._id">
+                                    حذف
+                                </button>
+                            </ng-template>
+                        </ngx-datatable-column> -->
+                    </ngx-datatable>
+                </div>
+                <div class="col-3"></div>
+                <div class="col-3"></div>
+                <div class="col-9">
+                    <div class="alert alert-info d-inline-block">
+                        <strong class="ml-5">معلومة!</strong> سوف يتم فتح التقييم اوتوماتك في اليوم الاول من كل شهر
+                        تغييرها
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="card mb-50">
+    <div class="card-body">
+        <div class="container">
+            <div>
+                <tabset>
+                    <tab>
+                        <ng-template tabHeading>
+                            <!-- <i class="mdi mdi mdi-bell"></i> -->
+                            <i class="fas fa-code-branch"></i>
+                            اضافة فرع
+                        </ng-template>
+                        <form #form="ngForm" role="form" autocomplete="off" (ngSubmit)="submitForm()">
+                            <div class="row">
+                                <h5 class="mb-25"> اضافة فرع للتقييم</h5>
+                                <div class="col-12">
+                                    <div class="form-group">
+                                        <label for="services"> الفروع </label>
+                                        <select-dropdown [items]="branches" [(ngModel)]="addModel.branch"
+                                            (changed)="onSelectBranch()" #branch='ngModel' controlId="branch"
+                                            name="branch" placeholder="يرجى إختيار فرع" required>
+                                        </select-dropdown>
+                                    </div>
+                                </div>
+                                <div class="col-12 mt-15">
+                                    <button class="btn btn-primary" type="submit">
+                                        إضافة
+                                    </button>
+
+                                </div>
+                            </div>
+                        </form>
+                    </tab>
+
+                    <tab>
+                        <ng-template tabHeading>
+                            <!-- <i class="mdi mdi mdi-bell"></i> -->
+                            <i class="fas fa-code-branch"></i>
+                            اضافة فرع من الخارج
+
+                        </ng-template>
+                        <h5 class="mb-25"> اضافة فرع من الخارج</h5>
+                        <form #addForm='ngForm' (ngSubmit)="addOutBranch()">
+                            <div class="form-group">
+                                <label for="">اسم الفرع</label>
+                                <input type="text" class="form-control" [(ngModel)]="outBranchName" placeholder="الاسم"
+                                    name="branchName" #branchName='ngModel'>
+                            </div>
+                            <div class="form-group">
+                                <label for="">اسم ألادمن</label>
+                                <input type="text" class="form-control" [(ngModel)]="outBranchAdminName" placeholder="اسم الادمن"
+                                    name="branchAdminName" #branchAdminName='ngModel'>
+                            </div>
+                            <div class="form-group">
+                                <button type="submit" class="btn btn-primary" (click)="outbranchModal.hide();"
+                                    [disabled]="addForm.invalid">إضافة</button>
+                            </div>
+                        </form>
+                    </tab>
+
+                </tabset>
+            </div>
+
+            <!-- <h4 class="mb-35"><strong>إضافة فروع للتقييم</strong></h4> -->
+            <!-- <button class="btn btn-primary float-left mt--50" (click)="outbranchModal.show()" > اضافة فرع من الخارج </button> -->
+
+        </div>
+    </div>
+</div>
+
+<div class="card">
+    <div class="card-body">
+        <ngx-datatable [rows]="dataFiltered" [limit]="10" [footerHeight]="50">
+            <ngx-datatable-column name="الإسم" prop="name">
+                <ng-template let-row="row" ngx-datatable-cell-template>{{ row.name }}</ng-template>
+            </ngx-datatable-column>
+            <ngx-datatable-column name="المدينة" prop="name">
+                <ng-template let-row="row" ngx-datatable-cell-template>{{ row.city? row.city:'من الخارج' }}
+                </ng-template>
+            </ngx-datatable-column>
+
+            <ngx-datatable-column name="إدارة">
+                <ng-template let-row="row" ngx-datatable-cell-template>
+                    <button class="btn btn-danger mr-5" tooltip="حذف" (click)="deleteModal.show(); deleteId = row._id">
+                        حذف
+                    </button>
+                </ng-template>
+            </ngx-datatable-column>
+        </ngx-datatable>
+    </div>
+</div>
+
+<div bsModal #deleteModal="bs-modal" class="modal fade" tabindex="-1" role="dialog">
+    <div class="modal-dialog modal-sm">
+        <div class="modal-content">
+            <div class="modal-body">
+                <h5 class="mb-25">لا يمكنك التراجع عن الحذف, تأكيد؟</h5>
+
+                <button type="button" class="btn btn-default ml-10" (click)="deleteModal.hide(); deleteId = null">
+                    إلغاء
+                </button>
+                <button type="button" class="btn btn-danger" (click)="deleteModal.hide(); delete()">
+                    تأكيد الحذف
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
+<div bsModal #outbranchModal="bs-modal" class="modal fade" tabindex="-1" role="dialog">
+    <div class="modal-dialog modal-md">
+        <div class="modal-content">
+            <div class="modal-body">
+                <h5 class="mb-25"> اضافة فرع من الخارج</h5>
+                <form #addForm='ngForm' (ngSubmit)="addOutBranch()">
+                    <div class="form-group">
+                        <input type="text" class="form-control" [(ngModel)]="outBranchName" placeholder="الاسم"
+                            name="branchName" #branchName='ngModel'>
+                    </div>
+                    <div class="form-group">
+                        <button type="submit" class="btn btn-primary" (click)="outbranchModal.hide();"
+                            [disabled]="addForm.invalid">إضافة</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>

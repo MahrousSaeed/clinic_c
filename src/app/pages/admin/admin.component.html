@@ -1,0 +1,73 @@
+<div class="row">
+	<div class="col-12">
+		<button class="btn btn-primary" (click)="sendUpdate()">إرسال آخر تحديث
+			<strong>v{{ latestAppVersion }}</strong></button>
+		<button class="btn btn-primary mr-15" (click)="branchesModal.show()">إدارة الفروع</button>
+	</div>
+</div>
+
+<div bsModal #branchesModal="bs-modal" id="branches_modal" class="modal fade" tabindex="-1" role="dialog">
+	<div class="modal-dialog modal-lg">
+		<div class="modal-content">
+			<div class="modal-header">
+				<button type="button" class="close float-left" aria-label="Close" (click)="branchesModal.hide()">
+					<span aria-hidden="true">&times;</span>
+				</button>
+				<h4 class="modal-title float-right">إدارة الفروع</h4>
+			</div>
+			<button class="btn btn-primary mr-15" (click)="deletedBranches();deletedBranchesModal.show()">الفروع المحزوفة </button>
+			<div class="modal-body">
+				<app-branches></app-branches>
+			</div>
+		</div>
+	</div>
+</div>
+
+<div bsModal #deletedBranchesModal="bs-modal" class="modal fade" tabindex="-1" role="dialog"  >
+	<div class="modal-dialog modal-md modalCenter">
+		<div class="modal-content">
+			<div class="modal-body">
+				<h5 class="mb-25">استرجاع الفروع المحذوفة</h5>
+				<ngx-datatable [rows]="deleted_branches" [limit]="10" [footerHeight]="50">
+					<ngx-datatable-column name="الإسم" prop="name">
+						<ng-template let-row="row" ngx-datatable-cell-template>{{ row.name }}</ng-template>
+					</ngx-datatable-column>
+					<ngx-datatable-column name="رقم التليفون" prop="phone">
+						<ng-template let-row="row" ngx-datatable-cell-template><a 
+								class="en-font">{{ row.phone }}</a></ng-template>
+					</ngx-datatable-column>
+					<ngx-datatable-column name="العنوان" prop="address">
+						<ng-template let-row="row" ngx-datatable-cell-template>{{ row.address }}</ng-template>
+					</ngx-datatable-column>
+
+					<ngx-datatable-column name="إدارة">
+						<ng-template let-row="row" ngx-datatable-cell-template>
+							<button class="btn btn-danger mr-5" tooltip="حذف" (click)="deletedModal.show(); deleteId = row._id">
+								حذف
+							</button>
+							<button class="btn btn-primary mr-5" tooltip="تعديل" (click)="restoreBranch(row._id)">
+								استرجاع
+							</button>
+						</ng-template>
+					</ngx-datatable-column>
+				</ngx-datatable>
+			</div>
+		</div>
+	</div>
+</div>
+<div bsModal #deletedModal="bs-modal" class="modal fade" tabindex="-1" role="dialog"  >
+	<div class="modal-dialog modal-sm modalCenter">
+		<div class="modal-content">
+			<div class="modal-body">
+				<h5 class="mb-25">لا يمكنك التراجع عن الحذف, تأكيد؟</h5>
+
+				<button type="button" class="btn btn-default ml-10" (click)="deletedModal.hide(); deleteId = null">
+					إلغاء
+				</button>
+				<button type="button" class="btn btn-danger" (click)="deletedModal.hide(); forceDelete()">
+					تأكيد الحذف
+				</button>
+			</div>
+		</div>
+	</div>
+</div>

@@ -1,0 +1,125 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <meta charset="UTF-8">
+    <style>
+        body {
+            margin: 0;
+            padding: 0;
+            font-size: 10pt;
+        }
+
+        * {
+            box-sizing: border-box;
+            -moz-box-sizing: border-box;
+        }
+
+        .page {
+            width: 21cm;
+            min-height: 7.42500cm;
+            margin: 1cm auto;
+            border: 1px white solid;
+            border-radius: 5px;
+            background: white;
+        }
+
+        .subpage {
+            position: relative;
+            height: 7.42500cm;
+        }
+
+        @page {
+            size: A4;
+            margin: 0;
+        }
+
+        @media print {
+            .page {
+                margin: 0;
+                border: initial;
+                border-radius: initial;
+                width: initial;
+                min-height: initial;
+                box-shadow: initial;
+                background: initial;
+                page-break-after: always;
+            }
+        }
+
+        p {
+            position: absolute;
+        }
+    </style>
+</head>
+
+<body>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/moment.js/2.24.0/moment.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/moment.js/2.24.0/locale/ar.js"></script>
+    <script>
+        currentInvoice = {}
+
+        window.onload = () => {
+            const urlParams = new URLSearchParams(window.location.search)
+            currentInvoice = JSON.parse(urlParams.get("data"))
+
+            let name = urlParams.get("name")
+
+            let services = ''
+            currentInvoice.services.forEach((service, index) => {
+                services = `${services}
+                <p style="left: 63px; top: ${288 + (index * 20)}px;"></p>
+                <p style="left: 162px; top: ${288 + (index * 20)}px;">${service.service.name}</p>
+                <p style="left: 337px; top: ${288 + (index * 20)}px;">${service.price}</p>
+                <p style="left: 447px; top: ${288 + (index * 20)}px;">${service.discount}%</p>
+                <p style="left: 549px; top: ${288 + (index * 20)}px;">${(service.discount * service.price) / 100}</p>
+                <p style="left: 660px; top: ${288 + (index * 20)}px;">${service.price}</p>`
+            })
+
+            if (currentInvoice.reservation.patient.nationality != 'سعودى') {
+                services = `${services}
+                <p style="left: 63px; top: ${288 + (currentInvoice.services.length * 20)}px;"></p>
+                <p style="left: 162px; top: ${288 + (currentInvoice.services.length * 20)}px;">ضريبة مضافة</p>
+                <p style="left: 337px; top: ${288 + (currentInvoice.services.length * 20)}px;"></p>
+                <p style="left: 447px; top: ${288 + (currentInvoice.services.length * 20)}px;">5%</p>
+                <p style="left: 549px; top: ${288 + (currentInvoice.services.length * 20)}px;"></p>
+                <p style="left: 660px; top: ${288 + (currentInvoice.services.length * 20)}px;">${currentInvoice.vat}</p>`
+            }
+
+            let body = `<div class="book">
+				<div class="page">
+					<div class="subpage">
+						<p style="left: 141px; top: 164px;">${currentInvoice.bill.number || '-'}</p>
+						<p style="left: 141px; top: 192px;">${currentInvoice.reservation.patient.name_ar}</p>
+						<p style="left: 141px; top: 226px;">${currentInvoice.reservation.patient.number || '-'}</p>
+		
+						<p style="left: 591px; top: 164px;">${moment().format('LL')}</p>
+						<p style="left: 591px; top: 192px;">${moment().format('hh:mm A')}</p>
+						<p style="left: 591px; top: 226px;">${currentInvoice.reservation.doctor.name}</p>
+		
+						${services}
+		
+						<p style="left: 149px; top: 392px;">${name}</p>
+						<p style="left: 149px; top: 423px;">${currentInvoice.bill.paidAmount}</p>
+		
+						<p style="left: 660px; top: 392px;">${getInvoiceServicesTotal() + currentInvoice.vat}</p>
+						<p style="left: 660px; top: 423px;">${(getInvoiceServicesTotal() + currentInvoice.vat) - currentInvoice.bill.paidAmount}</p>
+					</div>
+				</div>
+            </div>`
+            
+            document.body.innerHTML = body
+        }
+
+        getInvoiceServicesTotal = (currentInvoice) => {
+            let total = 0;
+            (currentInvoice ? currentInvoice.services : []).forEach(service => {
+                total += service.price
+            })
+
+            return total
+        }
+    </script>
+</body>
+
+</html>

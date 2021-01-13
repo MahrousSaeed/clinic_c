@@ -1,0 +1,63 @@
+<div class="card mb-50">
+  <div class="card-body">
+    <div class="container">
+      <h4 class="mb-35">
+        <strong> الحضور والانصراف اليوم </strong>
+      </h4>
+
+      <form #form="ngForm" role="form" autocomplete="off" (ngSubmit)="submitForm()">
+        <div class="row">
+          <div class="col-12">
+            <div class="form-group" [class.error]="user.invalid && (user.dirty || user.touched)">
+              <label for="user">اسم الموظف </label>
+              <select-dropdown [items]="users" [(ngModel)]="addModel.user" #user="ngModel" controlId="user" name="user"
+                placeholder="يرجى الموظف " required>
+              </select-dropdown>
+            </div>
+          </div>
+
+          <div class="col-12 mt-30">
+            <button class="btn btn-primary" type="submit" [disabled]="addModel.user == null">إضافة </button>
+          </div>
+        </div>
+      </form>
+    </div>
+  </div>
+</div>
+
+<div class="card">
+  <div class="card-body">
+
+    <!-- let-rowIndex='rowIndex' -->
+    <ngx-datatable [rows]="attendance" [limit]="10" [footerHeight]="50">
+      <ngx-datatable-column name="الإسم" prop="user.name">
+        <ng-template let-row="row"  ngx-datatable-cell-template>
+         {{ row.name }}
+        </ng-template>
+      </ngx-datatable-column>
+      
+      <ngx-datatable-column name="تليفون" prop="user.mobile">
+        <ng-template let-row="row" ngx-datatable-cell-template>{{ row.mobile }}</ng-template>
+    </ngx-datatable-column>
+      <ngx-datatable-column name="الحضور">
+          <ng-template let-row="row" ngx-datatable-cell-template>
+            <!-- {{ row.start | date: 'HH:mm' }} -->
+
+            {{ row.start | amDateFormat:'hh:mm' }}
+            {{  row.start | amLocale:'ar' | amDateFormat:'A' }}
+          
+          </ng-template>
+      </ngx-datatable-column>
+      <ngx-datatable-column name="الإنصراف">
+          <ng-template let-row="row" ngx-datatable-cell-template>
+            <span *ngIf="row.end">
+              <!-- {{ row.end | date: 'HH:mm' }} -->
+              {{ row.end | amDateFormat:'hh:mm' }}
+              {{  row.end | amLocale:'ar' | amDateFormat:'A' }}
+            </span>
+            <span *ngIf="!row.end" class="endWork-date">لا يوجد</span>
+          </ng-template>
+      </ngx-datatable-column>
+    </ngx-datatable>
+  </div>
+</div>

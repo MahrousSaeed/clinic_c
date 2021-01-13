@@ -1,0 +1,19 @@
+.attend_end {
+    display: inline-block;
+    padding: 2px 10px;
+    background: #09c;
+    border-radius: 10px;
+    color: #fff;
+    font-weight: bold;
+}
+tr td {
+    padding: 10px 0
+}
+#invoice {
+    position: relative
+}
+.delete-btn {
+    position: absolute;
+    top: 0;
+    right: 0
+}

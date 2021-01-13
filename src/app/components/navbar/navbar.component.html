@@ -1,0 +1,372 @@
+<nav class="navbar default-layout col-lg-12 col-12 p-0 fixed-top d-flex flex-row">
+	<div class="text-center navbar-brand-wrapper d-flex align-items-top justify-content-center"
+		[class.active]="currentUrl == '/dash/dashboard' || currentUrl == '/dash/admindb'">
+		<a class="navbar-brand brand-logo" (click)="checkDoctor()" style="cursor:pointer"
+			[class.disabled]="!globals.isOnline">
+			<!-- <img src="assets/images/logo.svg" alt="logo" /> -->
+			<h4 class="mt-15">
+				<i class="icon ion-md-home ml-10"></i>
+				<strong>مستوصفات
+					<span class="op-60">المهيدب</span>
+				</strong>
+			</h4>
+			<!-- <span style="position:absolute; bottom:10px; right:54px; line-height:1;" class="ts-10 op-70">v{{ appVer }}</span> -->
+		</a>
+		<a class="navbar-brand brand-logo-mini" (click)="checkDoctor()" style="cursor:pointer">
+			<!-- <img src="assets/images/logo-mini.svg" alt="logo" /> -->
+			<h4 class="mt-15">
+				<i class="icon ion-md-home"></i>
+			</h4>
+		</a>
+	</div>
+	<div class="navbar-menu-wrapper d-flex align-items-center">
+		<ul class="navbar-nav header-links flex-1 justify-content-center">
+			<li *ngIf="globals.currentUser?.isSystemAdmin" class="nav-item">
+				<a class="nav-link header-links-item" routerLink="admincp"
+					[class.active]="currentUrl == '/dash/admincp'">
+					<i class="icon ion-md-settings ml-7"></i>
+					<strong>شاشة التحكم</strong>
+				</a>
+			</li>
+			<li *ngIf="globals.currentUser?.isSystemAdmin" class="nav-item">
+				<a class="nav-link header-links-item" routerLink="settings"
+					[class.active]="currentUrl == '/dash/settings'">
+					<i class="icon ion-md-settings ml-7"></i>
+					<strong>اعدادات</strong>
+				</a>
+			</li>
+			<li *ngIf="globals.currentUser?.isSystemAdmin" class="nav-item">
+				<a class="nav-link header-links-item" routerLink="admins_rating"
+					[class.active]="currentUrl == '/dash/admins_rating'">
+					<i class="icon ion-md-settings ml-7"></i>
+					<strong>التقييمات</strong>
+				</a>
+			</li>
+			<!-- <li *ngIf="globals.currentUser?.isSystemAdmin" class="nav-item">
+				<a class="nav-link header-links-item" routerLink="reports"
+					[class.active]="currentUrl == '/dash/reports'">
+					<i class="icon ion-md-settings ml-7"></i>
+					<strong>التقارير </strong>
+				</a>
+			</li> -->
+
+			<ng-template ngFor let-item [ngForOf]="menuItems">
+				<li *ngIf="item.canShow && item.children === undefined && (item.data?.inMenu === undefined || item.data?.inMenu) && (item.data.hide === undefined || !item.data.hide)||globals.currentUser?.isSystemAdmin"
+					class="nav-item"
+					[class.disabled]="!globals.isOnline && item.path != 'profiles' && item.path != 'reservations'">
+					<a class="nav-link header-links-item" [routerLink]="item.path"
+						[class.active]="currentUrl == '/dash/' + item.path">
+						<i *ngIf="item.data.icon" [class]="item.data.icon + ' ml-7'"></i>
+						<strong>{{ item.data.title }}</strong>
+					</a>
+				</li>
+				<li *ngIf="item.canShow && (item.data.inMenu === undefined || item.data.inMenu) && (item.data.hide === undefined || !item.data.hide) && item.children"
+					class="nav-item" ngbDropdown [class.disabled]="!globals.isOnline">
+					<a class="nav-link dropdown-toggle" ngbDropdownToggle
+						[class.active]="currentUrl == '/dash/' + item.path">
+						<i *ngIf="item.data.icon" [class]="item.data.icon + ' ml-7'"></i>
+						<strong>{{ item.data.title }}</strong>
+					</a>
+
+					<div class="dropdown-menu dropdown-menu-right navbar-dropdown" ngbDropdownMenu>
+						<ng-template ngFor let-child [ngForOf]="item.children">
+							<a *ngIf="child.canShow" class="dropdown-item" [routerLink]="child.path"
+								[class.active]="currentUrl == '/dash/' + child.path">
+								{{ child.data.title }}
+							</a>
+						</ng-template>
+					</div>
+				</li>
+			</ng-template>
+			<li *ngIf="globals.currentUser?.role?.name ==='reception' " class="nav-item">
+				<a class="nav-link header-links-item" routerLink="/dash/doctors-schedule"
+					[class.active]="currentUrl == '/dash/doctors-schedule'">
+					<!-- <i *ngIf="item.data.icon" class=" ml-7'"></i> -->
+					<strong>جدول مواعيد الأطباء</strong>
+				</a>
+			</li>
+			<!-- <li class="nav-item">
+				<a class="nav-link" routerLink="/dash/profiles" [class.active]="currentUrl == '/dash/profiles'"><i
+						class="icon ion-md-people ml-7"></i> <strong>العملاء</strong></a>
+			</li>
+
+			<li class="nav-item">
+				<a routerLink="/dash/reservations" [class.active]="currentUrl == '/dash/reservations'" class="nav-link"><i
+						class="icon ion-md-calendar ml-7"></i> <strong>الحجوزات</strong></a>
+			</li>
+
+			<li class="nav-item" ngbDropdown>
+				<a class="nav-link dropdown-toggle" id="UserDropdown" ngbDropdownToggle>
+					<i class="icon ion-md-settings ml-7"></i> <strong class="d-inline-block w-80">قائمة التحكم</strong>
+				</a>
+				<div class="dropdown-menu dropdown-menu-right navbar-dropdown" ngbDropdownMenu>
+					<a class="dropdown-item mt-20" routerLink="/dash/branches" [class.active]="currentUrl == '/dash/branches'">الفروع</a>
+					<a class="dropdown-item" routerLink="/dash/users" [class.active]="currentUrl == '/dash/users'">المستخدمين</a>
+					<a class="dropdown-item" routerLink="/dash/doctors" [class.active]="currentUrl == '/dash/doctors'">الأطباء</a>
+					<a class="dropdown-item" routerLink="/dash/doctors-schedule" [class.active]="currentUrl == '/dash/doctors-schedule'">جدول مواعيد الأطباء</a>
+					<a class="dropdown-item" routerLink="/dash/contracts" [class.active]="currentUrl == '/dash/contracts'">الشركات</a>
+					<a class="dropdown-item" routerLink="/dash/services" [class.active]="currentUrl == '/dash/services'">الخدمات</a>
+					<a class="dropdown-item" routerLink="/dash/contract-services" [class.active]="currentUrl == '/dash/contract-services'">خدمات الشركات</a>
+					<a class="dropdown-item" routerLink="/dash/expenses-types" [class.active]="currentUrl == '/dash/expenses-types'">أنواع المصروفات</a>
+				</div>
+			</li>
+
+			<li class="nav-item">
+				<a routerLink="/dash/expenses" [class.active]="currentUrl == '/dash/expenses'" class="nav-link"><i
+						class="icon ion-md-cash ml-7"></i> <strong>المصروفات</strong></a>
+			</li> -->
+		</ul>
+
+		<ul class="navbar-nav navbar-nav-right" [class.disabled]="!globals.isOnline">
+			<li *ngIf="!globals.currentUser?.isAdmin" class="nav-item dropdown" ngbDropdown>
+				<a class="nav-link count-indicator dropdown-toggle" id="messageDropdown" ngbDropdownToggle
+					data-placement="right" tooltip="طلبات الأجازات">
+					<i class="mdi mdi-file-document-box"></i>
+					<span *ngIf="vacations?.length != 0" class="count">{{vacations?.length}}</span>
+				</a>
+				<div class="dropdown-menu dropdown-menu-left navbar-dropdown vacations-dropdown  preview-list"
+					ngbDropdownMenu aria-labelledby="messageDropdown">
+					<div class="dropdown-item">
+						<p class="mb-0 font-weight-normal float-left">
+							لديك {{vacations?.length}} طلب أجازة
+						</p>
+						<span class="badge badge-info badge-pill float-right"> الجميع</span>
+					</div>
+					<div class="dropdown-divider"></div>
+					<div *ngIf="vacations">
+						<div class="vacations-container" *ngFor='let vacation of vacations'>
+							<a class="dropdown-item preview-item">
+								<div class="preview-thumbnail">
+									<img [src]='vacation.user.image'
+										onerror="this.src='assets/images/default_avatar.png'" alt="image"
+										class="profile-pic">
+
+								</div>
+								<div class="preview-item-content flex-grow">
+									<h6 class="preview-subject ellipsis font-weight-medium">
+										{{vacation.user.name}}
+										<span class="float-right font-weight-light small-text"
+											style="margin-top:5px; margin-left:5px">{{vacation.createdAt | date: 'dd/MM' }}</span>
+									</h6>
+									<p class="font-weight-light small-text">
+										{{vacation.note}}
+									</p>
+									<p class="font-weight-light large-text">
+										الحالة
+										<span *ngIf="vacation.status == 'accept'"
+											class="badge badge-success  badge-pill font-weight-bold"
+											style="    margin-right: 7px;font-size: 12px;padding: 3px 9px;">{{vacation.status}}</span>
+										<span *ngIf="vacation.status == 'reject'"
+											class="badge badge-danger  badge-pill font-weight-bold"
+											style="    margin-right: 7px;font-size: 12px;padding: 3px 9px;">{{vacation.status}}</span>
+										<span *ngIf="vacation.status == 'requested' "
+											class="badge badge-primary  badge-pill font-weight-bold"
+											style="    margin-right: 7px;font-size: 12px;padding: 3px 9px;">{{vacation.status}}</span>
+									</p>
+									<p *ngIf="vacation.status == 'accept'" class="font-weight-light large-text"
+										style="color: #09c;font-weight: bold !important"> {{vacation.status_note}}</p>
+									<p *ngIf="vacation.status == 'reject'" class="font-weight-light large-text"
+										style="color: #09c;font-weight: bold !important">{{vacation.status_note}} </p>
+								</div>
+
+							</a>
+							<div class="dropdown-divider"></div>
+						</div>
+					</div>
+					<div *ngIf="!vacations">
+						لا يوجد طلبات أجازه حاليا
+					</div>
+				</div>
+			</li>
+
+			<li *ngIf="globals.currentUser?.isAdmin && !globals.currentUser?.isSystemAdmin" class="nav-item"
+				data-placement="right" tooltip="طلبات الأجازات" [class.disabled]="!globals.isOnline">
+				<a class="nav-link count-indicator" routerLink="/dash/vacation-requests">
+					<i class="mdi mdi-file-document-box"></i>
+					<span *ngIf="vacations_length > 0" class="count vac-count">{{vacations_length}}</span>
+				</a>
+			</li>
+			<li class="nav-item dropdown" ngbDropdown
+				*ngIf="globals.currentUser?.isAdmin && !globals.currentUser?.isSystemAdmin"
+				[class.disabled]="!globals.isOnline">
+				<a class="nav-link count-indicator dropdown-toggle" id="notificationDropdown" ngbDropdownToggle>
+					<i class="mdi mdi mdi-bell"></i>
+					<span class="count" *ngIf="notificationCount > 0">
+						<!-- {{notifications._patientsReservations.length + notifications._userPassport.length + notifications._userResidence.length + notifications._userWorkEnd.length + notifications._usersVacations.length}} -->
+						{{notificationCount}}
+					</span>
+				</a>
+				<div class="dropdown-menu dropdown-menu-left mainNotify navbar-dropdown preview-list" ngbDropdownMenu
+					aria-labelledby="notificationDropdown" [class.disabled]="!globals.isOnline">
+					<a class="dropdown-item dropdown-item-f" routerLink="/dash/notification"
+						style="color: #FFF;margin-top: 4px !important; font-weight: bold;background: #09c">
+						<!-- <p class="mb-0 font-weight-normal float-left">You have 4 new notifications
+						</p> -->
+						<i class="fas fa-paperclip" style="color:#ffd476"></i>
+						<span>كل التفاصيل </span>
+					</a>
+					<div class="dropdown-divider"></div>
+					<a class="dropdown-item preview-item">
+
+						<div class="preview-item-content">
+							<h6 class="preview-subject font-weight-medium" *ngIf="notifications"
+								style=" display: flex;justify-content: space-between;"> عدد الجلسات <span
+									class="notification-num">{{notifications._patientsReservations.length}}</span> </h6>
+						</div>
+					</a>
+					<div class="dropdown-divider"></div>
+					<a class="dropdown-item preview-item">
+						<div class="preview-item-content">
+							<h6 class="preview-subject font-weight-medium" *ngIf="notifications"
+								style=" display: flex;justify-content: space-between;"> الجوزات القريبة من الانتهاء
+								<span class="notification-num">{{notifications._userPassport.length}}</span> </h6>
+						</div>
+					</a>
+					<div class="dropdown-divider"></div>
+					<a class="dropdown-item preview-item">
+
+						<div class="preview-item-content">
+							<h6 class="preview-subject font-weight-medium" *ngIf="notifications"
+								style=" display: flex;justify-content: space-between;"> الاقامة القريبة من الانتهاء
+								<span class="notification-num">{{notifications._userResidence.length}}</span> </h6>
+						</div>
+					</a>
+					<div class="dropdown-divider"></div>
+					<a class="dropdown-item preview-item">
+
+						<div class="preview-item-content">
+							<h6 class="preview-subject font-weight-medium" *ngIf="notifications"
+								style=" display: flex;justify-content: space-between;"> انتهاء عقود العمل <span
+									class="notification-num">{{notifications._userWorkEnd.length}}</span> </h6>
+						</div>
+					</a>
+					<div class="dropdown-divider"></div>
+					<a class="dropdown-item preview-item">
+
+						<div class="preview-item-content">
+							<h6 class="preview-subject font-weight-medium" *ngIf="notifications"
+								style=" display: flex;justify-content: space-between;"> موظفين لم يحصلو علي أجازة <span
+									class="notification-num">{{notifications._cleanUsersVacations?.length}}</span> </h6>
+						</div>
+					</a>
+					<a class="dropdown-item preview-item">
+
+						<div class="preview-item-content">
+							<h6 class="preview-subject font-weight-medium" *ngIf="notifications"
+								style=" display: flex;justify-content: space-between;"> أجازات <span
+									class="notification-num">{{notifications.userVacations?.length}}</span> </h6>
+						</div>
+					</a>
+					<a class="dropdown-item preview-item">
+
+						<div class="preview-item-content">
+							<h6 class="preview-subject font-weight-medium" *ngIf="notifications"
+								style=" display: flex;justify-content: space-between;"> فواتير غير كاملة <span
+									class="notification-num">{{bills?.length}}</span> </h6>
+						</div>
+					</a>
+				</div>
+			</li>
+
+			<li class="nav-item dropdown d-none d-xl-inline-block" ngbDropdown [class.disabled]="!globals.isOnline">
+				<a class="nav-link dropdown-toggle not" id="UserDropdown" ngbDropdownToggle>
+					<span class="profile-text ml-10">مرحبا,
+						<span
+							[class.en-font]="!globals.isArabic(globals.currentUser?.name)">{{ globals.currentUser?.name }}</span>
+					</span>
+					<img id="yourPic" class="img-xs rounded-circle" [src]="globals.currentUser?.image"
+						onerror="this.src='assets/images/default_avatar.png'" alt="Profile image">
+					<!-- <img *ngIf="!globals.currentUser?.image" class="img-xs rounded-circle" src='assets/images/default_avatar.png' alt="Profile image"> -->
+					<!-- onerror="this.src='assets/images/default_avatar.png'" -->
+					<!-- <p>{{globals.currentUser?.image}}</p> -->
+				</a>
+				<div class="dropdown-menu dropdown-menu-right navbar-dropdown" ngbDropdownMenu>
+					<!-- <a class="dropdown-item ts-16"><strong>{{ globals.currentUser?.name }}</strong></a> -->
+					<!-- <hr class="m-0"> -->
+					<a *ngIf="!globals.currentUser?.isAdmin && !globals.currentUser?.isSystemAdmin"
+						class="dropdown-item mt-10" (click)="vacationRequestModel.show()">
+						طلب اجازة
+					</a>
+					<a *ngIf="!globals.currentUser?.isSystemAdmin" class="dropdown-item mt-10"
+						(click)="openUpdateProfile()">
+						تعديل الملف الخاص
+					</a>
+					<!-- <a class="dropdown-item mt-2">
+						قفل النظام
+					</a> -->
+					<hr *ngIf="!globals.currentUser?.isSystemAdmin">
+					<a class="dropdown-item mt-2" (click)="logout()" style="cursor:pointer">
+						<i class="icon ion-md-log-out ml-5"></i> تسجيل الخروج
+					</a>
+				</div>
+			</li>
+		</ul>
+		<button class="navbar-toggler navbar-toggler-right d-lg-none align-self-center" type="button"
+			(click)="toggleOffcanvas()">
+			<span class="mdi mdi-menu"></span>
+		</button>
+	</div>
+</nav>
+
+<div bsModal #vacationRequestModel="bs-modal" class="modal fade" tabindex="-1" role="dialog">
+	<div class="modal-dialog modal-md">
+		<div class="modal-content">
+			<div class="modal-header">
+				<button type="button" class="close float-left" aria-label="Close"
+					(click)="vacationRequestModel.hide();">
+					<span aria-hidden="true">&times;</span>
+				</button>
+				<h4 class="modal-title float-right"> طلب اجازة</h4>
+			</div>
+			<div class="modal-body">
+				<form #vacationRequestForm="ngForm" role="form" autocomplete="off" (ngSubmit)="vacationRequest()">
+					<div class="row">
+
+
+						<div class="col-12 col-md-6">
+							<div class="form-group"
+								[class.error]="startDate.invalid && (startDate.dirty || startDate.touched)">
+								<label for="startDate">تاريخ البداية</label>
+								<input type="text" class="form-control" [(ngModel)]="addModel.start_date"
+									#startDate="ngModel" id="startDate" name="startDate" placeholder="تاريخ البداية"
+									[minDate]="currentDate" bsDatepicker required>
+								<span class="error-label">هذا الحقل مطلوب</span>
+							</div>
+						</div>
+						<div class="col-12 col-md-6">
+							<div class="form-group"
+								[class.error]="endDate.invalid && (endDate.dirty || endDate.touched)">
+								<label for="endDate">تاريخ الانتهاء </label>
+								<input type="text" class="form-control" [(ngModel)]="addModel.end_date"
+									#endDate="ngModel" id="endDate" name="endDate" placeholder="تاريخ الانتهاء"
+									bsDatepicker [minDate]="startDate.value" required>
+								<span class="error-label">هذا الحقل مطلوب</span>
+							</div>
+						</div>
+						<div class="col-12 col-md-12">
+							<div class="form-group">
+								<label for="note"> ملاحظات</label>
+								<textarea name="note" [(ngModel)]="addModel.note" #note="ngModel" class="form-control"
+									placeholder="ملاحظات"></textarea>
+							</div>
+						</div>
+						<div class="col-12 mt-30">
+							<button class="btn btn-primary" type="submit"
+								[class.disabled]="vacationRequestForm.invalid">
+								<!-- || acceptedVacations?.length >= globals.currentBranch?.numberOfVacationMonth  -->
+								<!-- || acceptedVacations?.length >= globals.currentBranch?.numberOfVacationMonth -->
+								طلب اجازة
+							</button>
+							<button class="btn btn-default mr-10" type="button"
+								(click)="vacationRequestModel.hide()">إلغاء</button>
+						</div>
+						<div class="col-12 mt-20"
+							*ngIf="acceptedVacations?.length >= globals.currentBranch?.numberOfVacationMonth">
+							<p style="color:red">لقد انتهت طلبات الاجازة الخاصة بك في هذا الشهر</p>
+						</div>
+					</div>
+				</form>
+			</div>
+		</div>
+	</div>
+</div>

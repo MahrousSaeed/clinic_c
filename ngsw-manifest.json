@@ -1,0 +1,16 @@
+{
+  "static.ignore": [
+    "^\/assets\/ignore.*$"
+  ],
+  "routing": {
+    "index": "/index.html",
+    "routes": {
+      "/": {
+        "match": "exact"
+      },
+      "/dash": {
+        "match": "prefix"
+      }
+    }
+  } 
+}

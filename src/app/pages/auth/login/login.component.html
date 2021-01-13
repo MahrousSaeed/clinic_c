@@ -1,0 +1,67 @@
+<div class="full-body">
+	<div class="container">
+		<div class="card">
+			<div class="card-body" *ngIf="!emailField">
+				<h4 class="mb-15"><strong>تسجيل الدخول</strong></h4>
+
+				<form #form="ngForm" role="form" (ngSubmit)="submitForm()">
+					<div class="row">
+						<div class="col-12">
+							<div class="form-group">
+								<label for="complain">البريد الإلكترونى</label>
+								<input class="form-control en-font" [(ngModel)]="email" id="email" name="email"
+									placeholder="البريد الإلكترونى" required>
+							</div>
+						</div>
+						<div class="col-12">
+							<div class="form-group">
+								<label for="password">كلمة المرور</label>
+								<input type="password" class="form-control" [(ngModel)]="password" id="password"
+									name="password" placeholder="كلمة المرور" required>
+							</div>
+						</div>
+
+						<div class="col-12">
+							<a style="cursor:pointer" (click)="emailField = true">نسيت كلمة المرور؟</a>
+						</div>
+						
+						<div class="col-12" *ngIf="loginError">
+							<p class="mt-10 mb-0" style="color:red"><strong>يرجى التحقق من بياناتك</strong></p>
+						</div>
+
+						<div class="col-12 mt-15">
+							<button type="submit" class="btn btn-primary btn-block h-45 mb-25">تسجيل الدخول</button>
+						</div>
+					</div>
+				</form>
+
+			</div>
+			<div class="card-body" *ngIf="emailField">
+				<h4 class="mb-15"><strong>برجاء كتابة الايميل الخاص بك  </strong></h4>
+
+				<form #formm="ngForm" role="form" (ngSubmit)="forgetPassword()">
+					<div class="row">
+						<div class="col-12">
+							<div class="form-group">
+								<label for="complain">البريد الإلكترونى</label>
+								<input class="form-control en-font" [(ngModel)]="email" id="email" name="email"
+									placeholder="البريد الإلكترونى" required>
+							</div>
+						</div>
+						
+						<div class="col-12">
+							<a style="cursor:pointer" (click)="emailField = false">  تسجيل الدخول ؟</a>
+						</div>
+						<div class="col-12 mt-15">
+							<button type="submit" class="btn btn-primary btn-block h-45 mb-25">تغير كلمة المرور   </button>
+						</div>
+					</div>
+				</form>
+				
+			</div>
+			<p class="mb--50 op-40" style="color:white" center>
+				© جميع الحقوق محفوظة, <a href="https://4deve.com/" target="_blank" style="color:white">المبرمجين الأربعة</a>
+			</p>
+		</div>
+	</div>
+</div>

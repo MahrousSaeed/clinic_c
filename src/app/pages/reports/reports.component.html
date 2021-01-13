@@ -1,0 +1,959 @@
+<div class="card mb-50">
+	<div class="card-body">
+		<div class="container">
+			<h4 class="mb-35">
+				<strong>إنشاء تقرير جديد</strong>
+			</h4>
+			<form #form="ngForm" role="form" autocomplete="off" (ngSubmit)="submitForm()">
+				<div class="row">
+					<div class="col-12 col-md-6" *ngIf="globals.currentUser?.isSystemAdmin">
+						<div class="form-group">
+							<label for="branch">الفرع</label>
+							<select-dropdown [items]="branches" [(ngModel)]="main_branch" #branch="ngModel"
+								controlId="branch" name="branch" placeholder="يرجى إختيار الفرع" required>
+							</select-dropdown>
+							<span class="error-label">هذا الحقل مطلوب</span>
+						</div>
+					</div>
+					<div class="col-12 col-md-6">
+						<div class="form-group" [class.error]="model.invalid && (model.dirty || model.touched)">
+							<label for="model">التقرير</label>
+							<select-dropdown [items]="models" [(ngModel)]="addModel.model" #model="ngModel"
+								(changed)="data = null; reportCreated = false;" controlId="model" name="model"
+								placeholder="يرجى إختيار التقرير" required>
+							</select-dropdown>
+							<span class="error-label">هذا الحقل مطلوب</span>
+						</div>
+					</div>
+					<div *ngIf="addModel.model != 'attendance'" class="col-12 col-md-6">
+						<div class="form-group" [class.error]="type.invalid && (type.dirty || type.touched)">
+							<label for="type">نوع التقرير</label>
+							<select-dropdown [items]="types" [(ngModel)]="addModel.type" #type="ngModel"
+								(changed)="data = null; reportCreated = false" controlId="type" name="type"
+								placeholder="يرجى إختيار نوع التقرير" required>
+							</select-dropdown>
+							<span class="error-label">هذا الحقل مطلوب</span>
+						</div>
+					</div>
+					<div class="col-12 col-md-6" *ngIf="addModel.model == 'attendance'">
+						<div class="form-group" [class.error]="Atype.invalid && (Atype.dirty || Atype.touched)">
+							<label for="Atype">نوع التقرير</label>
+							<select-dropdown [items]="AttendanceTypes" [(ngModel)]="addAttendanceModel.type"
+								#Atype="ngModel" controlId="Atype" name="Atype" placeholder="يرجى إختيار نوع التقرير"
+								required>
+							</select-dropdown>
+							<span class="error-label">هذا الحقل مطلوب</span>
+						</div>
+					</div>
+					<div *ngIf="addModel.model == 'reservation'" class="col-12 col-md-6">
+						<div class="form-group" [class.error]="patient.invalid && (patient.dirty || patient.touched)">
+							<label for="patient">العميل</label>
+							<select-dropdown [items]="patients" [(ngModel)]="addModel.patient" #patient="ngModel"
+								(changed)="data = null; reportCreated = false" controlId="patient" name="patient"
+								showAll="true" placeholder="يرجى إختيار العميل" required>
+							</select-dropdown>
+							<span class="error-label">هذا الحقل مطلوب</span>
+						</div>
+					</div>
+					<div *ngIf="addModel.model == 'reservation' || addModel.model == 'bill'|| addModel.model == 'deletedBills' "
+						class="col-12 col-md-6">
+						<div class="form-group" [class.error]="doctor.invalid && (doctor.dirty || doctor.touched)">
+							<label for="doctor">الطبيب</label>
+							<select-dropdown [items]="doctors" [(ngModel)]="addModel.doctor" #doctor="ngModel"
+								(changed)="data = null; reportCreated = false" controlId="doctor" name="doctor"
+								showAll="true" placeholder="يرجى إختيار الطبيب" required>
+							</select-dropdown>
+							<span class="error-label">هذا الحقل مطلوب</span>
+						</div>
+					</div>
+					<div *ngIf="addModel.model == 'vacation'" class="col-6">
+						<div class="form-group" [class.error]="user.invalid && (user.dirty || user.touched)">
+							<label for="user">اسم الموظف </label>
+							<select-dropdown [items]="users" showAll="true" [(ngModel)]="addModel.user" #user="ngModel"
+								controlId="user" name="user" placeholder="اسم الموظف ">
+							</select-dropdown>
+						</div>
+					</div>
+					<div *ngIf="addModel.model == 'patient' && globals.currentUser.isSystemAdmin" class="col-6">
+						<div class="form-group"
+							[class.error]="user1_email.invalid && (user1_email.dirty || user1_email.touched)">
+							<label for=""> البريد الالكتروني لارسال التقرير علية</label>
+							<input class="form-control" type="text" name="user1_email" [(ngModel)]='addModel.email'
+								#user1_email="ngModel" id="user1_email" placeholder="البريد الالكتروني">
+							<span class="error-label">هذا الحقل مطلوب</span>
+
+						</div>
+					</div>
+
+					<div *ngIf="addModel.model == 'vacation'" class="col-6">
+						<div class="form-group" [class.error]="status.invalid && (status.dirty || status.touched)">
+							<label for="status">الحالة </label>
+							<select-dropdown [items]="statuss" showAll="true" [(ngModel)]="addModel.status"
+								#status="ngModel" controlId="status" name="status" placeholder="الحالة  ">
+							</select-dropdown>
+						</div>
+					</div>
+
+					<div *ngIf="addModel.model == 'reservation' || addModel.model == 'patient'" class="col-12 col-md-6">
+						<div class="form-group"
+							[class.error]="nationality.invalid && (nationality.dirty || nationality.touched)">
+							<label for="nationality">الجنسية</label>
+							<select-dropdown
+								[items]="[{value:'سعودى',title:'سعودى'},{value:'غير سعودى',title:'غير سعودى'}]"
+								[(ngModel)]="addModel.nationality" #nationality="ngModel" controlId="nationality"
+								(changed)="data = null; reportCreated = false" name="nationality" showAll="true"
+								placeholder="يرجى إختيار الجنسية" required>
+							</select-dropdown>
+							<span class="error-label">هذا الحقل مطلوب</span>
+						</div>
+					</div>
+					<div *ngIf="addModel.model == 'reservation'" class="col-12 col-md-6">
+						<div class="form-group" [class.error]="payment.invalid && (payment.dirty || payment.touched)">
+							<label for="payment">طريقة الدفع</label>
+							<select-dropdown [items]="[{value:'كاش',title:'كاش'},{value:'فيزا',title:'فيزا'}]"
+								(changed)="data = null; reportCreated = false" [(ngModel)]="addModel.paymentType"
+								#payment="ngModel" controlId="payment" name="payment" showAll="true"
+								placeholder="يرجى إختيار طريقة الدفع" required>
+							</select-dropdown>
+						</div>
+					</div>
+					<div *ngIf="addModel.model == 'attendance'" class="col-6">
+						<div class="form-group" [class.error]="Auser.invalid && (Auser.dirty || Auser.touched)">
+							<label for="Auser">اسم الموظف </label>
+							<select-dropdown [items]="users" showAll="true" [(ngModel)]="addAttendanceModel.user"
+								#Auser="ngModel" controlId="Auser" name="Auser" placeholder="اسم الموظف ">
+							</select-dropdown>
+						</div>
+					</div>
+					<div *ngIf="addModel.model == 'expense'" class="col-12 col-md-6">
+						<div class="form-group" [class.error]="expense.invalid && (expense.dirty || expense.touched)">
+							<label for="expense">نوع المصروفات</label>
+							<select-dropdown [items]="expenses" [(ngModel)]="addModel.expense" #expense="ngModel"
+								(changed)="data = null; reportCreated = false" controlId="expense" name="expense"
+								showAll="true" placeholder="يرجى إختيار الشركة" required>
+							</select-dropdown>
+							<span class="error-label">هذا الحقل مطلوب</span>
+						</div>
+					</div>
+
+					<div *ngIf="addModel.type == 'dates'" class="col-12 col-md-6">
+						<div class="form-group" [class.error]="dates.invalid && (dates.dirty || dates.touched)">
+							<label for="dates">نوع التقرير</label>
+							<input type="text" class="form-control" [(ngModel)]="addModel.dates" #dates="ngModel"
+								id="dates" name="dates" placeholder="نطاق التاريخ" bsDaterangepicker required>
+							<span class="error-label">هذا الحقل مطلوب</span>
+						</div>
+					</div>
+
+					<div class="col-12 mt-30">
+						<button *ngIf="globals.currentUser.isSystemAdmin" class="btn btn-primary" type="button"
+							(click)="create_excel_from_superAdmin()" [disabled]="form.invalid">ملف اكسل</button>
+
+
+						<button *ngIf="addModel.model != 'attendance' && !globals.currentUser.isSystemAdmin" class="btn btn-primary" type="button"
+							(click)="addModel.billType = '';report_table = true; submitForm('')"
+							[disabled]="form.invalid">إنشاء
+							التقرير</button>
+						<button *ngIf="addModel.model == 'attendance' && !globals.currentUser.isSystemAdmin" class="btn btn-primary" type="button"
+							(click)="addModel.billType = '';report_table = true; submitAttendanceForm()"
+							[disabled]="form.invalid">إنشاء
+							التقرير</button>
+						<button *ngIf="addModel.model == 'bill' && !globals.currentUser.isSystemAdmin" class="btn btn-success mr-10" type="button"
+							(click)="addModel.billType = 'all';report_table = false; submitForm()"
+							[disabled]="form.invalid">إنشاء و عرض
+							الفواتير</button>
+						<button class="btn btn-default mr-10" type="button" (click)="resetForm()">
+							مسح النموذج
+						</button>
+					</div>
+				</div>
+			</form>
+		</div>
+	</div>
+</div>
+
+<div class="mt-50">
+	<div *ngIf="reportCreated && data.data?.length == 0" center>
+		<img src="assets/images/no-results.svg" width="100" class="mb-15 op-20">
+		<p>لا يوجد بيانات للعرض!</p>
+	</div>
+
+	<div *ngIf="reportCreated && data.data.length > 0&&report_table" class="card mb-15">
+		<div class="card-body" center>
+			<!-- <button class="btn btn-primary h-50 w-170" style="display:inline-block" (click)="printReport()">طباعة
+				التقرير</button>
+			<a class="btn btn-primary h-50 w-170" style="display:inline-block"
+				(click)="create_excel()">generate_excel</a>
+			<button type="button" (click)="onDown('xlsx', true)">Save Excel</button>-->
+			<span class="alert alert-info ml-10 font-weight-bold">لطباعة التقرير يجب حفظة ك Excel اولا ثم طباعة التقرير
+			</span>
+			<button class="btn btn-primary h-50 w-170" style="display:inline-block" (click)="create_excel()">حفظ التقرير
+				كـ Excel</button>
+		</div>
+	</div>
+
+	<div *ngIf="reportCreated && data.data.length > 0 && !globals.currentUser?.isSystemAdmin" class="card">
+		<div id="reportMain" class="card-body" style="background:white">
+			<div class="p-13 pr-20 pl-20 br-8 mb-40" style="background:#F2F8F9">
+				<div class="row">
+					<div class="col-12 col-md-3 d-flex align-items-center">
+						<div>
+							<h3>
+								<strong>{{ reportCreated }}</strong>
+							</h3>
+							<p class="mt-5 mb-0 op-70">بتاريخ
+								<strong>
+									{{ currentDate | amDateFormat:'DD' }}
+									{{ currentDate | amLocale:'ar' | amDateFormat:'MMMM' }} {{ currentDate | amDateFormat:'YYYY'
+									}}
+								</strong>
+							</p>
+						</div>
+					</div>
+
+					<div class="col-12 col-md-6 d-flex align-items-center " center
+						style="justify-content: space-around !important;">
+
+						<div *ngIf="addModel.model == 'bill' || addModel.model == 'deletedBills'  ">
+							<p class="op-70 mb-0">إجمالي الكاش</p>
+							<h3 class="mb-0">
+								<strong>{{formatNumber( report_response?.cashSum) + ' ريال' }}</strong>
+							</h3>
+						</div>
+						<div *ngIf="addModel.model == 'bill' || addModel.model == 'deletedBills' ">
+							<p class="op-70 mb-0">إجمالي الشبكة</p>
+							<h3 class="mb-0">
+								<strong>{{ formatNumber(report_response?.cashNetwork) + ' ريال' }}</strong>
+							</h3>
+						</div>
+						<div>
+							<p *ngIf="addModel.model == 'bill' || addModel.model == 'deletedBills'  "
+								class="op-70 mb-0">الإجمالى الكلي</p>
+							<p *ngIf="addModel.model != 'bill' && addModel.model != 'deletedBills' " class="op-70 mb-0">
+								الإجمالى </p>
+							<h3 class="mb-0">
+								<strong
+									*ngIf="addModel.model == 'bill' || addModel.model == 'deletedBills' ">{{ formatNumber(report_response.paidAmount) + ' ريال' }}</strong>
+								<!-- <strong *ngIf="addModel.model == 'deletedBills'  ">{{ data?.data?.length}}</strong> -->
+								<!-- <strong *ngIf="addModel.model != 'patient' && addModel.model != 'vacation' ">{{ data.sum !== undefined ? formatNumber(data.sum) + ' ريال' : formatNumber(data.data.length) }}</strong> -->
+								<strong
+									*ngIf="addModel.model == 'patient' || addModel.model == 'vacation' || addModel.model == 'reservation' ">{{report_response?.meta?.total}}</strong>
+								<strong
+									*ngIf="addModel.model == 'expense'  ">{{formatNumber(report_response.costExpense) + ' ريال'}}</strong>
+
+							</h3>
+						</div>
+						<div>
+							<p *ngIf="addModel.model == 'bill' " class="op-70 mb-0">إجمالى المرتجع</p>
+							<h3 class="mb-0">
+								<strong
+									*ngIf="addModel.model == 'bill' ">{{ formatNumber(report_response.refundAmount) + ' ريال' }}</strong>
+							</h3>
+						</div>
+					</div>
+
+					<div class="col-12 col-md-3 d-flex align-items-center justify-content-end">
+						<div text-left>
+							<span *ngIf="addModel.type == 'today'">
+								<span class="op-70">تقرير ليوم</span>
+								<strong class="d-block mr-5">
+									{{ currentDate | amDateFormat:'DD' }}
+									{{ currentDate | amLocale:'ar' | amDateFormat:'MMMM' }} {{ currentDate | amDateFormat:'YYYY'
+									}}
+								</strong>
+							</span>
+							<span *ngIf="addModel.type == 'week'">
+								<span class="op-70">تقرير لإسبوع من تاريخ</span>
+								<strong class="d-block mr-5">
+									{{ data.dates.start | amDateFormat:'DD' }}
+									{{ data.dates.start | amLocale:'ar' | amDateFormat:'MMMM' }} {{ data.dates.start
+									| amDateFormat:'YYYY' }}
+								</strong>
+								<span class="op-70">إلى تاريخ </span>
+								<strong class="d-block mr-5">
+									{{ data.dates.end | amDateFormat:'DD' }}
+									{{ data.dates.end | amLocale:'ar' | amDateFormat:'MMMM' }} {{ data.dates.end | amDateFormat:'YYYY'
+									}}
+								</strong>
+							</span>
+							<span *ngIf="addModel.type == 'month'">
+								<span class="op-70">تقرير لشهر</span>
+								<strong class="d-block mr-5">
+									{{ currentDate | amLocale:'ar' | amDateFormat:'MMMM' }}
+									{{ currentDate | amDateFormat:'YYYY' }}
+								</strong>
+							</span>
+							<span *ngIf="addModel.type == 'year'">
+								<span class="op-70">تقرير لسنة</span>
+								<strong class="d-block mr-5 en-font">
+									{{ currentDate | amDateFormat:'YYYY' }}
+								</strong>
+							</span>
+							<span *ngIf="addModel.type == 'lifetime'">
+								<span class="op-70">تقرير من البداية </span>
+								<!-- <strong class="d-block mr-5">
+									{{ data.dates.start | amDateFormat:'DD' }}
+									{{ data.dates.start | amLocale:'ar' | amDateFormat:'MMMM' }}
+									{{ data.dates.start | amDateFormat:'YYYY' }}
+								</strong> -->
+								<span class="op-70">إلى تاريخ </span>
+								<strong class="d-block mr-5">
+									{{ currentDate | amDateFormat:'DD' }}
+									{{ currentDate | amLocale:'ar' | amDateFormat:'MMMM' }} {{ currentDate | amDateFormat:'YYYY'
+									}}
+								</strong>
+							</span>
+							<span *ngIf="addModel.type == 'dates'">
+								<span class="op-70">تقرير من تاريخ</span>
+								<strong class="d-block mr-5">
+									{{ data.dates.start | amDateFormat:'DD' }}
+									{{ data.dates.start | amLocale:'ar' | amDateFormat:'MMMM' }} {{ data.dates.start
+									| amDateFormat:'YYYY' }}
+								</strong>
+								<span class="op-70">إلى تاريخ </span>
+								<strong class="d-block mr-5">
+									{{ data.dates.end | amDateFormat:'DD' }}
+									{{ data.dates.end | amLocale:'ar' | amDateFormat:'MMMM' }} {{ data.dates.end | amDateFormat:'YYYY'
+									}}
+								</strong>
+							</span>
+						</div>
+					</div>
+				</div>
+			</div>
+
+			<table id="xlsTable" class="bill_table" width="100%"
+				*ngIf="addModel.billType != 'all' && (addModel.model == 'bill' ||addModel.model == 'deletedBills' ) ">
+				<thead>
+					<tr>
+						<th>الرقم</th>
+						<th>التاريخ</th>
+						<th>المستخدم</th>
+						<th>دكتور</th>
+						<th>المريض</th>
+						<th>كاش</th>
+						<th>شبكة</th>
+						<th>المبلغ المدفوع</th>
+						<th>الأجمالي</th>
+						<th>المرتجع</th>
+						<th>المتبقي</th>
+						<th>ادارة</th>
+					</tr>
+				</thead>
+				<tbody *ngIf="data">
+					<tr *ngFor="let row of data.data">
+						<td>{{ row.number }}</td>
+						<td>{{ row.date }}</td>
+						<td>{{ row.user }}</td>
+						<td>{{ row.doctor }}</td>
+						<td>{{ row.patient }}</td>
+						<td>{{ row.cash }}</td>
+						<td>{{ row.network }}</td>
+						<td>{{ row.paidAmount }}</td>
+						<td>{{ row.total -  row.refundAmount }}</td>
+						<td>{{ row.refundAmount }}</td>
+						<td>{{ row.remaining < 0 ? 0 : row.remaining }}</td>
+						<td>
+							<button *ngIf="!row.deleted_by && globals.currentUser.isAdmin === true"
+								class="btn btn-danger" (click)="delete_modal.show();billId = row._id">حذف</button>
+							<button *ngIf="row.deleted_by" class="btn btn-success"
+								(click)="show_deletedResone(row._id)">تفاصيل الحذف</button>
+						</td>
+					</tr>
+				</tbody>
+
+			</table>
+
+			<!-- Start deleted bills table -->
+
+			<!-- End deleted bills table -->
+
+			<table id="xlsTable" width="100%" *ngIf="addModel.billType != 'all' && addModel.model == 'expense' ">
+				<thead>
+					<tr>
+						<th>التاريخ</th>
+						<th>مصروف</th>
+						<th>التكلفة</th>
+						<th>الوصف</th>
+					</tr>
+				</thead>
+				<tbody *ngIf="data">
+					<tr *ngFor="let row of data.data">
+						<td>{{ row.date }}</td>
+						<td>{{ row.expense }}</td>
+						<td>{{ row.cost }}</td>
+						<td>{{ row.description }}</td>
+
+					</tr>
+				</tbody>
+			</table>
+
+			<table id="xlsTable" width="100%" *ngIf="addModel.billType != 'all' && addModel.model == 'reservation' ">
+				<thead>
+					<tr>
+						<th>رقم</th>
+						<th>المريض</th>
+						<th>الدكتور</th>
+						<th>التاريخ</th>
+						<th>الوقت</th>
+						<th>المستخدم</th>
+						<th>الحالة</th>
+						<th>نوع الدفع</th>
+					</tr>
+				</thead>
+				<tbody *ngIf="data">
+					<tr *ngFor="let row of data.data">
+						<td>{{ row.patient.number }}</td>
+						<td>{{ row.patient.name_ar }}</td>
+						<td>{{ row.doctor }}</td>
+						<td>{{ row.date }}</td>
+						<td>{{ row.time }}</td>
+						<td>{{ row.user.name }}</td>
+						<td>{{ row.status.name }}</td>
+						<td>{{ row.paymentType.length > 1 ? row.paymentType[0] + ' ' + row.paymentType[1] : row.paymentType[0] }}
+						</td>
+					</tr>
+				</tbody>
+			</table>
+			<!-- <ngx-datatable *ngIf="addModel.billType != 'all' && addModel.model == 'reservation' " class="no-sort" [rows]="data?.data">
+				<ngx-datatable-column name="المريض">
+					<ng-template let-row="row" ngx-datatable-cell-template>{{ row.patient }}</ng-template>
+				</ngx-datatable-column>
+				<ngx-datatable-column name="المريض">
+					<ng-template let-row="row" ngx-datatable-cell-template>{{ row.doctor }}</ng-template>
+				</ngx-datatable-column>
+				<ngx-datatable-column name="التاريخ">
+					<ng-template let-row="row" ngx-datatable-cell-template>{{ row.date }}</ng-template>
+				</ngx-datatable-column>
+				<ngx-datatable-column name="الوقت">
+					<ng-template let-row="row" ngx-datatable-cell-template>{{ row.time }}</ng-template>
+				</ngx-datatable-column>
+				<ngx-datatable-column name="المستخدم">
+					<ng-template let-row="row" ngx-datatable-cell-template>{{ row.user.name }}</ng-template>
+				</ngx-datatable-column>
+				<ngx-datatable-column name="الحالة">
+					<ng-template let-row="row" ngx-datatable-cell-template>{{ row.status.name }}</ng-template>
+				</ngx-datatable-column>
+				<ngx-datatable-column name="نوع الدفع">
+					<ng-template let-row="row" ngx-datatable-cell-template>{{ row.paymentType.length > 1 ? row.paymentType[0] + ' ' + row.paymentType[1] : row.paymentType[0] }}</ng-template>
+				</ngx-datatable-column>
+			</ngx-datatable> -->
+			<table id="xlsTable" width="100%" *ngIf="addModel.billType != 'all' && addModel.model == 'patient' ">
+				<thead>
+					<tr>
+						<th>الرقم</th>
+						<th>الاسم</th>
+						<th>الجنسية</th>
+						<th>الطبيب</th>
+						<th>التليفون</th>
+						<th>رقم الهوية</th>
+						<th>عدد الحجوزات </th>
+						<th> اجمالي الفواتير </th>
+						<th>اجمالي المدفوع</th>
+						<th>المتبقي</th>
+						<th>تاريخ الإضافة</th>
+						<th>تم العلاج</th>
+					</tr>
+				</thead>
+				<tbody *ngIf="data">
+					<tr *ngFor="let row of data.data">
+						<td>{{ row.number }}</td>
+						<td>{{ row.namear }}</td>
+						<td>{{ row.nationality }}</td>
+						<td>{{row.doctor}}</td>
+						<td>{{ row.mobile }}</td>
+						<td>{{ row.nationalId }}</td>
+						<td>{{ row.reservationCount }}</td>
+						<td>{{ row.totalBillAmountResult  }}</td>
+						<td>{{ row.totalPaidAmount }}</td>
+						<td>{{ row.restAmount }}</td>
+						<td>{{ row.createdAt | amLocale:'ar' | amDateFormat:'LL' }}</td>
+						<td>{{ row.hasBills ? 'نعم' : 'لا' }}</td>
+					</tr>
+				</tbody>
+			</table>
+
+			<!-- <ngx-datatable *ngIf="addModel.billType != 'all' && addModel.model == 'patient' " class="no-sort" [rows]="data?.data">
+				<ngx-datatable-column name="الرقم">
+					<ng-template let-row="row" ngx-datatable-cell-template>{{ row.number }}</ng-template>
+				</ngx-datatable-column>
+				<ngx-datatable-column name="الاسم">
+					<ng-template let-row="row" ngx-datatable-cell-template>{{ row.namear }}</ng-template>
+				</ngx-datatable-column>
+				<ngx-datatable-column name="الجنسية">
+					<ng-template let-row="row" ngx-datatable-cell-template>{{ row.nationality }}</ng-template>
+				</ngx-datatable-column>
+				<ngx-datatable-column name="التليفون">
+					<ng-template let-row="row" ngx-datatable-cell-template>{{ row.mobile }}</ng-template>
+				</ngx-datatable-column>
+			</ngx-datatable> -->
+			<table id="xlsTable" width="100%" *ngIf="addModel.model == 'vacation' ">
+				<thead>
+					<tr>
+						<th>الاسم</th>
+						<th>تاريخ بداية الاجازة</th>
+						<th>تاريخ انتهاء الاجازة</th>
+						<th>الحالة</th>
+						<th>السبب</th>
+					</tr>
+				</thead>
+				<tbody *ngIf="data">
+					<tr *ngFor="let row of data.data">
+						<td>{{ row.user.name }}</td>
+						<td>{{row.startdate | date:'dd/MM/yyyy' }}</td>
+						<td>{{ row.enddate | date:'dd/MM/yyyy' }}</td>
+						<td>{{ row.status }}</td>
+						<td>{{row.statusnote}}</td>
+					</tr>
+				</tbody>
+				`
+			</table>
+
+			<div *ngIf="addModel.model == 'bill' && addModel.billType == 'all'">
+				<div *ngFor="let invoice of data?.data; let odd = odd">
+					<button class="btn btn-primary" (click)="printReport(invoice.number)">
+						طباعة الفاتورة
+					</button>
+					<div class="mb-100 br-8" id="invoice-{{invoice.number}}" dir="ltr"
+						[style.backgroundColor]="odd ? '#F2F8F9' : '#F2F8F9'"
+						style="padding:20px;color:#CBAF8B;font-size:15px;position:relative;font-family:'Courier New', Courier, monospace !important;line-height:13px;font-weight:600">
+						<!-- <button class="btn btn-danger delete-btn" (click)="delete_modal.show();billId = invoice._id">حذف
+								الفاتورة</button> -->
+
+						<div>
+							<div style="float:left;width:calc(100% / 3.1);text-align:center">
+								<p>Al Safwa</p>
+								<p style="color:#7A6D5D">Al - Muhaideb Dentistry Group</p>
+								<p>Special Clinics For Women & Children</p>
+								<p>VAT: 302262572300003</p>
+							</div>
+							<div style="float:left;width:calc(100% / 3.1);text-align:center">
+								<!-- <img src="assets/images/clinic.png" width="100"> -->
+								<img src="assets/images/clinic.png" width="100">
+								<p style="color:#7A6D5D">فاتـــــــــــورة</p>
+								<p>Patient Bill</p>
+							</div>
+							<div style="float:left;width:calc(100% / 3.1);text-align:center">
+								<p>الصفوة</p>
+								<p style="color:#7A6D5D">مجموعة المهيدب لطب الأسنان</p>
+								<p>عيادات متخصصة للرجال</p>
+								<p>عيادات متخصصة للنساء و الأطفال</p>
+								<p>الرقم الضريبى: ٣٠٢٢٦٢٥٧٢٣٠٠٠٠٣</p>
+							</div>
+							<div style="clear:both;height:1px"></div>
+						</div>
+
+						<div style="margin-top:15px">
+							<div style="float:left;width:calc(50% - 20px);margin-right:20px">
+								<div>
+									<span style="display:block;float:left;width:125px;margin-top:6px;color:#7A6D5D">BILL
+										NO.
+										:</span>
+									<span
+										style="color:#7A6D5D;padding-top:7px;display:block;float:left;height:25px;width:calc(100% - 250px);background:#e6e2d9;text-align:center">
+										{{ invoice.number }}
+									</span>
+									<span style="display:block;float:left;width:125px;margin-top:6px;color:#7A6D5D"
+										dir="rtl">رقم الفاتورة:</span>
+									<div style="clear:both;height:1px"></div>
+								</div>
+								<div style="margin-top:10px">
+									<span
+										style="display:block;float:left;width:125px;margin-top:6px;color:#7A6D5D">PATIENT
+										:
+									</span>
+									<span
+										style="color:#7A6D5D;padding-top:7px;display:block;float:left;height:25px;width:calc(100% - 250px);background:#e6e2d9;text-align:center">
+										{{ invoice.reservation?.patient?.name_ar }}
+									</span>
+									<span style="display:block;float:left;width:125px;margin-top:6px;color:#7A6D5D"
+										dir="rtl">المريض :</span>
+									<div style="clear:both;height:1px"></div>
+								</div>
+								<div style="margin-top:10px">
+									<span
+										style="display:block;float:left;width:125px;margin-top:6px;color:#7A6D5D">PATIENT
+										NO. :
+									</span>
+									<span
+										style="color:#7A6D5D;padding-top:7px;display:block;float:left;height:25px;width:calc(100% - 250px);background:#e6e2d9;text-align:center">
+										<!-- {{ invoice.reservation?.branch?.name }} -->
+										{{ invoice?.reservation?.patient?.number }}
+									</span>
+									<span style="display:block;float:left;width:125px;margin-top:6px;color:#7A6D5D"
+										dir="rtl">العيادة :</span>
+									<div style="clear:both;height:1px"></div>
+								</div>
+							</div>
+
+							<div style="float:left;width:calc(50% - 20px);margin-left:20px">
+								<div>
+									<span style="display:block;float:left;width:125px;margin-top:6px;color:#7A6D5D">DATE
+										:
+									</span>
+									<span class="en-font"
+										style="color:#7A6D5D;padding-top:7px;display:block;float:left;height:25px;width:calc(100% - 250px);background:#e6e2d9;text-align:center">
+										{{ invoice.date | amDateFormat:'LL' }}
+									</span>
+									<span style="display:block;float:left;width:125px;margin-top:6px;color:#7A6D5D"
+										dir="rtl">التاريخ :</span>
+									<div style="clear:both;height:1px"></div>
+								</div>
+								<div style="margin-top:10px">
+									<span style="display:block;float:left;width:125px;margin-top:6px;color:#7A6D5D">TIME
+										:
+									</span>
+									<span class="en-font"
+										style="color:#7A6D5D;padding-top:7px;display:block;float:left;height:25px;width:calc(100% - 250px);background:#e6e2d9;text-align:center">
+										{{ invoice.date | amDateFormat:'hh:mm A' }}
+									</span>
+									<span style="display:block;float:left;width:125px;margin-top:6px;color:#7A6D5D"
+										dir="rtl">الوقت :</span>
+									<div style="clear:both;height:1px"></div>
+								</div>
+								<div style="margin-top:10px">
+									<span
+										style="display:block;float:left;width:125px;margin-top:6px;color:#7A6D5D">DOCTOR
+										:
+									</span>
+									<span
+										style="color:#7A6D5D;padding-top:7px;display:block;float:left;height:25px;width:calc(100% - 250px);background:#e6e2d9;text-align:center">
+										{{ invoice.reservation?.doctor?.name }}
+									</span>
+									<span style="display:block;float:left;width:125px;margin-top:6px;color:#7A6D5D"
+										dir="rtl">الدكتور :</span>
+									<div style="clear:both;height:1px"></div>
+								</div>
+							</div>
+							<div style="clear:both;height:1px"></div>
+						</div>
+
+						<div style="margin-top:20px">
+							<table border="1" style="width:100%;border-collapse:collapse;border-color:#7A6D5D">
+								<thead>
+									<th style="padding:10px;background:#7A6D5D;color:white;width:40%">
+										<p style="margin:0 0 10px">الخدمة</p>
+										<p style="margin:0">Service</p>
+									</th>
+									<th style="padding:10px;background:#7A6D5D;color:white;width:10%">
+										<p style="margin:0 0 10px">الإجمالى</p>
+										<p style="margin:0">Total Amount</p>
+									</th>
+									<th style="padding:10px;background:#7A6D5D;color:white;width:10%">
+										<p style="margin:0 0 10px">نسبة الخصم</p>
+										<p style="margin:0">Disc. %</p>
+									</th>
+									<th style="padding:10px;background:#7A6D5D;color:white;width:10%">
+										<p style="margin:0 0 10px">قيمة الخصم</p>
+										<p style="margin:0">Disc. Amt.</p>
+									</th>
+									<th style="padding:10px;background:#7A6D5D;color:white;width:10%">
+										<p style="margin:0 0 10px">الصافى</p>
+										<p style="margin:0">Net Amount</p>
+									</th>
+								</thead>
+								<tbody>
+									<tr *ngFor="let service of invoice.services">
+										<td style="padding:15px;text-align:center">{{ service.service?.name }}</td>
+										<td style="padding:15px;text-align:center">{{ service.price }}</td>
+										<td style="padding:15px;text-align:center">{{ service.discount }}%</td>
+										<td style="padding:15px;text-align:center">
+											{{ (service.discount * service.price) / 100 }}</td>
+										<td style="padding:15px;text-align:center">{{ service.price }}</td>
+									</tr>
+
+									<tr *ngIf="invoice.reservation?.patient?.nationality !== 'سعودى'">
+										<td colspan="4" style="padding:15px">
+											<p style="margin:0 0 10px;color:#7A6D5D" *ngIf="invoice.vat_percent == '5'"
+												dir="rtl">الضريبة المضافة 5%</p>
+											<p style="margin:0 0 10px;color:#7A6D5D" *ngIf="invoice.vat_percent == '15'"
+												dir="rtl">الضريبة المضافة 15%</p>
+											<p style="margin:0;color:#7A6D5D" *ngIf="invoice.vat_percent == '15'">15%
+												VAT</p>
+											<p style="margin:0;color:#7A6D5D" *ngIf="invoice.vat_percent == '5'">5% VAT
+											</p>
+										</td>
+										<td style="padding:15px">{{ invoice.vat }}</td>
+									</tr>
+									<tr *ngIf="invoice.reservation?.patient?.nationality === 'سعودى'">
+										<td colspan="4" style="padding:15px">
+											
+											<p style="margin:0 0 10px;color:#7A6D5D"
+												dir="rtl">الضريبة المضافة 0%</p>
+											<p style="margin:0;color:#7A6D5D">0%
+												VAT</p>
+											
+										</td>
+										<td style="padding:15px">0</td>
+									</tr>
+
+									<tr>
+										<td colspan="3" style="padding:15px">
+											<div class="float-right">
+												<p style="margin:0 0 10px;color:#7A6D5D">الحساب</p>
+												<p style="margin:0;color:#7A6D5D">ACCOUNT</p>
+											</div>
+											<p class="float-left">{{ invoice.user?.name }}</p>
+											<div style="clear:both;height:1px"></div>
+										</td>
+										<td style="padding:15px">
+											<p style="margin:0 0 10px;color:#7A6D5D">المجموع</p>
+											<p style="margin:0;color:#7A6D5D">Total</p>
+										</td>
+										<td style="padding:15px">
+											{{ invoice.total + invoice.vat }}</td>
+									</tr>
+									<tr>
+										<td colspan="3" style="padding:15px">
+											<div class="float-right">
+												<p style="margin:0 0 10px;color:#7A6D5D">المبلغ المدفوع</p>
+												<p style="margin:0;color:#7A6D5D">Amount Paid</p>
+											</div>
+											<p class="float-left">{{ invoice.paidAmount }}</p>
+											<div style="clear:both;height:1px"></div>
+										</td>
+										<td style="padding:15px">
+											<p style="margin:0 0 10px;color:#7A6D5D;font-size: 14px">المبلغ المتبقى
+											</p>
+											<p style="margin:0;color:#7A6D5D">Balance Amt.</p>
+										</td>
+										<td style="padding:15px">
+											<!-- {{ ((getInvoiceServicesTotal(invoice) + invoice.vat) - invoice.paidAmount) < 0 ? 0 : (getInvoiceServicesTotal(invoice) + invoice.vat) - invoice.paidAmount }} -->
+											{{  (invoice.total + invoice.vat) - invoice.paidAmount< 0? 0:(invoice.total + invoice.vat) - invoice.paidAmount }}
+										</td>
+									</tr>
+								</tbody>
+							</table>
+						</div>
+
+						<div style="margin-top:10px" dir="rtl">
+							<h3>ملحوظة: المبلغ المدفوع لا يرد بعد بداية العام</h3>
+						</div>
+
+						<div style="margin-top:50px;text-align:center" dir="rtl">
+							<p>التوقيع
+								<strong style="color:#7A6D5D">______________________________</strong>
+								Signature</p>
+						</div>
+
+						<div style="padding:15px;margin-top:50px;background:#7A6D5D;color:white;text-align:center">
+							{{ invoice.reservation?.branch?.address + ' - التليفون: ' + invoice.reservation?.branch?.phone }}
+						</div>
+					</div>
+				</div>
+
+			</div>
+			<ngx-paginate *ngIf="globals.isOnline" [page]="page" [options]="globals.options"
+				(pageChange)='pageChange($event)'>
+			</ngx-paginate>
+		</div>
+	</div>
+	<div *ngIf="attendanceArray.length == 0 && addModel.model == 'attendance'" center>
+		<img src="assets/images/no-results.svg" width="100" class="mb-15 op-20">
+		<p>لا يوجد بيانات للعرض!</p>
+	</div>
+
+	<div class="card mb-15" *ngIf="attendanceArray.length > 0  && addModel.model == 'attendance'">
+		<div class="card-body" center>
+			<button class="btn btn-primary h-50 w-170" style="display:inline-block"
+				(click)="printAttendanceReport()">طباعة
+				التقرير</button>
+			<!--  <a class="btn btn-primary h-50 w-170" style="display:inline-block"
+				(click)="create_excel()">generate_excel</a> -->
+
+
+			<div class="btn-group mr-20" dropdown>
+				<button id="button-basic" style="height:50px;" dropdownToggle type="button"
+					class="btn btn-primary dropdown-toggle" aria-controls="dropdown-basic">
+					حفظ التقرير
+					<span class="caret"></span>
+				</button>
+				<ul id="dropdown-basic" *dropdownMenu class="dropdown-menu" style="border: 1px solid #DDD;" role="menu"
+					aria-labelledby="button-basic">
+					<li role="menuitem" *ngFor="let item of saveAsArray" style=" font-size: 14px;"
+						(click)="saveAs(item.value)">
+						<span class="dropdown-item" style="cursor:pointer">{{item.title}}</span>
+					</li>
+
+				</ul>
+				<!-- <ul id="dropdown-basic" *dropdownMenu class="dropdown-menu" style="border: 1px solid #DDD;" role="menu"
+					aria-labelledby="button-basic">
+					<li role="menuitem" *ngFor="let item of saveAsArray" style=" font-size: 14px;"
+						(click)="saveAs(item.value)">
+						<span class="dropdown-item" style="cursor:pointer">{{item.title}}</span>
+					</li>
+
+				</ul> -->
+			</div>
+		</div>
+	</div>
+
+	<div *ngIf="attendanceArray.length > 0 && addModel.model == 'attendance'" class="card">
+
+		<div id="reportMain" class="card-body" style="background:white">
+			<div class="p-13 pr-20 pl-20 br-8 mb-40" style="background:#F2F8F9">
+				<div class="row">
+					<div class="col-12 col-md-3 d-flex align-items-center">
+						<div>
+							<h3>
+								<strong>تقرير الحضور </strong>
+							</h3>
+							<p class="mt-5 mb-0 op-70">بتاريخ
+								<strong>
+									{{ currentDate | amDateFormat:'DD' }}
+									{{ currentDate | amLocale:'ar' | amDateFormat:'MMMM' }} {{ currentDate | amDateFormat:'YYYY'
+									}}
+								</strong>
+							</p>
+						</div>
+					</div>
+
+					<div class="col-12 col-md-6 d-flex align-items-center " center
+						style="    justify-content: space-around !important;">
+
+					</div>
+
+					<div class="col-12 col-md-3 d-flex align-items-center justify-content-end">
+						<div text-left>
+							<span *ngIf="addAttendanceModel.type == 'today'">
+								<span class="op-70">تقرير ليوم</span>
+								<strong class="d-block mr-5">
+									{{ currentDate | amDateFormat:'DD' }}
+									{{ currentDate | amLocale:'ar' | amDateFormat:'MMMM' }} {{ currentDate | amDateFormat:'YYYY'
+									}}
+								</strong>
+							</span>
+							<!-- <span *ngIf="addAttendanceModel.type == 'week'">
+								<span class="op-70">تقرير لإسبوع من تاريخ</span>
+								<strong class="d-block mr-5">
+									{{ data.dates.start | amDateFormat:'DD' }} {{ data.dates.start | amLocale:'ar' | amDateFormat:'MMMM' }} {{ data.dates.start
+									| amDateFormat:'YYYY' }}
+								</strong>
+								<span class="op-70">إلى تاريخ </span>
+								<strong class="d-block mr-5">
+									{{ data.dates.end | amDateFormat:'DD' }} {{ data.dates.end | amLocale:'ar' | amDateFormat:'MMMM' }} {{ data.dates.end | amDateFormat:'YYYY'
+									}}
+								</strong>
+							</span> -->
+							<!-- <span *ngIf="addModel.type == 'month'">
+								<span class="op-70">تقرير لشهر</span>
+								<strong class="d-block mr-5">
+									{{ currentDate | amLocale:'ar' | amDateFormat:'MMMM' }} {{ currentDate | amDateFormat:'YYYY' }}
+								</strong>
+							</span> -->
+
+							<span *ngIf="addAttendanceModel.type == 'all'">
+								<span class="op-70">تقرير من البداية </span>
+
+								<span class="op-70">إلى تاريخ </span>
+								<strong class="d-block mr-5">
+									{{ currentDate | amDateFormat:'DD' }}
+									{{ currentDate | amLocale:'ar' | amDateFormat:'MMMM' }} {{ currentDate | amDateFormat:'YYYY'
+									}}
+								</strong>
+							</span>
+						</div>
+					</div>
+				</div>
+			</div>
+
+
+			<!-- <ngx-datatable *ngIf="addModel.billType != 'all'" class="no-sort" [rows]="data?.data" [columns]="columns">
+			</ngx-datatable> -->
+
+
+			<table id="xlsTable" width="100%">
+				<thead>
+					<tr>
+						<th>الاسم</th>
+						<th>التاريخ</th>
+						<th>وقت الحضور</th>
+						<th>وقت الانصراف</th>
+						<th>رقم الهاتف</th>
+					</tr>
+				</thead>
+				<tbody>
+					<tr *ngFor="let row of attendanceArray">
+						<td>{{ row.name }}</td>
+						<td>{{row.date}}</td>
+						<td>{{ row.start | amDateFormat:'hh:mm ' }} {{ row.start | amLocale:'ar' | amDateFormat:'A' }}
+						</td>
+						<td>
+							<div *ngIf="row.end != ''">
+								{{ row.end | amDateFormat:'hh:mm ' }} {{ row.end | amLocale:'ar' | amDateFormat:'A' }}
+							</div>
+							<div class="attend_end" *ngIf="row.end == ''">
+								لا يوجد
+							</div>
+						</td>
+						<td>{{row.mobile}}</td>
+					</tr>
+				</tbody>
+			</table>
+			<!-- pagin -->
+
+		</div>
+	</div>
+</div>
+<div bsModal #delete_modal="bs-modal" class="modal fade" tabindex="-1" role="dialog">
+	<div class="modal-dialog modal-sm">
+		<div class="modal-content">
+			<div class="modal-body">
+				<h5 class="mb-25">لا يمكنك التراجع عن الحذف, تأكيد؟</h5>
+				<label for="">سبب الحذف</label>
+				<input type="text" placeholder="برجاء كتابة السبب " class="form-control mb-10"
+					[(ngModel)]='delete_reason' name="deleteReason" #deleteReason='ngModel'>
+				<button type="button" class="btn btn-default ml-10" (click)="delete_modal.hide(); billId = null">
+					إلغاء
+				</button>
+				<button type="button" class="btn btn-danger" [disabled]='!delete_reason' (click)="deleteModal()">
+					تأكيد الحذف
+				</button>
+			</div>
+		</div>
+	</div>
+</div>
+<div bsModal #review_modal="bs-modal" class="modal fade" tabindex="-1" role="dialog">
+	<div class="modal-dialog modal-sm">
+		<div class="modal-content">
+			<div class="modal-body">
+				<h5 class="mb-25">تفاصيل حذف الفاتورة</h5>
+
+				<p>
+					<strong> سبب الحذف :</strong>
+					{{deleted_bill?.deleteReason}}</p>
+				<h5 class="mb-25"> تم الحذف بواسطة <strong>{{deleted_bill?.deleted_by}} </strong> </h5>
+				<span>
+					<strong> تاريخ الحذف :</strong>
+					{{ deleted_bill?.deleted_at | amDateFormat:'DD' }}
+					{{ deleted_bill?.deleted_at | amLocale:'ar' | amDateFormat:'MMMM' }}
+					{{ deleted_bill?.deleted_at | amDateFormat:'YYYY' }}
+				</span>
+
+				<!-- <button type="button" class="btn btn-default ml-10" (click)="review_modal.hide()">
+					إلغاء
+				</button> -->
+			</div>
+		</div>
+	</div>
+</div>
+<div bsModal #excel_mail_modal="bs-modal" class="modal fade" tabindex="-1" role="dialog">
+	<div class="modal-dialog modal-md">
+		<div class="modal-content">
+			<div class="modal-body">
+				<h5 class="mb-25"> برجاء ادخال البريد الالكتروني لارسال ملف الاكسل عليه </h5>
+
+				<form #form_excel="ngForm" role="form" autocomplete="off" (ngSubmit)="create_send_excel()">
+					<div class="form-group">
+						<label for="">البريد الالكتروني</label>
+						<input class="form-control" type="text" name="user_email" [(ngModel)]='excel_email'
+							#user_email="ngModel" id="user_email" placeholder="البريد الالكتروني">
+					</div>
+					<div>
+						<button type="submit" class="btn btn-primary">ارسال الملف </button>
+					</div>
+				</form>
+			</div>
+		</div>
+	</div>
+</div>

@@ -1,0 +1,590 @@
+
+
+<div class="card mb-25">
+    <div class="card-body">
+        <div class="row">
+            <div class="col-12 col-md-4">
+                <input class="form-control search" [(ngModel)]="branchesFilter" (keyup)="filterBranches()"
+                    placeholder="بحث عن فرع">
+            </div>
+            <div class="col-12 col-md-4">
+                <select-dropdown
+                    [items]="[ {value:'month', title:'تقرير الشهر'}, {value:'week', title:'تقرير الإسبوع'}, {value:'today', title:'تقرير اليوم'} ]"
+                    [(ngModel)]="reportType" controlId="reportType" name="reportType" (changed)="loadData()">
+                </select-dropdown>
+            </div>
+            <div class="col-12 col-md-2" [class.disabled]="reportType != 'month'">
+                <select-dropdown [items]="years" [(ngModel)]="year" controlId="year" name="year" [isSearchable]="false"
+                    (changed)="loadData()">
+                </select-dropdown>
+            </div>
+            <div class="col-12 col-md-2" [class.disabled]="reportType != 'month'">
+                <select-dropdown [items]="months" [(ngModel)]="month" controlId="month" name="month"
+                    [isSearchable]="false" (changed)="loadData()">
+                </select-dropdown>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="row">
+    <div class="col-xl-3 col-lg-3 col-md-4 col-sm-6 grid-margin stretch-card">
+        <div class="card card-statistics">
+            <div class="card-body">
+                <div class="clearfix">
+                    <div class="float-left">
+                        <i class="mdi mdi-cash icon-lg" style="color:#2f7acf"></i>
+                    </div>
+                    <div class="float-right">
+                        <p class="mb-0 text-right">إجمالى الأرباح لجميع الفروع</p>
+                        <div class="fluid-container">
+                            <h3 class="font-weight-medium text-right mb-0">
+                                <span class="en-font">{{ globals.formatNumber(dashboard ? dashboard.bills : 0) }}</span>
+                                ريال
+                            </h3>
+                        </div>
+                    </div>
+                </div>
+                <!-- <p class="text-muted mt-3 mb-0">
+                    <i class="mdi mdi-alert-octagon mr-1" aria-hidden="true"></i> أرباح شهر
+                    <strong>{{ getMonth(month) }} {{ year }}</strong>
+                </p> -->
+            </div>
+        </div>
+    </div>
+    <div class="col-xl-3 col-lg-3 col-md-4 col-sm-6 grid-margin stretch-card">
+        <div class="card card-statistics">
+            <div class="card-body">
+                <div class="clearfix">
+                    <div class="float-left">
+                        <i class="mdi mdi-cash icon-lg" style="color:#2f7acf"></i>
+                    </div>
+                    <div class="float-right">
+                        <p class="mb-0 text-right">   إجمالى الأرباح  للفروع منذ البداية</p>
+                        <div class="fluid-container">
+                            <h3 class="font-weight-medium text-right mb-0">
+                                <span class="en-font">{{ globals.formatNumber(dash_data ? dash_data.lifetimeBillsAllBranches : 0) }}</span>
+                                <br>
+                                ريال
+                            </h3>
+                        </div>
+                    </div>
+                </div>
+                <!-- <p class="text-muted mt-3 mb-0">
+                    <i class="mdi mdi-alert-octagon mr-1" aria-hidden="true"></i> أرباح شهر
+                    <strong>{{ getMonth(month) }} {{ year }}</strong>
+                </p> -->
+            </div>
+        </div>
+    </div>
+    <div class="col-xl-3 col-lg-3 col-md-4 col-sm-6 grid-margin stretch-card">
+        <div class="card card-statistics">
+            <div class="card-body">
+                <div class="clearfix">
+                    <div class="float-left">
+                        <i class="mdi mdi-receipt text-warning icon-lg"></i>
+                    </div>
+                    <div class="float-right">
+                        <p class="mb-0 text-right">حجوزات جميع الفروع</p>
+                        <div class="fluid-container">
+                            <h3 class="font-weight-medium text-right mb-0">
+                                <span
+                                    class="en-font">{{ globals.formatNumber(dashboard ? dashboard.reservationsCount : 0) }}</span>
+                            </h3>
+                        </div>
+                    </div>
+                </div>
+                <!-- <p class="text-muted mt-3 mb-0">
+                    <i class="mdi mdi-bookmark-outline mr-1" aria-hidden="true"></i> حجوزات شهر
+                    <strong>{{ getMonth(month) }} {{ year }}</strong>
+                </p> -->
+            </div>
+        </div>
+    </div>
+    <div class="col-xl-3 col-lg-3 col-md-4 col-sm-6 grid-margin stretch-card">
+        <div class="card card-statistics">
+            <div class="card-body">
+                <div class="clearfix">
+                    <div class="float-left">
+                        <i class="mdi mdi-poll-box text-success icon-lg"></i>
+                    </div>
+                    <div class="float-right">
+                        <p class="mb-0 text-right">مصروفات جميع الفروع</p>
+                        <div class="fluid-container">
+                            <h3 class="font-weight-medium text-right mb-0">
+                                <span
+                                    class="en-font">{{ globals.formatNumber(dashboard ? dashboard.expenses : 0) }}</span>
+                                ريال
+                            </h3>
+                        </div>
+                    </div>
+                </div>
+                <!-- <p class="text-muted mt-3 mb-0">
+                    <i class="mdi mdi-calendar mr-1" aria-hidden="true"></i> مصروفات شهر
+                    <strong>{{ getMonth(month) }} {{ year }}</strong>
+                </p> -->
+            </div>
+        </div>
+    </div>
+    <div class="col-xl-3 col-lg-3 col-md-4 col-sm-6 grid-margin stretch-card">
+        <div class="card card-statistics">
+            <div class="card-body">
+                <div class="clearfix">
+                    <div class="float-left">
+                        <i class="mdi mdi-poll-box text-success icon-lg"></i>
+                    </div>
+                    <div class="float-right">
+                        <p class="mb-0 text-right">  اجمالي المرتجع منذ الباية</p>
+                        <div class="fluid-container">
+                            <h3 class="font-weight-medium text-right mb-0">
+                                <span class="en-font">{{ globals.formatNumber(dash_data ? dash_data.lifeTimeRefundAmountAllBranches : 0) }}</span>
+                                ريال
+                            </h3>
+                        </div>
+                    </div>
+                </div>
+                <!-- <p class="text-muted mt-3 mb-0">
+                    <i class="mdi mdi-calendar mr-1" aria-hidden="true"></i> مصروفات شهر
+                    <strong>{{ getMonth(month) }} {{ year }}</strong>
+                </p> -->
+            </div>
+        </div>
+    </div>
+
+</div>
+
+<div class="row">
+    <div class="col-12">
+        <accordion class="white">
+            <accordion-group *ngFor="let branch of branchesFiltered" class="mb-15">
+                <div accordion-heading>
+                    <!-- [heading]="branch.bills.current === 0 ?  branch.branch.name + ' (  هذا الفرع غير نشط ) ' : branch.branch.name" -->
+                    <div>
+                        {{branch.branch.name}}
+                        <span *ngIf="branch.bills.current === 0" style="color: #f00;margin:0 40px"> ( هذا الفرع غير نشط
+                            ) </span>
+                    </div>
+                </div>
+
+                <div class="row">
+                    <div class="col-6 col-md-3 mb-15"><strong>رقم التليفون</strong></div>
+                    <div class="col-6 col-md-3 mb-15"><a
+                            href="tel:{{ branch.branch.phone }}">{{ branch.branch.phone }}</a></div>
+
+                    <div class="col-6 col-md-3 mb-15"><strong>العنوان</strong></div>
+                    <div class="col-6 col-md-3 mb-15">{{ branch.branch.address }}</div>
+
+                    <div class="col-6 col-md-3 mb-15"><strong>المدينة الإفتراضية</strong></div>
+                    <div class="col-6 col-md-3 mb-15">{{ branch.branch.city }}</div>
+
+                    <div class="col-6 col-md-3 mb-15"><strong>رقم بداية الملفات</strong></div>
+                    <div class="col-6 col-md-3 mb-15">{{ globals.formatNumber(branch.branch.profileStart) }}</div>
+
+                    <div class="col-6 col-md-3 mb-15"><strong>اجازات العام</strong></div>
+                    <div class="col-6 col-md-3 mb-15">{{ globals.formatNumber(branch.branch.numberOfVacation) }}</div>
+
+                    <div class="col-6 col-md-3 mb-15"><strong>اجازات الشهر</strong></div>
+                    <div class="col-6 col-md-3 mb-15">{{ globals.formatNumber(branch.branch.numberOfVacationMonth) }}
+                    </div>
+
+                    <div class="col-6 col-md-3 mb-15"><strong>ايام عمل بدون اجازات</strong></div>
+                    <div class="col-6 col-md-3 mb-15">{{ globals.formatNumber(branch.branch.cleanVacation) }}</div>
+
+                    <div class="col-6 col-md-3 mb-15"><strong>متوسط الدخل للفرع</strong></div>
+                    <div class="col-6 col-md-3 mb-15">{{ globals.formatNumber(branch.branch.incomeLimit) }}</div>
+                </div>
+
+                <div class="row mt-30">
+
+                    <div class="col-xl-4 col-lg-4 col-md-4 col-sm-6 grid-margin stretch-card">
+                        <div class="card card-statistics alt-bg" (click)="getDetails(branch, 'doctors')">
+                            <div class="card-body">
+                                <div class="clearfix">
+                                    <div class="float-left">
+                                        <i class="mdi mdi-doctor icon-lg" style="color:#2f7acf"></i>
+                                    </div>
+                                    <div class="float-right">
+                                        <p class="mb-0 text-right">عدد الأطباء</p>
+                                        <div class="fluid-container">
+                                            <h3 class="font-weight-medium text-right mb-0">
+                                                <span class="en-font">{{ globals.formatNumber(branch.doctors) }}</span>
+                                                طبيب
+                                            </h3>
+                                        </div>
+                                    </div>
+                                </div>
+                                <p class="text-muted mt-3 mb-0">إضغط للتفاصيل</p>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="col-xl-4 col-lg-4 col-md-4 col-sm-6 grid-margin stretch-card">
+                        <div class="card card-statistics alt-bg" (click)="getDetails(branch, 'bills')">
+                            <div class="card-body">
+                                <div class="clearfix">
+                                    <div class="float-left">
+                                        <i class="mdi mdi-cash text-danger icon-lg"></i>
+                                    </div>
+                                    <div class="float-right">
+                                        <p class="mb-0 text-right">دخل الفرع</p>
+                                        <div class="fluid-container">
+                                            <h3 class="font-weight-medium text-right mb-0">
+                                                <i class="mdi icon-md"
+                                                    [class.mdi-arrow-top-left]="branch.bills.current > branch.bills.old"
+                                                    [class.text-success]="branch.bills.current > branch.bills.old"
+                                                    [class.mdi-arrow-bottom-right]="branch.bills.current < branch.bills.old"
+                                                    [class.text-danger]="branch.bills.current < branch.bills.old"></i>
+
+                                                <span
+                                                    class="en-font">{{ globals.formatNumber(branch.bills.current) }}</span>
+                                                ريال
+                                            </h3>
+                                        </div>
+                                    </div>
+                                </div>
+                                <p class="text-muted mt-3 mb-0">إضغط للتفاصيل</p>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="col-xl-4 col-lg-4 col-md-4 col-sm-6 grid-margin stretch-card">
+                        <div class="card card-statistics alt-bg" (click)="getDetails(branch, 'expenses')">
+                            <div class="card-body">
+                                <div class="clearfix">
+                                    <div class="float-left">
+                                        <i class="mdi mdi-poll-box text-success icon-lg"></i>
+                                    </div>
+                                    <div class="float-right">
+                                        <p class="mb-0 text-right">المصروفات</p>
+                                        <div class="fluid-container">
+                                            <h3 class="font-weight-medium text-right mb-0">
+                                                <i class="mdi icon-md"
+                                                    [class.mdi-arrow-top-left]="branch.expenses.current > branch.expenses.old"
+                                                    [class.text-success]="branch.expenses.current > branch.expenses.old"
+                                                    [class.mdi-arrow-bottom-right]="branch.expenses.current < branch.expenses.old"
+                                                    [class.text-danger]="branch.expenses.current < branch.expenses.old"></i>
+
+                                                <span
+                                                    class="en-font">{{ globals.formatNumber(branch.expenses.current) }}</span>
+                                                ريال
+                                            </h3>
+                                        </div>
+                                    </div>
+                                </div>
+                                <p class="text-muted mt-3 mb-0">إضغط للتفاصيل</p>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="col-xl-4 col-lg-4 col-md-4 col-sm-6 grid-margin stretch-card">
+                        <div class="card card-statistics alt-bg">
+                            <div class="card-body">
+                                <div class="clearfix">
+                                    <div class="float-left">
+                                        <i class="mdi mdi-receipt text-warning icon-lg"></i>
+                                    </div>
+                                    <div class="float-right">
+                                        <p class="mb-0 text-right">الحجوزات</p>
+                                        <div class="fluid-container">
+                                            <h3 class="font-weight-medium text-right mb-0">
+                                                <i class="mdi icon-md"
+                                                    [class.mdi-arrow-top-left]="branch.reservations.current > branch.reservations.old"
+                                                    [class.text-success]="branch.reservations.current > branch.reservations.old"
+                                                    [class.mdi-arrow-bottom-right]="branch.reservations.current < branch.reservations.old"
+                                                    [class.text-danger]="branch.reservations.current < branch.reservations.old"></i>
+
+                                                <span
+                                                    class="en-font">{{ globals.formatNumber(branch.reservations.current) }}</span>
+                                                حجز
+                                            </h3>
+                                        </div>
+                                    </div>
+                                </div>
+                                <p class="text-muted mt-3 mb-0"></p>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="col-xl-4 col-lg-4 col-md-4 col-sm-6 grid-margin stretch-card">
+                        <div class="card card-statistics alt-bg">
+                            <div class="card-body">
+                                <div class="clearfix">
+                                    <div class="float-left">
+                                        <i class="mdi mdi-account-group text-success icon-lg"></i>
+                                    </div>
+                                    <div class="float-right">
+                                        <p class="mb-0 text-right">المرضى الجدد</p>
+                                        <div class="fluid-container">
+                                            <h3 class="font-weight-medium text-right mb-0">
+                                                <i class="mdi icon-md"
+                                                    [class.mdi-arrow-top-left]="branch.patients.current > branch.patients.old"
+                                                    [class.text-success]="branch.patients.current > branch.patients.old"
+                                                    [class.mdi-arrow-bottom-right]="branch.patients.current < branch.patients.old"
+                                                    [class.text-danger]="branch.patients.current < branch.patients.old"></i>
+
+                                                <span
+                                                    class="en-font">{{ globals.formatNumber(branch.patients.current) }}</span>
+                                                مريض
+                                            </h3>
+                                        </div>
+                                    </div>
+                                </div>
+                                <p class="text-muted mt-3 mb-0"></p>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-xl-4 col-lg-4 col-md-4 col-sm-6 grid-margin stretch-card">
+                        <div class="card card-statistics alt-bg">
+                            <div class="card-body">
+                                <div class="clearfix">
+                                    <div class="float-left">
+                                            <i class="mdi mdi-cash text-danger icon-lg"></i>
+                                    </div>
+                                    <div class="float-right">
+                                        <p class="mb-0 text-right"> دخل الفرع منذ البداية</p>
+                                        <div class="fluid-container">
+                                            <h3 class="font-weight-medium text-right mb-0">
+                                                <i class="mdi icon-md"
+                                                    [class.mdi-arrow-top-left]="branch.patients.current > branch.patients.old"
+                                                    [class.text-success]="branch.patients.current > branch.patients.old"
+                                                    [class.mdi-arrow-bottom-right]="branch.patients.current < branch.patients.old"
+                                                    [class.text-danger]="branch.patients.current < branch.patients.old"></i>
+
+                                                <span
+                                                    class="en-font">{{ globals.formatNumber(branch.bills.lifeTime) }}</span>
+                                                ريال
+                                            </h3>
+                                        </div>
+                                    </div>
+                                </div>
+                                <p class="text-muted mt-3 mb-0"></p>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-xl-4 col-lg-4 col-md-4 col-sm-6 grid-margin stretch-card">
+                        <div class="card card-statistics alt-bg">
+                            <div class="card-body">
+                                <div class="clearfix">
+                                    <div class="float-left">
+                                            <i class="mdi mdi-cash text-danger icon-lg"></i>
+                                    </div>
+                                    <div class="float-right">
+                                        <p class="mb-0 text-right">مرتجعات الفرع منذ البداية</p>
+                                        <div class="fluid-container">
+                                            <h3 class="font-weight-medium text-right mb-0">
+                                                
+                                                <span
+                                                    class="en-font">{{ globals.formatNumber(branch.lifeTimeRefundAmount) }}</span>
+                                                ريال
+                                            </h3>
+                                        </div>
+                                    </div>
+                                </div>
+                                <p class="text-muted mt-3 mb-0"></p>
+                            </div>
+                        </div>
+                    </div>
+
+                </div>
+            </accordion-group>
+        </accordion>
+    </div>
+</div>
+
+<div bsModal #doctorsModal="bs-modal" class="modal fade" tabindex="-1" role="dialog">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+            <div class="modal-header">
+                <button type="button" class="close float-left" aria-label="Close" (click)="doctorsModal.hide()">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+                <h4 class="modal-title float-right">تفاصيل الأطباء لشهر <strong>{{ getMonth(month) }}
+                        {{ year }}</strong></h4>
+            </div>
+            <div class="modal-body">
+                <div class="row mb-30">
+                    <div class="col-12 col-md-4 mx-auto grid-margin stretch-card">
+                        <div class="card card-statistics alt-bg">
+                            <div class="card-body">
+                                <div class="clearfix">
+                                    <div class="float-left">
+                                        <i class="mdi mdi-doctor icon-lg" style="color:#2f7acf"></i>
+                                    </div>
+                                    <div class="float-right">
+                                        <p class="mb-0 text-right">عدد الأطباء لفرع
+                                            <strong>{{ currentBranch?.branch?.name }}</strong></p>
+                                        <div class="fluid-container">
+                                            <h3 class="font-weight-medium text-right mb-0">
+                                                <span
+                                                    class="en-font">{{ globals.formatNumber(currentBranch?.doctors) }}</span>
+                                                طبيب
+                                            </h3>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <ngx-datatable [rows]="doctors" [limit]="10" [footerHeight]="50">
+                    <ngx-datatable-column name="إسم الطبيب">
+                        <ng-template let-row="row" ngx-datatable-cell-template>{{ row.doctor.name }}</ng-template>
+                    </ngx-datatable-column>
+                    <ngx-datatable-column name="البريد الإلكترونى">
+                        <ng-template let-row="row" ngx-datatable-cell-template>
+                            <a href="mailto:{{ row.doctor.email }}">{{ row.doctor.email }}</a>
+                        </ng-template>
+                    </ngx-datatable-column>
+                    <ngx-datatable-column name="عدد الحجوزات">
+                        <ng-template let-row="row" ngx-datatable-cell-template>
+                            {{ globals.formatNumber(row.reservations) }}</ng-template>
+                    </ngx-datatable-column>
+                    <ngx-datatable-column name="الدخل">
+                        <ng-template let-row="row" ngx-datatable-cell-template>{{ globals.formatNumber(row.income) }}
+                            ريال</ng-template>
+                    </ngx-datatable-column>
+                </ngx-datatable>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div bsModal #billsModal="bs-modal" class="modal fade" tabindex="-1" role="dialog">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+            <div class="modal-header">
+                <button type="button" class="close float-left" aria-label="Close" (click)="billsModal.hide()">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+                <h4 class="modal-title float-right">تفاصيل الدخل لشهر <strong>{{ getMonth(month) }}
+                        {{ year }}</strong></h4>
+            </div>
+            <div class="modal-body">
+                <div class="row mb-30">
+                    <div class="col-12 col-md-4 mx-auto grid-margin stretch-card">
+                        <div class="card card-statistics alt-bg">
+                            <div class="card-body">
+                                <div class="clearfix">
+                                    <div class="float-left">
+                                        <i class="mdi mdi-cash text-danger icon-lg"></i>
+                                    </div>
+                                    <div class="float-right">
+                                        <p class="mb-0 text-right">دخل فرع
+                                            <strong>{{ currentBranch?.branch?.name }}</strong></p>
+                                        <div class="fluid-container">
+                                            <h3 class="font-weight-medium text-right mb-0">
+                                                <i class="mdi icon-md"
+                                                    [class.mdi-arrow-top-left]="currentBranch?.bills.current > currentBranch?.bills.old"
+                                                    [class.text-success]="currentBranch?.bills.current > currentBranch?.bills.old"
+                                                    [class.mdi-arrow-bottom-right]="currentBranch?.bills.current < currentBranch?.bills.old"
+                                                    [class.text-danger]="currentBranch?.bills.current < currentBranch?.bills.old"></i>
+
+                                                <span
+                                                    class="en-font">{{ globals.formatNumber(currentBranch?.bills.current) }}</span>
+                                                ريال
+                                            </h3>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <ngx-datatable [rows]="bills" [limit]="10" [footerHeight]="50">
+                    <ngx-datatable-column name="الرقم">
+                        <ng-template let-row="row" ngx-datatable-cell-template>{{ row.bill?.number }}</ng-template>
+                    </ngx-datatable-column>
+                    <ngx-datatable-column name="التاريخ">
+                        <ng-template let-row="row" ngx-datatable-cell-template>
+                            {{ row.bill?.createdAt | amLocale:'ar' | amDateFormat:'LL' }}</ng-template>
+                    </ngx-datatable-column>
+                    <ngx-datatable-column name="دكتور">
+                        <ng-template let-row="row" ngx-datatable-cell-template>{{ row.bill?.reservation?.doctor?.name }}
+                        </ng-template>
+                    </ngx-datatable-column>
+                    <ngx-datatable-column name="كاش">
+                        <ng-template let-row="row" ngx-datatable-cell-template>{{ globals.formatNumber(row.cash) }} ريال
+                        </ng-template>
+                    </ngx-datatable-column>
+                    <ngx-datatable-column name="شبكة">
+                        <ng-template let-row="row" ngx-datatable-cell-template>{{ globals.formatNumber(row.network) }}
+                            ريال</ng-template>
+                    </ngx-datatable-column>
+                    <ngx-datatable-column name="المبلغ المدفوع">
+                        <ng-template let-row="row" ngx-datatable-cell-template>
+                            {{ globals.formatNumber(row.bill?.paidAmount) }} ريال
+                        </ng-template>
+                    </ngx-datatable-column>
+                </ngx-datatable>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div bsModal #expensesModal="bs-modal" class="modal fade" tabindex="-1" role="dialog">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+            <div class="modal-header">
+                <button type="button" class="close float-left" aria-label="Close" (click)="expensesModal.hide()">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+                <h4 class="modal-title float-right">تفاصيل المصروفات لشهر <strong>{{ getMonth(month) }}
+                        {{ year }}</strong></h4>
+            </div>
+            <div class="modal-body">
+                <div class="row mb-30">
+                    <div class="col-12 col-md-4 mx-auto grid-margin stretch-card">
+                        <div class="card card-statistics alt-bg">
+                            <div class="card-body">
+                                <div class="clearfix">
+                                    <div class="float-left">
+                                        <i class="mdi mdi-poll-box text-success icon-lg"></i>
+                                    </div>
+                                    <div class="float-right">
+                                        <p class="mb-0 text-right">المصروفات لفرع
+                                            <strong>{{ currentBranch?.branch?.name }}</strong></p>
+                                        <div class="fluid-container">
+                                            <h3 class="font-weight-medium text-right mb-0">
+                                                <i class="mdi icon-md"
+                                                    [class.mdi-arrow-top-left]="currentBranch?.expenses.current > currentBranch?.expenses.old"
+                                                    [class.text-success]="currentBranch?.expenses.current > currentBranch?.expenses.old"
+                                                    [class.mdi-arrow-bottom-right]="currentBranch?.expenses.current < currentBranch?.expenses.old"
+                                                    [class.text-danger]="currentBranch?.expenses.current < currentBranch?.expenses.old"></i>
+
+                                                <span
+                                                    class="en-font">{{ globals.formatNumber(currentBranch?.expenses.current) }}</span>
+                                                ريال
+                                            </h3>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <ngx-datatable [rows]="expenses" [limit]="10" [footerHeight]="50">
+                    <ngx-datatable-column name="النوع" prop="expense.name">
+                        <ng-template let-row="row" ngx-datatable-cell-template>{{ row.expense?.name }}</ng-template>
+                    </ngx-datatable-column>
+                    <ngx-datatable-column name="التكلفة" prop="cost">
+                        <ng-template let-row="row" ngx-datatable-cell-template>{{ globals.formatNumber(row.cost) }} ريال
+                        </ng-template>
+                    </ngx-datatable-column>
+                    <ngx-datatable-column name="التاريخ" prop="date">
+                        <ng-template let-row="row" ngx-datatable-cell-template>
+                            <p class="mb-2">{{ row.date | amLocale:'ar' | amTimeAgo }}</p>
+                            <p class="ts-12 op-60 mb-0">
+                                {{ row.date | amDateFormat:'DD' }}
+                                {{ row.date | amLocale:'ar' | amDateFormat:'MMMM' }}
+                                {{ row.date | amDateFormat:'YYYY' }}
+                            </p>
+                        </ng-template>
+                    </ngx-datatable-column>
+                </ngx-datatable>
+            </div>
+        </div>
+    </div>
+</div>

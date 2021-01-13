@@ -1,0 +1,118 @@
+<div class="card mb-50">
+	<div class="card-body">
+		<div class="container">
+			<h4 class="mb-35"><strong>إضافة خدمة جديد</strong></h4>
+
+			<form #form="ngForm" role="form" autocomplete="off" (ngSubmit)="submitForm()" enctype="multipart/form-data">
+				<div class="row">
+					<div class="col-12">
+						<div class="form-group" [class.error]="name.invalid && (name.dirty || name.touched)">
+							<label for="name">الإسم</label>
+							<input type="text" class="form-control" [(ngModel)]="addModel.name" #name="ngModel"
+								id="name" name="name" placeholder="الإسم" required>
+							<span class="error-label">هذا الحقل مطلوب, و لا يمكن أن يبدأ برقم</span>
+						</div>
+					</div>
+
+					<div class="col-12">
+						<div class="form-group" [class.error]="price.invalid && (price.dirty || price.touched)">
+							<label for="price">السعر</label>
+							<input type="number" class="form-control" [(ngModel)]="addModel.price" #price="ngModel"
+								id="price" name="price" placeholder="السعر" min="0" pattern="[0-9]+" required>
+							<span class="error-label">هذا الحقل مطلوب</span>
+						</div>
+					</div>
+					<!-- <div class="col-12">
+						<div class="form-group">
+							<label for="services">الخدمات <span class="op-50 mr-5">(إختيارى)</span></label>
+							<ng-multiselect-dropdown [ngModelOptions]="{standalone: true}" [placeholder]="'الخدمات '"
+								[data]="serviceArray" [(ngModel)]="selectedItems" [settings]="dropdownSettings"
+								(onSelect)="onItemSelect($event)">
+							</ng-multiselect-dropdown>
+						</div>
+					</div> -->
+					<!-- <div class="col-12">
+						<div class="form-group" [class.error]="video.invalid && (video.dirty || video.touched)">
+							<label for="name">اضافة فيديو <span class="op-50 mr-5">(إختيارى)</span></label>
+							<input type="file" class="form-control" #video accept="*" (change)="processFile(video)"
+								name="video" placeholder="اختر فديو" class="videoInput">
+							<div>
+								<button type="button" class="btn btn-success selectVideo mr-0" (click)='video.click()'>اختر
+									فيديو</button>
+								<button type="button" class="btn btn-danger selectVideo" (click)='deletevideo()'
+									*ngIf="editId && addModel.videoFile">مسح فيديو</button>
+							</div>
+							<span class="error-label">هذا الحقل مطلوب</span>
+						</div>
+					</div> -->
+					<div class="col-12">
+						<div id="one" class="one" style="display:none" #one></div>
+						<!-- <video id="updated_video" width="320" height="240" controls *ngIf="editId && addModel.videoFile"
+							[src]='addModel.videoFile'></video> -->
+					</div>
+					<div class="col-12 mt-30">
+						<button class="btn btn-primary" type="submit" [disabled]="form.invalid">
+							{{ editId ? 'حفظ التعديل' : 'إضافة الخدمة' }}
+						</button>
+						<button class="btn btn-default mr-10" type="button" (click)="form.reset()">مسح النموذج</button>
+						<button *ngIf="editId" class="btn btn-default mr-10 float-left" type="button"
+							(click)="cancel()">إلغاء التعديل</button>
+					</div>
+				</div>
+			</form>
+		</div>
+	</div>
+</div>
+
+<div class="card">
+	<div class="card-body">
+		<div class="row mb-35">
+			<div class="col-12 col-md-6 mx-auto">
+				<input type="text" class="form-control search" [(ngModel)]="filter" (keyup)="filterData()"
+					placeholder="بحث بكلمات مفتاحية">
+			</div>
+			<div class="col-12 col-md-3">
+				<select class="form-control" [(ngModel)]="sort" (change)="filterData()">
+					<option value="1">ترتيب الأحدث للأقدم</option>
+					<option value="2">ترتيب الأقدم للأحدث</option>
+				</select>
+			</div>
+		</div>
+
+		<ngx-datatable [rows]="dataFiltered" [limit]="10" [footerHeight]="50">
+			<ngx-datatable-column name="الإسم" prop="name">
+				<ng-template let-row="row" ngx-datatable-cell-template>{{ row.name }}</ng-template>
+			</ngx-datatable-column>
+			<ngx-datatable-column name="السعر" prop="price">
+				<ng-template let-row="row" ngx-datatable-cell-template>{{ row.price }}</ng-template>
+			</ngx-datatable-column>
+			<ngx-datatable-column name="إدارة">
+				<ng-template let-row="row" ngx-datatable-cell-template>
+					<button class="btn btn-danger mr-5" tooltip="حذف" (click)="deleteModal.show(); deleteId = row._id">
+						حذف
+					</button>
+					<button class="btn btn-primary mr-5" tooltip="تعديل" (click)="edit(row._id)">
+						تعديل
+					</button>
+				</ng-template>
+			</ngx-datatable-column>
+		</ngx-datatable>
+	</div>
+</div>
+
+<div bsModal #deleteModal="bs-modal" class="modal fade" tabindex="-1" role="dialog">
+	<div class="modal-dialog modal-sm">
+		<div class="modal-content">
+			<div class="modal-body">
+				<h5 class="mb-25">لا يمكنك التراجع عن الحذف, تأكيد؟</h5>
+
+				<button type="button" class="btn btn-default ml-10" (click)="deleteModal.hide(); deleteId = null">
+					إلغاء
+				</button>
+				<button type="button" class="btn btn-danger" (click)="deleteModal.hide(); delete()">
+					تأكيد الحذف
+				</button>
+			</div>
+		</div>
+	</div>
+</div>

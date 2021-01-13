@@ -1,0 +1,137 @@
+<div class="card mb-50">
+	<div class="card-body">
+		<div class="container">
+			<h4 class="mb-35"><strong>إضافة شركة جديد</strong></h4>
+
+			<form #form="ngForm" role="form" autocomplete="off" (ngSubmit)="submitForm()">
+				<div class="row">
+					<div class="col-12 col-md-6">
+						<div class="form-group" [class.error]="name.invalid && (name.dirty || name.touched)">
+							<label for="name">الإسم</label>
+							<input type="text" class="form-control" [(ngModel)]="addModel.name" #name="ngModel"
+								id="name" name="name" placeholder="الإسم"
+								pattern="[\u0600-\u06FF A-Za-z0-9]*" required>
+							<span class="error-label">هذا الحقل مطلوب, و لا يمكن أن يبدأ برقم</span>
+						</div>
+					</div>
+					<div class="col-12 col-md-6">
+						<div class="form-group" [class.error]="resp.invalid && (resp.dirty || resp.touched)">
+							<label for="resp">إسم المسئول</label>
+							<input type="text" class="form-control" [(ngModel)]="addModel.responsible_name" #resp="ngModel"
+								id="resp" name="resp" placeholder="إسم المسئول" pattern="[\u0600-\u06FF A-Za-z]*" required>
+							<span class="error-label">هذا الحقل مطلوب, ولا يمكنك أن يحتوى على أرقام</span>
+						</div>
+					</div>
+
+					<div class="col-12 col-md-4">
+						<div class="form-group" [class.error]="phone.invalid && (phone.dirty || phone.touched)">
+							<label for="phone">رقم التليفون</label>
+							<input type="text" class="form-control" [(ngModel)]="addModel.phone" #phone="ngModel"
+								id="phone" name="phone" placeholder="رقم التليفون" pattern="[0-9]+" required>
+							<span class="error-label">هذا الحقل مطلوب, و يجب أن يكون أرقام فقط</span>
+							<!--  pattern="^((?:[+?0?0?966]+)?(?:\s?\d{2})(?:\s?\d{7}))" -->
+						</div>
+					</div>
+					<div class="col-12 col-md-4">
+						<div class="form-group" [class.error]="email.invalid && (email.dirty || email.touched)">
+							<label for="email">البريد الإلكترونى</label>
+							<input type="email" class="form-control" [(ngModel)]="addModel.email" #email="ngModel"
+								id="email" name="email" placeholder="البريد الإلكترونى" required>
+							<span class="error-label">هذا الحقل مطلوب</span>
+						</div>
+					</div>
+					<div class="col-12 col-md-4">
+						<div class="form-group" [class.error]="date.invalid && (date.dirty || date.touched)">
+							<label for="date">التاريخ</label>
+							<input type="text" class="form-control" [(ngModel)]="addModel.date" #date="ngModel"
+								id="date" name="date" placeholder="التاريخ" bsDatepicker required>
+							<span class="error-label">هذا الحقل مطلوب</span>
+						</div>
+					</div>
+
+					<div class="col-12">
+						<div class="form-group" [class.error]="address.invalid && (address.dirty || address.touched)">
+							<label for="address">العنوان</label>
+							<input type="text" class="form-control" [(ngModel)]="addModel.address" #address="ngModel"
+								id="address" name="address" placeholder="العنوان" required>
+							<span class="error-label">هذا الحقل مطلوب</span>
+						</div>
+					</div>
+
+					<div class="col-12">
+						<div class="form-group">
+							<label for="isAdmin">مفعل؟</label>
+							<input type="checkbox" [(ngModel)]="addModel.isActive" id="isActive"
+								name="isActive">
+						</div>
+					</div>
+
+					<div class="col-12 mt-30">
+						<button class="btn btn-primary" type="submit" [disabled]="form.invalid">
+							{{ editId ? 'حفظ التعديل' : 'إضافة الشركة' }}
+						</button>
+						<button class="btn btn-default mr-10" type="button" (click)="form.reset()">مسح النموذج</button>
+						<button *ngIf="editId" class="btn btn-default mr-10 float-left" type="button"
+							(click)="cancel()">إلغاء التعديل</button>
+					</div>
+				</div>
+			</form>
+		</div>
+	</div>
+</div>
+
+<div class="card">
+	<div class="card-body">
+		<div class="row mb-35">
+			<div class="col-12 col-md-6 mx-auto">
+				<input type="text" class="form-control search" [(ngModel)]="filter" (keyup)="filterData()"
+					placeholder="بحث بكلمات مفتاحية">
+			</div>
+			<div class="col-12 col-md-3">
+				<select class="form-control" [(ngModel)]="sort" (change)="filterData()">
+					<option value="1">ترتيب الأحدث للأقدم</option>
+					<option value="2">ترتيب الأقدم للأحدث</option>
+				</select>
+			</div>
+		</div>
+
+		<ngx-datatable [rows]="dataFiltered" [limit]="10" [footerHeight]="50">
+			<ngx-datatable-column name="الإسم">
+				<ng-template let-row="row" ngx-datatable-cell-template>{{ row.name }}</ng-template>
+			</ngx-datatable-column>
+			<ngx-datatable-column name="إسم المسئول">
+				<ng-template let-row="row" ngx-datatable-cell-template>{{ row.responsible_name }}</ng-template>
+			</ngx-datatable-column>
+			<ngx-datatable-column name="رقم التليفون">
+				<ng-template let-row="row" ngx-datatable-cell-template>{{ row.phone }}</ng-template>
+			</ngx-datatable-column>
+			<ngx-datatable-column name="إدارة">
+				<ng-template let-row="row" ngx-datatable-cell-template>
+					<button class="btn btn-danger mr-5" tooltip="حذف" (click)="deleteModal.show(); deleteId = row._id">
+						حذف
+					</button>
+					<button class="btn btn-primary mr-5" tooltip="تعديل" (click)="edit(row._id)">
+						تعديل
+					</button>
+				</ng-template>
+			</ngx-datatable-column>
+		</ngx-datatable>
+	</div>
+</div>
+
+<div bsModal #deleteModal="bs-modal" class="modal fade" tabindex="-1" role="dialog">
+	<div class="modal-dialog modal-sm">
+		<div class="modal-content">
+			<div class="modal-body">
+				<h5 class="mb-25">لا يمكنك التراجع عن الحذف, تأكيد؟</h5>
+
+				<button type="button" class="btn btn-default ml-10" (click)="deleteModal.hide(); deleteId = null">
+					إلغاء
+				</button>
+				<button type="button" class="btn btn-danger" (click)="deleteModal.hide(); delete()">
+					تأكيد الحذف
+				</button>
+			</div>
+		</div>
+	</div>
+</div>

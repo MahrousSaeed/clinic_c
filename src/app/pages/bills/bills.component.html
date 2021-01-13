@@ -1,0 +1,318 @@
+<h1 class="bill-header">تسديد وعرض الفواتير الغير كاملة </h1>
+<div class="card unpaid_bills">
+    <div class="card-body">
+        <div class="row mb-35">
+            <div class="col-12 col-md-6 mx-auto">
+                <input type="text" class="form-control search" [(ngModel)]="filter" (keyup)="filterData()"
+                    placeholder="بحث بكلمات مفتاحية">
+            </div>
+            <div class="col-12 col-md-3">
+                <select class="form-control" [(ngModel)]="sort" (change)="filterData()">
+                    <option value="1">ترتيب الأحدث للأقدم</option>
+                    <option value="2">ترتيب الأقدم للأحدث</option>
+                </select>
+            </div>
+        </div>
+
+        <ngx-datatable [rows]="dataFiltered" [limit]="10" [footerHeight]="50">
+            <ngx-datatable-column name="رقم العميل " prop="patientNum">
+                <ng-template let-row="row" ngx-datatable-cell-template>{{ row.reservation.patient.number }}
+                </ng-template>
+            </ngx-datatable-column>
+            <ngx-datatable-column name="إسم العميل " prop="patient">
+                <ng-template let-row="row" ngx-datatable-cell-template>{{ row.reservation.patient.name_ar }}
+                </ng-template>
+            </ngx-datatable-column>
+            <ngx-datatable-column name="الطبيب" prop="doctor">
+                <ng-template let-row="row" ngx-datatable-cell-template>
+                    {{ row.reservation.doctor.name }}
+                </ng-template>
+            </ngx-datatable-column>
+            <ngx-datatable-column name="المبلغ المطلوب" prop="total">
+                <ng-template let-row="row" ngx-datatable-cell-template>{{row.total}}</ng-template>
+            </ngx-datatable-column>
+            <ngx-datatable-column name="المبلغ المدفوع" prop="paidAmount">
+                <ng-template let-row="row" ngx-datatable-cell-template>{{row.paidAmount}}</ng-template>
+            </ngx-datatable-column>
+            <ngx-datatable-column name="المبلغ المتبقي" prop="restAmount">
+                <ng-template let-row="row" ngx-datatable-cell-template>{{row.total - row.paidAmount}}</ng-template>
+            </ngx-datatable-column>
+            <ngx-datatable-column name="إدارة">
+                <ng-template let-row="row" ngx-datatable-cell-template>
+                    <button class="btn btn-success mr-5" tooltip="تفاصيل"
+                        (click)=" bill_id = row._id;getInstallments();">
+                        تفاصيل
+                    </button>
+                    <button *ngIf="row.total != row.paidAmount" class="btn btn-primary mr-5" tooltip="تسديد" (click)="payBillsModal.show();bill_id=row._id">
+                        تسديد الباقي
+                    </button>
+                </ng-template>
+            </ngx-datatable-column>
+        </ngx-datatable>
+    </div>
+</div>
+
+<div bsModal #BillHistoryModal="bs-modal" class="modal fade" tabindex="-1" role="dialog">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+            <div class="modal-body">
+                <div *ngFor="let invoice of all_installments;let i = index; let odd = odd">
+					<button class="btn btn-primary" (click)="printReport(i)">
+						طباعة الفاتورة
+					</button>
+					<div class="mb-100 br-8" id="{{i}}" dir="ltr"
+						[style.backgroundColor]="odd ? '#F2F8F9' : '#F2F8F9'"
+						style="padding:20px;color:#CBAF8B;font-size:15px;position:relative;font-family:'Courier New', Courier, monospace !important;line-height:13px;font-weight:600">
+						<!-- <button class="btn btn-danger delete-btn" (click)="delete_modal.show();billId = invoice._id">حذف
+								الفاتورة</button> -->
+
+						<div>
+							<div style="float:left;width:calc(100% / 3.1);text-align:center">
+								<p>Al Safwa</p>
+								<p style="color:#7A6D5D">Al - Muhaideb Dentistry Group</p>
+								<p>Special Clinics For Women & Children</p>
+								<p>VAT: 302262572300003</p>
+							</div>
+							<div style="float:left;width:calc(100% / 3.1);text-align:center">
+								<!-- <img src="assets/images/clinic.png" width="100"> -->
+								<img src="assets/images/clinic.png" width="100">
+								<p style="color:#7A6D5D">فاتـــــــــــورة</p>
+								<p>Patient Bill</p>
+							</div>
+							<div style="float:left;width:calc(100% / 3.1);text-align:center">
+								<p>الصفوة</p>
+								<p style="color:#7A6D5D">مجموعة المهيدب لطب الأسنان</p>
+								<p>عيادات متخصصة للرجال</p>
+								<p>عيادات متخصصة للنساء و الأطفال</p>
+								<p>الرقم الضريبى: ٣٠٢٢٦٢٥٧٢٣٠٠٠٠٣</p>
+							</div>
+							<div style="clear:both;height:1px"></div>
+						</div>
+
+						<div style="margin-top:15px">
+							<div style="float:left;width:calc(50% - 20px);margin-right:20px">
+								<div>
+									<span style="display:block;float:left;width:125px;margin-top:6px;color:#7A6D5D">BILL
+										NO.
+										:</span>
+									<span
+										style="color:#7A6D5D;padding-top:7px;display:block;float:left;height:25px;width:calc(100% - 250px);background:#e6e2d9;text-align:center">
+										{{ invoice.bill?.number }}
+									</span>
+									<span style="display:block;float:left;width:125px;margin-top:6px;color:#7A6D5D"
+										dir="rtl">رقم الفاتورة:</span>
+									<div style="clear:both;height:1px"></div>
+								</div>
+								<div style="margin-top:10px">
+									<span
+										style="display:block;float:left;width:125px;margin-top:6px;color:#7A6D5D">PATIENT
+										:
+									</span>
+									<span
+										style="color:#7A6D5D;padding-top:7px;display:block;float:left;height:25px;width:calc(100% - 250px);background:#e6e2d9;text-align:center">
+										{{ invoice.reservation?.patient?.name_ar }}
+									</span>
+									<span style="display:block;float:left;width:125px;margin-top:6px;color:#7A6D5D"
+										dir="rtl">المريض :</span>
+									<div style="clear:both;height:1px"></div>
+								</div>
+								<div style="margin-top:10px">
+									<span
+										style="display:block;float:left;width:125px;margin-top:6px;color:#7A6D5D">PATIENT
+										NO. :
+									</span>
+									<span
+										style="color:#7A6D5D;padding-top:7px;display:block;float:left;height:25px;width:calc(100% - 250px);background:#e6e2d9;text-align:center">
+										<!-- {{ invoice.reservation?.branch?.name }} -->
+										{{ invoice?.reservation?.patient?.number }}
+									</span>
+									<span style="display:block;float:left;width:125px;margin-top:6px;color:#7A6D5D"
+										dir="rtl">العيادة :</span>
+									<div style="clear:both;height:1px"></div>
+								</div>
+							</div>
+
+							<div style="float:left;width:calc(50% - 20px);margin-left:20px">
+								<div>
+									<span style="display:block;float:left;width:125px;margin-top:6px;color:#7A6D5D">DATE
+										:
+									</span>
+									<span class="en-font"
+										style="color:#7A6D5D;padding-top:7px;display:block;float:left;height:25px;width:calc(100% - 250px);background:#e6e2d9;text-align:center">
+										{{ invoice.date | amDateFormat:'LL' }}
+									</span>
+									<span style="display:block;float:left;width:125px;margin-top:6px;color:#7A6D5D"
+										dir="rtl">التاريخ :</span>
+									<div style="clear:both;height:1px"></div>
+								</div>
+								<div style="margin-top:10px">
+									<span style="display:block;float:left;width:125px;margin-top:6px;color:#7A6D5D">TIME
+										:
+									</span>
+									<span class="en-font"
+										style="color:#7A6D5D;padding-top:7px;display:block;float:left;height:25px;width:calc(100% - 250px);background:#e6e2d9;text-align:center">
+										{{ invoice.date | amDateFormat:'hh:mm A' }}
+									</span>
+									<span style="display:block;float:left;width:125px;margin-top:6px;color:#7A6D5D"
+										dir="rtl">الوقت :</span>
+									<div style="clear:both;height:1px"></div>
+								</div>
+								<div style="margin-top:10px">
+									<span
+										style="display:block;float:left;width:125px;margin-top:6px;color:#7A6D5D">DOCTOR
+										:
+									</span>
+									<span
+										style="color:#7A6D5D;padding-top:7px;display:block;float:left;height:25px;width:calc(100% - 250px);background:#e6e2d9;text-align:center">
+										{{ invoice.reservation?.doctor?.name }}
+									</span>
+									<span style="display:block;float:left;width:125px;margin-top:6px;color:#7A6D5D"
+										dir="rtl">الدكتور :</span>
+									<div style="clear:both;height:1px"></div>
+								</div>
+							</div>
+							<div style="clear:both;height:1px"></div>
+						</div>
+
+						<div style="margin-top:20px">
+							<table border="1" style="width:100%;border-collapse:collapse;border-color:#7A6D5D">
+								<thead>
+
+									<th style="padding:10px;background:#7A6D5D;color:white;width:16%">
+										<p style="margin:0 0 10px">المتبقى</p>
+										<p style="margin:0">rest Amount</p>
+                                    </th>
+									<th style="padding:10px;background:#7A6D5D;color:white;width:24%">
+										<p style="margin:0 0 10px"> المبلغ المدفوع في هذة الفاتورة</p>
+										<p style="margin:0">paidAmount</p>
+									</th>
+
+									<th style="padding:10px;background:#7A6D5D;color:white;width:24%">
+										<p style="margin:0 0 10px"> المبلغ الكلي المدفوع</p>
+										<p style="margin:0">total paidAmount</p>
+									</th>
+
+                                    <th style="padding:10px;background:#7A6D5D;color:white;width:16%">
+										<p style="margin:0 0 10px">الإجمالى</p>
+										<p style="margin:0">Total Amount</p>
+									</th>
+								</thead>
+								<tbody>
+
+                                    <tr>
+                                        <td style="padding:15px" > {{invoice.rest}} </td>
+                                        <td style="padding:15px" > 
+                                            <p style="color:#7A6D5D"> <strong>كاش : {{invoice.paymentTypeValues[0]}}</strong></p>
+                                            <p style="color:#7A6D5D"> <strong>شبكة : {{invoice.paymentTypeValues[1]}}</strong></p>
+                                        </td>
+                                        <td style="padding:15px" > {{invoice.bill?.paidAmount}} </td>
+                                        <td style="padding:15px" > {{invoice.total}} </td>
+                                    </tr>
+									<!-- <tr *ngIf="invoice.reservation?.patient?.nationality !== 'سعودى'">
+										<td colspan="4" style="padding:15px">
+											<p style="margin:0 0 10px;color:#7A6D5D" dir="rtl">الضريبة المضافة 5%
+											</p>
+											<p style="margin:0;color:#7A6D5D">5% VAT</p>
+										</td>
+										<td style="padding:15px">{{ invoice.vat }}</td>
+									</tr> -->
+
+									<!-- <tr>
+										<td colspan="3" style="padding:15px">
+											<div class="float-right">
+												<p style="margin:0 0 10px;color:#7A6D5D">الحساب</p>
+												<p style="margin:0;color:#7A6D5D">ACCOUNT</p>
+											</div>
+											<p class="float-left">{{ invoice.user?.name }}</p>
+											<div style="clear:both;height:1px"></div>
+										</td>
+										<td style="padding:15px">
+											<p style="margin:0 0 10px;color:#7A6D5D">المجموع</p>
+											<p style="margin:0;color:#7A6D5D">Total</p>
+										</td>
+										<td style="padding:15px">
+											{{ getInvoiceServicesTotal(invoice) + invoice.vat }}</td>
+									</tr> -->
+									<!-- <tr>
+										<td  style="padding:15px">
+											<div class="float-right">
+												<p style="margin:0 0 10px;color:#7A6D5D">المبلغ المدفوع</p>
+												<p style="margin:0;color:#7A6D5D">Amount Paid</p>
+											</div>
+											<p class="float-left">{{ invoice.paidAmount }}</p>
+											<div style="clear:both;height:1px"></div>
+										</td>
+										<td style="padding:15px">
+											<p style="margin:0 0 10px;color:#7A6D5D;font-size: 14px">المبلغ المتبقى
+											</p>
+											<p style="margin:0;color:#7A6D5D">Balance Amt.</p>
+										</td>
+
+									</tr> -->
+								</tbody>
+							</table>
+						</div>
+
+						<div style="margin-top:10px" dir="rtl">
+							<h3>ملحوظة: المبلغ المدفوع لا يرد بعد بداية العام</h3>
+						</div>
+
+						<div style="margin-top:50px;text-align:center" dir="rtl">
+							<p>التوقيع
+								<strong style="color:#7A6D5D">______________________________</strong>
+								Signature</p>
+						</div>
+
+						<div style="padding:15px;margin-top:50px;background:#7A6D5D;color:white;text-align:center">
+							{{ invoice.branch?.address + ' - التليفون: ' + invoice.branch?.phone }}
+						</div>
+					</div>
+				</div>
+            </div>
+        </div>
+    </div>
+</div>
+<div bsModal #payBillsModal="bs-modal" class="modal fade" tabindex="-1" role="dialog">
+    <div class="modal-dialog modal-sm">
+        <div class="modal-content">
+            <div class="modal-body">
+                <form #form="ngForm" (ngSubmit)="payBill()">
+                    <label for="payment">طريقة الدفع</label>
+                    <div class="row">
+                        <div class="col-12">
+                            <div class="form-group">
+                                <label for="payment1" class="mr-5">كاش</label>
+
+                                <input type="number" pattern="^(0|[1-9][0-9]*)$" min="0" [max]=""
+                                    [(ngModel)]="payment.cash" name="cash" class="form-control" placeholder="القيمة"
+                                    (keydown)="globals.preventNegative($event)">
+                            </div>
+                        </div>
+                        <div class="col-12">
+                            <div class="form-group">
+                                <label for="payment2" class="mr-5">شبكة</label>
+
+                                <input type="number" name="network" pattern="^(0|[1-9][0-9]*)$" min="0"
+                                    [(ngModel)]="payment.network" class="form-control" placeholder="القيمة"
+                                    (keydown)=" globals.preventNegative($event)">
+                            </div>
+                        </div>
+                        <div class="col-12">
+                            <div class="form-group">
+                                <button class="btn btn-primary ml-5" type="submit">دفع</button>
+                                <button class="btn btn-danger" type="button" (click)="payBillsModal.hide()" >إلغاء</button>
+                            </div>
+                            
+                        </div>
+                        <!-- <p *ngIf="( total > totalAfterVat ) && addCompleteModel.services.length > 0" style="color: red;margin-top: 30px;">المبلغ المدفوع اكبر من الاجمالي </p>
+                            <p *ngIf="show" style="color: red;margin-top: 30px;"> show المبلغ المدفوع اكبر من الاجمالي </p> -->
+                        <!-- <p *ngIf="(paymentLess && payment.cash == true) || (paymentLess && payment.network == true)" style="color: red;margin-top: 30px;">
+                            المبلغ المدفوع اقل من الاجمالي </p> -->
+
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+

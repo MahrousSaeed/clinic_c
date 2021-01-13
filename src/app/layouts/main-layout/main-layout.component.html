@@ -1,0 +1,185 @@
+<div class="container-scroller" *ngIf="globals.currentUser != null">
+		<app-navbar></app-navbar>
+
+	<div class="container-fluid page-body-wrapper" >
+		<!-- <app-sidebar></app-sidebar> -->
+
+		<div class="main-panel">
+			<div class="content-wrapper">
+				<div class="container">
+					<router-outlet></router-outlet>
+				</div>
+			</div>
+				<app-footer></app-footer>
+		</div>
+	</div>
+</div>
+<div class="container-scroller" *ngIf="globals.currentUser == null">
+
+
+	<div class="container-fluid page-body-wrapper" [ngClass]="{'outsideRating': globals.currentUser == null}">
+		<!-- <app-sidebar></app-sidebar> -->
+
+		<div class="main-panel">
+			<div class="content-wrapper">
+				<div class="container">
+					<router-outlet></router-outlet>
+				</div>
+			</div>
+
+		</div>
+	</div>
+</div>
+<div bsModal #updateModal="bs-modal" class="modal fade" tabindex="-1" role="dialog" >
+	<div class="modal-dialog modal-md">
+		<div class="modal-content">
+			<div class="modal-header">
+				<button type="button" class="close float-left" aria-label="Close"
+					(click)="updateModal.hide();hideBackdrop()">
+					<span aria-hidden="true">&times;</span>
+				</button>
+				<h4 class="modal-title float-right">تعديل الملف الخاص</h4>
+			</div>
+			<div class="modal-body">
+				<form #updateProfileform="ngForm" role="form" autocomplete="off" (ngSubmit)="updateProfile()">
+					<div class="row">
+						<div class="col-12 mb-35" center>
+							<!-- <img id="profile-image" [src]="userImage"
+								onerror="this.src='assets/images/default_avatar.png'" class="img-xs rounded-circle s-80"
+								(click)="selectProfileImage()"> -->
+							<img id="profile-image" src="assets/images/default_avatar.png"
+								 class="img-xs rounded-circle s-80"
+								>
+							<!-- <p class="ts-12 op-60 mt-10 mb-10">إضغط على الصورة لتغييرها</p> -->
+							<!-- <button type="button" class="btn btn-default btn-sm"
+								(click)="selectProfileImageDefault()">إستخدام الصورة الإفتراضية</button>
+
+							<input type="file" name="image" id="image" hidden> -->
+						</div>
+
+						<div class="col-12 col-md-6">
+							<div class="form-group" [class.error]="name.invalid && (name.dirty || name.touched)">
+								<label for="name">الإسم</label>
+								<input type="text" class="form-control" [(ngModel)]="user.name" #name="ngModel"
+									id="name" name="name" placeholder="الإسم" required>
+								<span class="error-label">هذا الحقل مطلوب, و لا يمكن أن يبدأ برقم</span>
+							</div>
+						</div>
+
+						<div class="col-12 col-md-6">
+							<div class="form-group" [class.error]="email.invalid && (email.dirty || email.touched)">
+								<label for="email">البريد الإلكترونى</label>
+								<input type="email" class="form-control" [(ngModel)]="user.email" #email="ngModel"
+									id="email" name="email" placeholder="البريد الإلكترونى" disabled required>
+								<span class="error-label">هذا الحقل مطلوب</span>
+							</div>
+						</div>
+
+						<div class="col-12 col-md-6" *ngIf="globals.currentUser?.role?.name != 'doctor'">
+							<div class="form-group" [class.error]="phone.invalid && (phone.dirty || phone.touched)">
+								<label for="phone">رقم التليفون</label>
+								<input type="text" class="form-control" [(ngModel)]="user.mobile" #phone="ngModel"
+									id="phone" name="phone" placeholder="رقم التليفون" pattern="[0-9]+" required>
+								<span class="error-label">هذا الحقل مطلوب, و يجب أن يكون أرقام فقط</span>
+								<!--  pattern="^((?:[+?0?0?966]+)?(?:\s?\d{2})(?:\s?\d{7}))" -->
+							</div>
+						</div>
+
+						<div class="col-12 col-md-6" *ngIf="globals.currentUser?.role?.name != 'doctor'">
+							<div class="form-group" [class.error]="bd.invalid && (bd.dirty || bd.touched)">
+								<label for="bd">تاريخ الميلاد</label>
+								<input type="text" class="form-control" [maxDate]="currentDate"
+									[(ngModel)]="user.birthdate" #bd="ngModel" id="bd" name="bd"
+									placeholder="تاريخ الميلاد" bsDatepicker required>
+								<span class="error-label">هذا الحقل مطلوب</span>
+							</div>
+						</div>
+
+						<div class="col-12 col-md-6" *ngIf="globals.currentUser?.role?.name != 'doctor'">
+							<div class="form-group">
+								<label for="gender">النوع</label>
+								<select-dropdown [items]="[{value:'male',title:'ذكر'},{value:'female',title:'أنثى'}]"
+									[(ngModel)]="user.gender" controlId="gender" name="gender"
+									placeholder="يرجى إختيار النوع" required>
+								</select-dropdown>
+							</div>
+						</div>
+
+						<div class="col-12 col-md-6" *ngIf="globals.currentUser?.role?.name != 'doctor'">
+							<div class="form-group"
+								[class.error]="address.invalid && (address.dirty || address.touched)">
+								<label for="address">العنوان</label>
+								<textarea type="text" class="form-control" [(ngModel)]="user.address" #address="ngModel"
+									id="address" name="address" placeholder="رقم التليفون"></textarea>
+								<span class="error-label">هذا الحقل مطلوب</span>
+							</div>
+						</div>
+
+						<div class="col-12 col-md-6">
+							<div class="form-group"
+								[class.error]="password.invalid && (password.dirty || password.touched)">
+								<label for="password">كلمة المرور</label>
+								<input type="password" class="form-control" [(ngModel)]="user.password"
+									#password="ngModel" id="password" minlength="6" name="password"
+									placeholder="كلمة المرور" [required]="password2.value != ''">
+
+								<span class="error-label"> هذا الحقل مطلوب وأكبر من 6</span>
+							</div>
+						</div>
+						<div class="col-12 col-md-6">
+							<div class="form-group"
+								[class.error]="password2.value != password.value && (password2.dirty || password2.touched)">
+								<label for="password2">تأكيد كلمة المرور</label>
+								<input type="password" class="form-control" [(ngModel)]="user.password2"
+									#password2="ngModel" id="password2" name="password2" placeholder="تأكيد كلمة المرور"
+									[required]="password.value != ''">
+								<span class="error-label">كلمة المرور غير متطابقة</span>
+							</div>
+						</div>
+						<div class="col-12">
+							<div class="alert alert-info d-inline-block">
+								<strong class="ml-5">معلومة!</strong> أترك خانة كلمة المرور لعدم
+								تغييرها
+							</div>
+						</div>
+
+						<div class="col-12 mt-30">
+							<button class="btn btn-primary" type="submit" [disabled]="updateProfileform.invalid">
+								حفظ التعديل
+							</button>
+							<button class="btn btn-default mr-10" type="button"
+								(click)="updateModal.hide()">إلغاء</button>
+						</div>
+					</div>
+				</form>
+			</div>
+		</div>
+	</div>
+</div>
+
+<ngx-spinner type="ball-fussion"></ngx-spinner>
+<!-- 
+<div class="new-ver" [class.visible]="currentAppVersion != latestAppVersion && showUpdate">
+	<p class="mb-5">يوجد تحديث جديد لنسخة رقم <strong>v{{ latestAppVersion }}</strong></p>
+	<p class="op-70 ts-14">يرجى حفظ أى بيانات قبل التحديث</p>
+
+	<div>
+		<button class="btn btn-outline-light btn-block" (click)="updateApp()">تحديث</button>
+		<button class="btn btn-outline-light btn-block" (click)="showUpdate = false">الغاء</button>
+	</div>
+</div> -->
+
+<div *ngIf="!globals.isOnline" class="no-connection">
+	<i class="fas fa-exclamation-triangle ml-5"></i> لا يوجد إتصال بالإنترنت!
+</div>
+
+<div *ngIf="globals.isOnline && globals.uploadingOfflineData" class="offline-uploading">
+	<p *ngIf="!uploadingOfflineFailed" class="mb-10">جارى رفع البيانات</p>
+	<p *ngIf="uploadingOfflineFailed" class="mb-10">لم يتم رفع البيانات, إعادة المحاولة؟</p>
+
+	<div *ngIf="!uploadingOfflineFailed" class="loader"></div>
+	<div *ngIf="uploadingOfflineFailed">
+		<button class="btn btn-primary btn-sm ml-15" (click)="retryOffline()">إعادة المحاولة</button>
+		<button class="btn btn-default btn-sm" (click)="retryLater()">المحاولة لاحقا</button>
+	</div>
+</div>

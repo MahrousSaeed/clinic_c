@@ -1,0 +1,614 @@
+<div *ngIf="globals.currentUser.isAdmin" class="row">
+    <div class="col-xl-4 col-lg-4 col-md-4 col-sm-6 grid-margin stretch-card">
+        <div class="card card-statistics">
+            <div class="card-body">
+                <div class="clearfix">
+                    <div class="float-left">
+                        <i class="mdi mdi-cash icon-lg" style="color:#2f7acf"></i>
+                    </div>
+                    <div class="float-right">
+                        <p class="mb-0 text-right">إجمالى الأرباح</p>
+                        <div class="fluid-container">
+                            <h3 class="font-weight-medium text-right mb-0">
+                                <span class="en-font">{{ globals.formatNumber(dashboard ? dashboard.bills : 0) }}</span> ريال
+                            </h3>
+                        </div>
+                    </div>
+                </div>
+                <p class="text-muted mt-3 mb-0">
+                    <i class="mdi mdi-alert-octagon mr-1" aria-hidden="true"></i> أرباح شهر
+                    <strong class="en-font">{{ currentDate | amDateFormat:'MMMM YYYY' }}</strong>
+                </p>
+            </div>
+        </div>
+    </div>
+    <div class="col-xl-4 col-lg-4 col-md-4 col-sm-6 grid-margin stretch-card">
+        <div class="card card-statistics">
+            <div class="card-body">
+                <div class="clearfix">
+                    <div class="float-left">
+                        <i class="mdi mdi-cash icon-lg" style="color:#2f7acf"></i>
+                    </div>
+                    <div class="float-right">
+                        <p class="mb-0 text-right">إجمالى المرتعجات</p>
+                        <div class="fluid-container">
+                            <h3 class="font-weight-medium text-right mb-0">
+                                <span class="en-font">{{globals.formatNumber(dashboard ? dashboard.refunds : 0)}}</span> ريال
+                            </h3>
+                        </div>
+                    </div>
+                </div>
+                <p class="text-muted mt-3 mb-0">
+                    <i class="mdi mdi-alert-octagon mr-1" aria-hidden="true"></i> مرتجعات شهر
+                    <strong class="en-font">{{ currentDate | amDateFormat:'MMMM YYYY' }}</strong>
+                </p>
+            </div>
+        </div>
+    </div>
+    <div class="col-xl-4 col-lg-4 col-md-4 col-sm-6 grid-margin stretch-card">
+        <div class="card card-statistics">
+            <div class="card-body">
+                <div class="clearfix">
+                    <div class="float-left">
+                        <i class="mdi mdi-cash icon-lg" style="color:#2f7acf"></i>
+                    </div>
+                    <div class="float-right">
+                        <p class="mb-0 text-right">صافي الربح بعد المرتجع </p>
+                        <div class="fluid-container">
+                            <h3 class="font-weight-medium text-right mb-0">
+                                <span class="en-font">{{globals.formatNumber(dashboard?.bills - dashboard?.refunds)}}</span> ريال
+                            </h3>
+                        </div>
+                    </div>
+                </div>
+                <p class="text-muted mt-3 mb-0">
+                    <i class="mdi mdi-alert-octagon mr-1" aria-hidden="true"></i> أرباح شهر
+                    <strong class="en-font">{{ currentDate | amDateFormat:'MMMM YYYY' }}</strong>
+                </p>
+            </div>
+        </div>
+    </div>
+    <div class="col-xl-4 col-lg-4 col-md-4 col-sm-6 grid-margin stretch-card">
+        <div class="card card-statistics">
+            <div class="card-body">
+                <div class="clearfix">
+                    <div class="float-left">
+                        <i class="mdi mdi-receipt text-warning icon-lg"></i>
+                    </div>
+                    <div class="float-right">
+                        <p class="mb-0 text-right">الحجوزات</p>
+                        <div class="fluid-container">
+                            <h3 class="font-weight-medium text-right mb-0">
+                                <span class="en-font">{{ globals.formatNumber(dashboard ? dashboard.reservationsCount : 0) }}</span>
+                            </h3>
+                        </div>
+                    </div>
+                </div>
+                <p class="text-muted mt-3 mb-0">
+                    <i class="mdi mdi-bookmark-outline mr-1" aria-hidden="true"></i> حجوزات شهر
+                    <strong class="en-font">{{ currentDate | amDateFormat:'MMMM YYYY' }}</strong>
+                </p>
+            </div>
+        </div>
+    </div>
+    <div class="col-xl-4 col-lg-4 col-md-4 col-sm-6 grid-margin stretch-card">
+        <div class="card card-statistics">
+            <div class="card-body">
+                <div class="clearfix">
+                    <div class="float-left">
+                        <i class="mdi mdi-poll-box text-success icon-lg"></i>
+                    </div>
+                    <div class="float-right">
+                        <p class="mb-0 text-right">المصروفات</p>
+                        <div class="fluid-container">
+                            <h3 class="font-weight-medium text-right mb-0">
+                                <span class="en-font">{{ globals.formatNumber(dashboard ? dashboard.expenses : 0) }}</span> ريال
+                            </h3>
+                        </div>
+                    </div>
+                </div>
+                <p class="text-muted mt-3 mb-0">
+                    <i class="mdi mdi-calendar mr-1" aria-hidden="true"></i> مصروفات شهر
+                    <strong class="en-font">{{ currentDate | amDateFormat:'MMMM YYYY' }}</strong>
+                </p>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="row mt-20">
+    <div class="col-12 mb-20" clearfix>
+        <h4 class="float-right"><strong>حجوزات اليوم</strong></h4>
+        <button class="btn btn-primary float-left" [routerLink]="['/dash/reservations']">
+            <i class="icon ion-md-add"></i> حجز جديد
+        </button>
+        <button class="btn btn-primary float-left ml-10" (click)="getReservations()">
+            <i class="icon ion-md-refresh"></i> تحديث
+        </button>
+    </div>
+
+    <div *ngIf="reservations.length == 0" class="col-12 mt-20 mb-50">
+        <div class="card">
+            <div class="card-body">
+                <div class="op-50" center>
+                    <img src="assets/images/no-results.svg" width="80">
+                    <p class="mt-15 mb-0"><strong>لا يوجد حجوزات لليوم!</strong></p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="col-12 mb-20 d-flex" style="justify-content:space-evenly">
+        <button *ngFor="let doctor of doctors" class="btn btn-default h-45 flex-1"
+            [class.btn-primary]="currentDoctor == doctor._id" (click)="selectDoctor(doctor._id)">
+            <span>{{ doctor.name }}</span>
+            <span class="badge badge-danger float-left" *ngIf="hasOngoing(doctor._id)">جارى الكشف</span>
+        </button>
+    </div>
+
+    <div *ngIf="reservations.length > 0" class="col-12 ts-12 mb-20" text-right>
+        <span class="d-inline-block w-14 h-14 br-20" style="background:#4087DE"></span> <span class="mr-5 ml-15">جارى
+            الكشف</span>
+        <span class="d-inline-block w-14 h-14 br-20" style="background:#00ce68"></span> <span class="mr-5">إكتمل
+            الحجز</span>
+    </div>
+
+    <div *ngFor="let res of reservations; let i = index" class="col-12 col-md-6">
+        <div class="card res-card mb-20" [class.not-completed]="res.status?._id == notCompletedStatus"
+            [class.completed]="res.status?._id == completedStatus">
+            <div class="card-body">
+                <div class="row">
+                    <div class="col-12 col-md-6">
+                        <h4><strong>{{ res.patient?.name_ar }}</strong></h4>
+                        <p class="op-70">{{ res.patient?.age }} سنة</p>
+                        <p class="op-70 mb-0">
+                            <strong>ميعاد الحجزميعاد الحجز: </strong> <span class="en-font">{{ res.time}}</span>
+                        </p>
+                        <p *ngIf="res.patient?.contract" class="op-70 mb-0">
+                            <strong>الشركة: </strong> {{ res.patient?.contract.name }}
+                        </p>
+                        <p *ngIf="res.servicesCount == 0" class="op-70 mb-0 mt-10 text-danger">
+                            <strong>* لم يتم تحديد خدمات الحجز بعد</strong>
+                        </p>
+                        <p *ngIf="(res.paymentType && res.paymentType.length == 0) || (res.paymentTypeValues && res.paymentTypeValues.length == 0)" class="op-70 mb-0 mt-10 text-danger">
+                            <strong>* لم يتم تحديد طريقة الدفع بعد</strong>
+                        </p>
+                    </div>
+                    <div class="col-12 col-md-2"></div>
+                    <div class="col-12 col-md-4" text-left>
+                        <!-- <div class="btn-group d-flex" tooltip="تغيير حالة الحجز" text-right dropdown>
+                            <button id="button-basic" dropdownToggle type="button"
+                                class="btn btn-primary btn-block dropdown-toggle" aria-controls="dropdown-basic">
+                                <span style="text-transform: capitalize">{{ res.status?.name }}</span> <span
+                                    class="caret mr-3"></span>
+                            </button>
+                            <ul id="dropdown-basic" *dropdownMenu class="dropdown-menu" role="menu">
+                                <li *ngFor="let status of statues" role="menuitem">
+                                    <a class="dropdown-item pt-10 pb-10" [class.active]="status._id == res.status?._id"
+                                        (click)="changeStatus(res._id, status._id, i)">
+                                        {{ status.name }}
+                                    </a>
+                                </li>
+                            </ul>
+                        </div> -->
+                        <div *ngIf="res.status?._id == '5c8e1fd01c5c323f54e0a804'" class="mt-6">
+                            <button class="btn btn-outline-success btn-block mb-0" disabled>
+                                <i class="icon ion-md-checkmark ml-5"></i> <strong>جارى الكشف الآن</strong>
+                            </button>
+                        </div>
+                        <div *ngIf="res.status?._id != '5c8e1fd01c5c323f54e0a804' && res.status?._id != '5c8e1fd41c5c323f54e0a805'" class="mt-6">
+                            <button class="btn btn-outline-primary btn-block" tooltip="إرسال للطبيب" (click)="gotoDoctor(res)">
+                                إرسال للطبيب <i class="icon ion-md-arrow-round-back"></i>
+                            </button>
+                        </div>
+                        <div class="mt-6">
+                            <button class="btn btn-primary btn-block" tooltip="تكملة البيانات" (click)="complete(res)">
+                                تكملة البيانات
+                            </button>
+                        </div>
+                        <div class="mt-6">
+                            <button class="btn btn-success btn-block" [disabled]="res.servicesCount == 0"
+                                tooltip="إنشاء الفاتورة" (click)="printInvoice(res._id)">
+                                <!--[disabled]="res.status?._id != completedStatus"-->
+                                إنشاء الفاتورة
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+</div>
+
+<div bsModal #invoiceModal="bs-modal" class="modal fade" tabindex="-1" role="dialog">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+            <div class="modal-body">
+                <div class="row">
+                    <div class="col-12" clearfix>
+                        <!-- <div class="float-right">
+                            <p class="m-0 mb-3 op-70 ts-12">المبلغ المدفوع</p>
+                            <input type="number" [(ngModel)]="invoicePaidAmount" min="0" [max]="getInvoiceServicesTotal()" class="form-control h-35 w-180" placeholder="المبلغ المدفوع">
+                        </div> -->
+                        <button class="btn btn-primary float-right mr-10 mt-21" type="button"
+                            (click)="startInvoicePrint()">
+                            طباعة الفاتورة
+                        </button>
+
+                        <button class="btn btn-default mr-10 float-left mt-21" type="button"
+                            (click)="cancelInvoice()">إلغاء</button>
+                    </div>
+                    <div class="col-12 mt-40">
+                        <div id="invoice" dir="ltr"
+                            style="padding:20px;color:#CBAF8B;font-size:15px;font-family:'Courier New', Courier, monospace !important;line-height:13px;font-weight:600">
+                            <div>
+                                <div style="float:left;width:calc(100% / 3.1);text-align:center">
+                                    <p>Al Safwa</p>
+                                    <p style="color:#7A6D5D">Al - Muhaideb Dentistry Group</p>
+                                    <p>Special Clinics For Women & Children</p>
+                                    <p>VAT: 302262572300003</p>
+                                </div>
+                                <div style="float:left;width:calc(100% / 3.1);text-align:center">
+                                    <!-- <img src="assets/images/clinic.png" width="100"> -->
+                                    <img src="assets/images/clinic.png" width="100">
+                                    <p style="color:#7A6D5D">فاتـــــــــــورة</p>
+                                    <p>Patient Bill</p>
+                                </div>
+                                <div style="float:left;width:calc(100% / 3.1);text-align:center">
+                                    <p>الصفوة</p>
+                                    <p style="color:#7A6D5D">مجموعة المهيدب لطب الأسنان</p>
+                                    <p>عيادات متخصصة للرجال</p>
+                                    <p>عيادات متخصصة للنساء و الأطفال</p>
+                                    <p>الرقم الضريبى: ٣٠٢٢٦٢٥٧٢٣٠٠٠٠٣</p>
+                                </div>
+                                <div style="clear:both;height:1px"></div>
+                            </div>
+
+                            <div style="margin-top:15px">
+                                <div style="float:left;width:calc(50% - 20px);margin-right:20px">
+                                    <div>
+                                        <span
+                                            style="display:block;float:left;width:125px;margin-top:6px;color:#7A6D5D">BILL
+                                            NO. :</span>
+                                        <span
+                                            style="color:#7A6D5D;padding-top:7px;display:block;float:left;height:25px;width:calc(100% - 250px);background:#e6e2d9;text-align:center">
+                                            {{ currentInvoice?.bill.number }}
+                                        </span>
+                                        <span style="display:block;float:left;width:125px;margin-top:6px;color:#7A6D5D"
+                                            dir="rtl">رقم الفاتورة:</span>
+                                        <div style="clear:both;height:1px"></div>
+                                    </div>
+                                    <div style="margin-top:10px">
+                                        <span
+                                            style="display:block;float:left;width:125px;margin-top:6px;color:#7A6D5D">PATIENT
+                                            :</span>
+                                        <span
+                                            style="color:#7A6D5D;padding-top:7px;display:block;float:left;height:25px;width:calc(100% - 250px);background:#e6e2d9;text-align:center">
+                                            {{ currentInvoice?.reservation.patient?.name_ar }}
+                                        </span>
+                                        <span style="display:block;float:left;width:125px;margin-top:6px;color:#7A6D5D"
+                                            dir="rtl">المريض :</span>
+                                        <div style="clear:both;height:1px"></div>
+                                    </div>
+                                    <div style="margin-top:10px">
+                                        <span
+                                            style="display:block;float:left;width:125px;margin-top:6px;color:#7A6D5D">PATIENT NO.
+                                            :</span>
+                                        <span
+                                            style="color:#7A6D5D;padding-top:7px;display:block;float:left;height:25px;width:calc(100% - 250px);background:#e6e2d9;text-align:center">
+                                            <!-- {{ currentInvoice?.reservation?.branch?.name }} -->
+                                            {{ currentInvoice?.reservation?.patient?.number }}
+                                        </span>
+                                        <span style="display:block;float:left;width:125px;margin-top:6px;color:#7A6D5D"
+                                            dir="rtl">رقم العميل :</span>
+                                        <div style="clear:both;height:1px"></div>
+                                    </div>
+                                </div>
+
+                                <div style="float:left;width:calc(50% - 20px);margin-left:20px">
+                                    <div>
+                                        <span
+                                            style="display:block;float:left;width:125px;margin-top:6px;color:#7A6D5D">DATE
+                                            :</span>
+                                        <span
+                                            style="color:#7A6D5D;padding-top:7px;display:block;float:left;height:25px;width:calc(100% - 250px);background:#e6e2d9;text-align:center">
+                                            <span class="en-font">{{ currentDate | amDateFormat:'LL' }}</span>
+                                        </span>
+                                        <span style="display:block;float:left;width:125px;margin-top:6px;color:#7A6D5D"
+                                            dir="rtl">التاريخ :</span>
+                                        <div style="clear:both;height:1px"></div>
+                                    </div>
+                                    <div style="margin-top:10px">
+                                        <span
+                                            style="display:block;float:left;width:125px;margin-top:6px;color:#7A6D5D">TIME
+                                            :</span>
+                                        <span
+                                            style="color:#7A6D5D;padding-top:7px;display:block;float:left;height:25px;width:calc(100% - 250px);background:#e6e2d9;text-align:center">
+                                            <span class="en-font">{{ currentDate | amDateFormat:'hh:mm A' }}</span>
+                                        </span>
+                                        <span style="display:block;float:left;width:125px;margin-top:6px;color:#7A6D5D"
+                                            dir="rtl">الوقت :</span>
+                                        <div style="clear:both;height:1px"></div>
+                                    </div>
+                                    <div style="margin-top:10px">
+                                        <span
+                                            style="display:block;float:left;width:125px;margin-top:6px;color:#7A6D5D">DOCTOR
+                                            :</span>
+                                        <span
+                                            style="color:#7A6D5D;padding-top:7px;display:block;float:left;height:25px;width:calc(100% - 250px);background:#e6e2d9;text-align:center">
+                                            {{ currentInvoice?.reservation?.doctor?.name }}
+                                        </span>
+                                        <span style="display:block;float:left;width:125px;margin-top:6px;color:#7A6D5D"
+                                            dir="rtl">الدكتور :</span>
+                                        <div style="clear:both;height:1px"></div>
+                                    </div>
+                                </div>
+                                <div style="clear:both;height:1px"></div>
+                            </div>
+
+                            <div style="margin-top:20px">
+                                <table border="1" style="width:100%;border-collapse:collapse;border-color:#7A6D5D">
+                                    <thead>
+                                        <th style="padding:10px;background:#7A6D5D;color:white;width:40%">
+                                            <p style="margin:0 0 10px">الخدمة</p>
+                                            <p style="margin:0">Service</p>
+                                        </th>
+                                        <th style="padding:10px;background:#7A6D5D;color:white;width:10%">
+                                            <p style="margin:0 0 10px">الإجمالى</p>
+                                            <p style="margin:0">Total Amount</p>
+                                        </th>
+                                        <th style="padding:10px;background:#7A6D5D;color:white;width:10%">
+                                            <p style="margin:0 0 10px">نسبة الخصم</p>
+                                            <p style="margin:0">Disc. %</p>
+                                        </th>
+                                        <th style="padding:10px;background:#7A6D5D;color:white;width:10%">
+                                            <p style="margin:0 0 10px">قيمة الخصم</p>
+                                            <p style="margin:0">Disc. Amt.</p>
+                                        </th>
+                                        <th style="padding:10px;background:#7A6D5D;color:white;width:10%">
+                                            <p style="margin:0 0 10px">الصافى</p>
+                                            <p style="margin:0">Net Amount</p>
+                                        </th>
+                                    </thead>
+                                    <tbody>
+                                        <tr *ngFor="let service of currentInvoice?.services">
+                                            <td style="padding:15px;text-align:center">{{ service.service?.name }}</td>
+                                            <td style="padding:15px;text-align:center">{{ service.price }}</td>
+                                            <td style="padding:15px;text-align:center">{{ service.discount }}%</td>
+                                            <td style="padding:15px;text-align:center">
+                                                {{ (service.discount * service.price) / 100 }}</td>
+                                            <td style="padding:15px;text-align:center">{{ service.price }}</td>
+                                        </tr>
+
+                                        <tr *ngIf="currentInvoice?.reservation?.patient?.nationality != 'سعودى'">
+                                            <td colspan="4" style="padding:15px">
+                                                <p style="margin:0 0 10px;color:#7A6D5D" dir="rtl">الضريبة المضافة 5%
+                                                </p>
+                                                <p style="margin:0;color:#7A6D5D">5% VAT</p>
+                                            </td>
+                                            <td style="padding:15px">{{ currentInvoice?.vat }}</td>
+                                        </tr>
+
+                                        <tr>
+                                            <td colspan="3" style="padding:15px">
+                                                <div class="float-right">
+                                                    <p style="margin:0 0 10px;color:#7A6D5D">الحساب</p>
+                                                    <p style="margin:0;color:#7A6D5D">ACCOUNT</p>
+                                                </div>
+                                                <p class="float-left">{{ globals.currentUser.name }}</p>
+                                                <div style="clear:both;height:1px"></div>
+                                            </td>
+                                            <td style="padding:15px">
+                                                <p style="margin:0 0 10px;color:#7A6D5D">المجموع</p>
+                                                <p style="margin:0;color:#7A6D5D">Total</p>
+                                            </td>
+                                            <td style="padding:15px">
+                                                {{ getInvoiceServicesTotal() + currentInvoice?.vat }}</td>
+                                        </tr>
+                                        <tr>
+                                            <td colspan="3" style="padding:15px">
+                                                <div class="float-right">
+                                                    <p style="margin:0 0 10px;color:#7A6D5D">المبلغ المدفوع</p>
+                                                    <p style="margin:0;color:#7A6D5D">Amount Paid</p>
+                                                </div>
+                                                <p class="float-left">{{ currentInvoice?.bill?.paidAmount }}</p>
+                                                <div style="clear:both;height:1px"></div>
+                                            </td>
+                                            <td style="padding:15px">
+                                                <p style="margin:0 0 10px;color:#7A6D5D;font-size: 14px">المبلغ المتبقى
+                                                </p>
+                                                <p style="margin:0;color:#7A6D5D">Balance Amt.</p>
+                                            </td>
+                                            <td style="padding:15px">
+                                                {{ (getInvoiceServicesTotal() + currentInvoice?.vat) - currentInvoice?.bill?.paidAmount < 0 ? 0 : (getInvoiceServicesTotal() + currentInvoice?.vat) - currentInvoice?.bill?.paidAmount }}
+                                            </td>
+                                        </tr>
+                                    </tbody>
+                                </table>
+                            </div>
+
+                            <div style="margin-top:10px" dir="rtl">
+                                <h3>ملحوظة: المبلغ المدفوع لا يرد بعد بداية العام</h3>
+                            </div>
+
+                            <div style="margin-top:50px;text-align:center" dir="rtl">
+                                <p>التوقيع <strong style="color:#7A6D5D">______________________________</strong>
+                                    Signature</p>
+                            </div>
+
+                            <div style="padding:15px;margin-top:50px;background:#7A6D5D;color:white;text-align:center">
+                                {{ currentInvoice?.reservation?.branch?.address + ' - التليفون: ' + currentInvoice?.reservation?.branch?.phone }}
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div bsModal #updateModal="bs-modal" class="modal fade" tabindex="-1" role="dialog">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+            <div class="modal-body">
+                <div class="row mb-20">
+                    <div class="col-12 col-md-9">
+                        <h4><strong>{{ currentReservation?.patient.name_ar }}</strong></h4>
+                        <p class="op-70">{{ currentReservation?.patient.age }} سنة</p>
+                        <p class="op-70 mb-0">
+                            <strong>ميعاد الحجز: </strong> <span class="en-font">{{ currentReservation?.time  }}</span>
+                        </p>
+                        <p *ngIf="currentReservation?.patient.contract" class="op-70 mb-0">
+                            <strong>الشركة: </strong> {{ currentReservation?.patient?.contract?.name }}
+                        </p>
+                    </div>
+                    <div class="col-12 col-md-3">
+                        <div class="form-group">
+                            <label for="payment">طريقة الدفع</label>
+                            <!-- <select-dropdown [items]="[{value:'كاش',title:'كاش'},{value:'فيزا',title:'فيزا'}]"
+                                [(ngModel)]="addModel.paymentType" controlId="payment"
+                                placeholder="يرجى إختيار طريقة الدفع" required>
+                            </select-dropdown> -->
+                            <div class="row">
+                                <div class="col-12 mb-10">
+                                    <input type="checkbox" [(ngModel)]="payment.cash" id="payment1">
+                                    <label for="payment1" class="mr-5">كاش</label>
+
+                                    <input type="number" pattern="[0-9]+" min="0" [(ngModel)]="payment.cashAmount"
+                                        class="form-control float-left w-150 h-35" [disabled]="!payment.cash"
+                                        placeholder="القيمة" (keyup)="checktotal()" (keydown)="globals.preventNegative($event)">
+                                </div>
+                                <div class="col-12">
+                                    <input type="checkbox" [(ngModel)]="payment.network" id="payment2">
+                                    <label for="payment2" class="mr-5">شبكة</label>
+
+                                    <input type="number" pattern="[0-9]+" min="0" [(ngModel)]="payment.networkAmount"
+                                        class="form-control float-left w-150 h-35" [disabled]="!payment.network"
+                                        placeholder="القيمة" (keyup)="checktotal()" (keydown)="globals.preventNegative($event)">
+                                </div>
+                                <!-- <p *ngIf="( total > totalAfterVat ) && addModel.services.length > 0" style="color: red;margin-top: 30px;">المبلغ المدفوع اكبر من الاجمالي </p>
+								<p *ngIf="show" style="color: red;margin-top: 30px;"> المبلغ المدفوع اكبر من الاجمالي </p> -->
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <form #form="ngForm" role="form" autocomplete="off" (ngSubmit)="submitForm()">
+                    <div class="row">
+                        <div class="col-12 col-md-6">
+                            <div class="form-group">
+                                <label for="complain">المشكلة</label>
+                                <textarea class="form-control" [(ngModel)]="addModel.complain" id="complain"
+                                    name="complain" placeholder="المشكلة"></textarea>
+                            </div>
+                            <div class="form-group">
+                                <label for="diagnosis">التشخيص</label>
+                                <textarea class="form-control" [(ngModel)]="addModel.diagnosis" id="diagnosis"
+                                    name="diagnosis" placeholder="التشخيص"></textarea>
+                            </div>
+                            <div class="form-group">
+                                <label for="notes">ملاحظات</label>
+                                <textarea class="form-control" [(ngModel)]="addModel.notes" id="notes" name="notes"
+                                    placeholder="ملاحظات"></textarea>
+                            </div>
+                        </div>
+                        <div class="col-12 col-md-6">
+                            <div class="form-group" clearfix>
+                                <label for="services">الخدمات</label>
+                                <select-dropdown [items]="services" [(ngModel)]="currentService" #service="ngModel"
+                                    controlId="service" name="service" width="calc(100% - 100px)"
+                                    placeholder="يرجى إختيار الخدمة">
+                                </select-dropdown>
+                                <button type="button" class="btn btn-primary h-35 mt--40 ml-5" tooltip="إضافة الخدمة"
+                                    [disabled]="!currentService || currentService == -1" (click)="addService()" left>
+                                    إضافة
+                                </button>
+                            </div>
+
+                            <div *ngIf="addModel.services.length == 0" class="mt-50 mb-50" center>
+                                <img src="assets/images/no-results.svg" width="80" class="op-20 mb-15">
+                                <p class="op-70"><strong>لم يتم إختيار خدمات بعد!</strong></p>
+                            </div>
+
+                            <div *ngIf="addModel.services.length > 0" class="row">
+                                <div class="col-6 mb-15" text-right>
+                                    <strong>{{ addModel.services.length }}</strong> إجمالى الخدمات
+                                </div>
+                                <div class="col-6 mb-15" text-left>
+                                    <strong>{{ getServicesTotal() }}</strong> إجمالى السعر
+                                    <div>
+                                        <!-- *ngIf="disFlag" -->
+                                        <strong >{{ servicesMainTotal }}</strong> إجمالى بعد الخصم
+                                    </div>
+                                    <div *ngIf="isVat">
+										<strong >{{totalAfterVat}}</strong> إجمالى بعد القيمة المضافة
+									</div>
+                                </div>
+
+                                <div *ngFor="let service of addModel.services; let i = index" class="col-12">
+                                    <div class="alert alert-info mb-7" text-right clearfix>
+                                        <span class="d-inline-block mt-14">
+                                            <strong>{{ service.service.name ? service.service.name : service.name }}</strong>
+                                        </span>
+
+                                        <button type="button" class="btn btn-danger float-left mr-20 mt-6"
+                                            (click)="addModel.services.splice(i, 1);whenDelete()">حذف</button>
+                                        <div class="float-left mr-15">
+                                            <p class="m-0 mb-3 op-60 ts-12">الإجمالى</p>
+                                            <p class="m-0 serviceTotal">
+                                                {{ service.discount > 100 ? 0 : service.price - ((service.discount * service.price) / 100) }}
+                                            </p>
+                                        </div>
+                                        <div class="float-left">
+                                            <p class="m-0 mb-3 op-60 ts-12">الخصم %</p>
+                                            <input type="number" [(ngModel)]="service.discount" max="100" min="0" pattern="^100$|^[0-9]{1,2}$|^[0-9]{1,2}\,[0-9]{1,3}"
+                                                class="w-80" [name]="'services' + i" required (keyup)="calcTotalAfterDiscount()" (keydown)="globals.preventNegative($event);">
+                                        </div>
+                                        <div class="float-left ml-5">
+                                            <p class="m-0 mb-3 op-60 ts-12"> السعر</p>
+                                            <input type="number" [(ngModel)]="service.price" min="0"
+                                                class="w-80" [name]="'price' + i" (keyup)="whenDelete()" required (keydown)="globals.preventNegative($event)"> 
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="col-12 mt-30">
+                            <button class="btn btn-primary" type="submit"
+                                [disabled]="form.invalid || addModel.services.length == 0 || (!payment.cash && !payment.network) || (payment.cash && !payment.cashAmount) || (payment.network && !payment.networkAmount)">
+                                <!-- || ( total > totalAfterVat ) || show  -->
+
+                                حفظ البيانات
+                            </button>
+                            <button class="btn btn-success mr-10" type="button" (click)="submitForm(true)"
+                                [disabled]="form.invalid || addModel.services.length == 0 || (!payment.cash && !payment.network) || (payment.cash && !payment.cashAmount) || (payment.network && !payment.networkAmount)">
+                                حفظ البيانات و إنشاء الفاتورة
+                            </button>
+                            <button class="btn btn-default mr-10" type="button"
+                                (click)="updateModal.hide(); form.reset()">إلغاء</button>
+                        </div>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div bsModal #gotoModal="bs-modal" class="modal fade" tabindex="-1" role="dialog">
+    <div class="modal-dialog modal-sm">
+        <div class="modal-content">
+            <div class="modal-body">
+                <h5 class="mb-25">يوجد عميل الآن عند نفس الطبيب, الإستمرار؟</h5>
+
+                <button type="button" class="btn btn-default ml-10" (click)="gotoModal.hide(); gotoId = null">
+                    إلغاء
+                </button>
+                <button type="button" class="btn btn-danger" (click)="gotoModal.hide(); gotoDoctor(null, true)">
+                    إرسال للطبيب
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
