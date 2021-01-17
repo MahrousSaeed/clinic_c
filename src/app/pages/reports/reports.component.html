@@ -326,7 +326,8 @@
 				*ngIf="addModel.billType != 'all' && (addModel.model == 'bill' ||addModel.model == 'deletedBills' ) ">
 				<thead>
 					<tr>
-						<th>الرقم</th>
+						<th>رقم المريض</th>
+						<th>رقم الهوية</th>
 						<th>التاريخ</th>
 						<th>المستخدم</th>
 						<th>دكتور</th>
@@ -343,6 +344,7 @@
 				<tbody *ngIf="data">
 					<tr *ngFor="let row of data.data">
 						<td>{{ row.number }}</td>
+						<td>{{ row.reservation?.patient?.nationalId }}</td>
 						<td>{{ row.date }}</td>
 						<td>{{ row.user }}</td>
 						<td>{{ row.doctor }}</td>
